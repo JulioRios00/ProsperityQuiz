@@ -55,7 +55,7 @@ services:
       - ./backend:/app
       - backend_logs:/app/logs
     ports:
-      - "5000:5000"
+      - "5001:5000"
     depends_on:
       db:
         condition: service_healthy
@@ -73,7 +73,7 @@ services:
       target: development
     container_name: quiz-funnel-frontend
     environment:
-      VITE_API_URL: http://localhost:5000/api/v1
+      VITE_API_URL: http://localhost:5001/api/v1
     volumes:
       - ./frontend:/app
       - /app/node_modules
