@@ -1,4 +1,24 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { quizService } from '../services/quizService'
+import { useQuizStore } from '../store/quizStore'
+
 function Prelanding() {
+  const [loading, setLoading] = useState(false)
+  const { startQuiz } = useQuizStore()
+  const navigate = useNavigate()
+
+  const handleStart = async () => {
+    setLoading(true)
+    try {
+      const { session_token } = await quizService.startQuiz()
+      startQuiz(session_token)
+      navigate('/quiz')
+    } catch {
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
 
@@ -123,8 +143,12 @@ function Prelanding() {
           </svg>
         </div>
 
-        <button className="btn-primary text-lg px-8 py-4">
-          Descobrir meu bloqueio →
+        <button
+          onClick={handleStart}
+          disabled={loading}
+          className="btn-primary text-lg px-8 py-4 disabled:opacity-70 disabled:cursor-not-allowed"
+        >
+          {loading ? 'Iniciando...' : 'Descobrir meu bloqueio →'}
         </button>
       </div>
     </div>
