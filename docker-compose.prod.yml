@@ -1,22 +1,4 @@
 services:
-  db:
-    image: postgres:16-alpine
-    container_name: quiz-funnel-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: quiz_funnel
-      POSTGRES_USER: quiz_user
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U quiz_user -d quiz_funnel"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - quiz-network
-
   redis:
     image: redis:7-alpine
     container_name: quiz-funnel-redis
@@ -39,14 +21,12 @@ services:
     restart: unless-stopped
     environment:
       FLASK_ENV: production
-      DATABASE_URL: postgresql://quiz_user:${DB_PASSWORD}@db:5432/quiz_funnel
+      DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: redis://redis:6379/0
       SECRET_KEY: ${SECRET_KEY}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       CORS_ORIGINS: ${CORS_ORIGINS}
     depends_on:
-      db:
-        condition: service_healthy
       redis:
         condition: service_healthy
     command: gunicorn "src.app:create_app()" --bind 0.0.0.0:5000 --workers 2 --timeout 60
@@ -82,7 +62,6 @@ services:
       - quiz-network
 
 volumes:
-  postgres_data:
   redis_data:
   nginx_certs:
 
