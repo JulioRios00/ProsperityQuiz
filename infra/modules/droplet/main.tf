@@ -1,3 +1,11 @@
+terraform {
+  required_providers {
+    digitalocean = {
+      source = "digitalocean/digitalocean"
+    }
+  }
+}
+
 locals {
   name = "${var.project_name}-${var.environment}"
 }
@@ -26,8 +34,3 @@ resource "digitalocean_reserved_ip_assignment" "main" {
   droplet_id = digitalocean_droplet.main.id
 }
 
-# Attach the firewall
-resource "digitalocean_firewall" "assignment" {
-  name       = "${local.name}-attach"
-  droplet_ids = [digitalocean_droplet.main.id]
-}

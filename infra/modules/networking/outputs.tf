@@ -1,9 +1,5 @@
 output "ssh_key_id" {
-  value = data.digitalocean_ssh_key.main.id
-}
-
-output "firewall_id" {
-  value = digitalocean_firewall.main.id
+  value = digitalocean_ssh_key.main.id
 }
 
 output "reserved_ip" {

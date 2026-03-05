@@ -31,9 +31,9 @@ variable "environment" {
 
 # ── Server ───────────────────────────────────────────────────────────────────
 variable "droplet_size" {
-  description = "Droplet size slug — s-2vcpu-2gb = $18/mo (recommended)"
+  description = "Droplet size slug — s-1vcpu-1gb = $6/mo (minimum)"
   type        = string
-  default     = "s-2vcpu-2gb"
+  default     = "s-1vcpu-1gb"
 }
 
 variable "ssh_public_key" {

@@ -16,9 +16,10 @@ resource "digitalocean_project" "main" {
 
 # ── Networking: SSH key, Firewall, Reserved IP ───────────────────────────────
 module "networking" {
-  source       = "./modules/networking"
-  project_name = var.project_name
-  environment  = var.environment
+  source         = "./modules/networking"
+  project_name   = var.project_name
+  environment    = var.environment
+  ssh_public_key = var.ssh_public_key
 }
 
 # ── Droplet: server + bootstrap ──────────────────────────────────────────────
@@ -29,13 +30,53 @@ module "droplet" {
   region         = var.region
   size           = var.droplet_size
   ssh_key_id     = module.networking.ssh_key_id
-  firewall_id    = module.networking.firewall_id
   reserved_ip    = module.networking.reserved_ip
   github_repo    = var.github_repo
   domain_name    = var.domain_name
   secret_key     = var.secret_key
   jwt_secret_key = var.jwt_secret_key
   db_password    = var.db_password
+}
+
+# ── Firewall ──────────────────────────────────────────────────────────────────
+resource "digitalocean_firewall" "main" {
+  name        = "${var.project_name}-${var.environment}-fw"
+  droplet_ids = [module.droplet.droplet_id]
+
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "80"
+    source_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "443"
+    source_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "22"
+    source_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  outbound_rule {
+    protocol              = "tcp"
+    port_range            = "1-65535"
+    destination_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  outbound_rule {
+    protocol              = "udp"
+    port_range            = "1-65535"
+    destination_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  outbound_rule {
+    protocol              = "icmp"
+    destination_addresses = ["0.0.0.0/0", "::/0"]
+  }
 }
 
 # ── Assign all resources to the DO Project ───────────────────────────────────
