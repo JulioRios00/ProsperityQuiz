@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useQuizStore } from '../../../store/quizStore';
+import { AUTHORITY_IMAGE_URL } from '../../../config/authorityImage';
 
 const AREA_LABELS: Record<string, string> = {
   financeiro: 'Prosperidade Financeira',
@@ -23,6 +25,12 @@ interface ResultPageProps {
 
 export function ResultPage({ onNext }: ResultPageProps) {
   const { diagnosis } = useQuizStore();
+
+  // Preload the authority image so it's cached before MicroVSL renders
+  useEffect(() => {
+    const img = new Image();
+    img.src = AUTHORITY_IMAGE_URL;
+  }, []);
 
   if (!diagnosis) {
     return (

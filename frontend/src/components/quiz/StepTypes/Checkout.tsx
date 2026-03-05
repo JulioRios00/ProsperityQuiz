@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuizStore } from '../../../store/quizStore';
+import { AUTHORITY_IMAGE_URL, AUTHORITY_NAME, AUTHORITY_TITLE } from '../../../config/authorityImage';
 
 const AREA_LABELS: Record<string, string> = {
   financeiro: 'Prosperidade Financeira',
@@ -110,16 +111,26 @@ export function Checkout() {
         </p>
       </motion.div>
 
-      {/* Social proof */}
+      {/* Authority social proof */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.7 }}
-        className="mt-6 text-center"
+        className="mt-6 flex items-center gap-3 bg-white rounded-xl p-4 border border-gray-100"
       >
-        <p className="text-xs text-gray-400">
-          ★★★★★ Mais de 3.847 mulheres já desbloquearam seu potencial
-        </p>
+        <img
+          src={AUTHORITY_IMAGE_URL}
+          alt={AUTHORITY_NAME}
+          className="w-12 h-12 rounded-full object-cover object-top flex-shrink-0"
+        />
+        <div>
+          <p className="text-xs text-gray-700 italic leading-snug">
+            "Esse método mudou a vida de mais de 3.847 mulheres. Chegou a sua vez."
+          </p>
+          <p className="text-xs text-gold-600 font-medium mt-1">
+            {AUTHORITY_NAME} · {AUTHORITY_TITLE}
+          </p>
+        </div>
       </motion.div>
     </div>
   );
