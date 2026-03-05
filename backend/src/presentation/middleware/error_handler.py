@@ -3,6 +3,13 @@ from flask import Flask, jsonify
 from werkzeug.exceptions import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 
+from ...shared.exceptions import (
+    EmailAlreadyExists,
+    InvalidCredentials,
+    QuizSessionNotFound,
+    UserNotFound,
+)
+
 
 def register_error_handlers(app: Flask) -> None:
     """Register error handlers for the Flask application.
@@ -10,6 +17,22 @@ def register_error_handlers(app: Flask) -> None:
     Args:
         app: Flask application
     """
+
+    @app.errorhandler(QuizSessionNotFound)
+    def handle_session_not_found(error: QuizSessionNotFound):
+        return jsonify({"error": "Not Found", "message": str(error), "status_code": 404}), 404
+
+    @app.errorhandler(UserNotFound)
+    def handle_user_not_found(error: UserNotFound):
+        return jsonify({"error": "Not Found", "message": str(error), "status_code": 404}), 404
+
+    @app.errorhandler(InvalidCredentials)
+    def handle_invalid_credentials(error: InvalidCredentials):
+        return jsonify({"error": "Unauthorized", "message": str(error), "status_code": 401}), 401
+
+    @app.errorhandler(EmailAlreadyExists)
+    def handle_email_exists(error: EmailAlreadyExists):
+        return jsonify({"error": "Conflict", "message": str(error), "status_code": 409}), 409
 
     @app.errorhandler(HTTPException)
     def handle_http_exception(error: HTTPException):
