@@ -70,7 +70,7 @@ export function ResultPage({ onNext }: ResultPageProps) {
           <p className="text-xs text-gray-400 mb-1">Área Principal</p>
           <p className="font-semibold text-gold-600 text-sm">{areaLabel}</p>
         </div>
-        <div className="bg-white border border-gray-100 rounded-xl p-3 text-center shadow-sm">
+        <div className="bg-white border border-gray-100 rounded-xl p-4 text-center shadow-sm">
           <p className="text-xs text-gray-400 mb-1">Nível do Bloqueio</p>
           <p className="font-semibold text-gold-600 text-sm">{levelLabel}</p>
         </div>

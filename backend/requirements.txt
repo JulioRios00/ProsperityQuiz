@@ -37,5 +37,8 @@ pytz==2024.1
 # External Services
 sendgrid==6.11.0
 
+# Production Server
+gunicorn==21.2.0
+
 # Monitoring & Logging
 sentry-sdk[flask]==1.40.0

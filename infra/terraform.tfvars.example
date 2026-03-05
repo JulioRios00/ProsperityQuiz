@@ -1,0 +1,28 @@
+# Copy this file to terraform.tfvars and fill in your values.
+# NEVER commit terraform.tfvars to git.
+
+# DigitalOcean personal access token
+# Get it at: https://cloud.digitalocean.com/account/api/tokens
+do_token = "dop_v1_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# Project
+project_name = "quiz-funnel"
+environment  = "production"
+region       = "nyc3"  # closest region to Brazil
+
+# Server
+# s-1vcpu-2gb = $12/mo | s-2vcpu-2gb = $18/mo | s-2vcpu-4gb = $24/mo
+droplet_size   = "s-2vcpu-2gb"
+ssh_public_key = "ssh-ed25519 AAAAC3Nza... your-email@example.com"
+
+# GitHub repository (owner/repo)
+github_repo = "your-username/Pedro"
+
+# Domain (leave empty to use the raw IP)
+domain_name = "seucalendario.com.br"
+
+# App secrets — generate strong random values:
+#   python3 -c "import secrets; print(secrets.token_hex(32))"
+secret_key     = "change-me-strong-random-secret"
+jwt_secret_key = "change-me-strong-random-jwt-secret"
+db_password    = "change-me-strong-db-password"

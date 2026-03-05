@@ -16,8 +16,10 @@ FROM base AS development
 EXPOSE 5173
 CMD ["npm", "run", "dev", "--", "--host"]
 
-# Build stage
+# Build stage — accepts VITE_API_URL so the bundle points to the right API
 FROM base AS builder
+ARG VITE_API_URL=/api/v1
+ENV VITE_API_URL=$VITE_API_URL
 RUN npm run build
 
 # Production stage
