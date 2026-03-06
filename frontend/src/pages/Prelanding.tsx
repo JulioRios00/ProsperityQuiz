@@ -145,13 +145,13 @@ function Prelanding() {
         </div>
 
         {/* Triângulo de Desbloqueio — animated */}
-        <div className="flex flex-col items-center mb-8">
-          <svg width="240" height="140" viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg">
+        <div className="flex flex-col items-center mb-8 px-10">
+          <svg width="100%" viewBox="-60 -10 360 175" overflow="visible" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <style>{`
-                @keyframes glow1 { 0%,100%{opacity:0.5;r:3} 33%{opacity:1;r:5} }
-                @keyframes glow2 { 0%,100%{opacity:0.5;r:3} 66%{opacity:1;r:5} }
-                @keyframes glow3 { 0%,100%{opacity:0.5;r:3} 0%,99%{opacity:0.5;r:3} 50%{opacity:1;r:5} }
+                @keyframes glow1 { 0%,100%{opacity:0.5} 33%{opacity:1} }
+                @keyframes glow2 { 0%,100%{opacity:0.5} 66%{opacity:1} }
+                @keyframes glow3 { 0%,100%{opacity:0.5} 50%{opacity:1} }
                 @keyframes fadeEdge { 0%,100%{opacity:0.4} 50%{opacity:0.75} }
                 .g1 { animation: glow1 2.4s ease-in-out infinite; }
                 .g2 { animation: glow2 2.4s ease-in-out infinite; }
@@ -160,17 +160,17 @@ function Prelanding() {
               `}</style>
             </defs>
             {/* Triangle edges */}
-            <polygon points="120,12 210,125 30,125" fill="none" stroke="#D4A855" strokeWidth="1.5" className="ge" />
+            <polygon points="120,12 210,138 30,138" fill="none" stroke="#D4A855" strokeWidth="1.5" className="ge" />
             {/* Vertex dots */}
             <circle cx="120" cy="12"  r="4" fill="#D4A855" className="g1" />
-            <circle cx="210" cy="125" r="4" fill="#D4A855" className="g2" />
-            <circle cx="30"  cy="125" r="4" fill="#D4A855" className="g3" />
+            <circle cx="210" cy="138" r="4" fill="#D4A855" className="g2" />
+            <circle cx="30"  cy="138" r="4" fill="#D4A855" className="g3" />
             {/* Labels */}
-            <text x="120" y="6"   textAnchor="middle" fontSize="9" fill="#C8963E" fontFamily="serif">Numerologia</text>
-            <text x="222" y="132" textAnchor="start"  fontSize="9" fill="#C8963E" fontFamily="serif">Astrologia</text>
-            <text x="18"  y="132" textAnchor="end"    fontSize="9" fill="#C8963E" fontFamily="serif">Lunar</text>
+            <text x="120" y="4"   textAnchor="middle" fontSize="11" fill="#C8963E" fontFamily="serif">Numerologia</text>
+            <text x="218" y="146" textAnchor="start"  fontSize="11" fill="#C8963E" fontFamily="serif">Astrologia</text>
+            <text x="22"  y="146" textAnchor="end"    fontSize="11" fill="#C8963E" fontFamily="serif">Lunar</text>
           </svg>
-          <p className="text-xs text-gray-500 -mt-2">Triângulo de Desbloqueio</p>
+          <p className="text-xs text-gray-500 mt-1">Triângulo de Desbloqueio</p>
         </div>
 
         {/* Social proof */}
