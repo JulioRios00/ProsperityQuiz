@@ -55,7 +55,7 @@ export function EmojiScale({ step, question, subtitle, onNext }: EmojiScaleProps
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
               onClick={() => setSelected(value)}
-              className={`flex flex-col items-center gap-1 p-3 rounded-2xl border-2 transition-all duration-200 w-16 ${
+              className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-200 w-20 ${
                 isSelected
                   ? 'border-gold-400 bg-gold-50 scale-110'
                   : 'border-gray-200 bg-white hover:border-gold-300'
