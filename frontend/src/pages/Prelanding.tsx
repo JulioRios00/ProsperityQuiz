@@ -34,6 +34,15 @@ function Prelanding() {
             <stop offset="0%" stopColor="#D4A855" stopOpacity="0.07" />
             <stop offset="100%" stopColor="#D4A855" stopOpacity="0" />
           </radialGradient>
+          <style>{`
+            @keyframes shimmer1 { 0%,100%{opacity:0.55} 33%{opacity:1} }
+            @keyframes shimmer2 { 0%,100%{opacity:0.45} 66%{opacity:1} }
+            @keyframes shimmer3 { 0%,100%{opacity:0.5}  0%{opacity:1}  }
+            .tri-dot-1 { animation: shimmer1 2.4s ease-in-out infinite; }
+            .tri-dot-2 { animation: shimmer2 2.4s ease-in-out infinite; }
+            .tri-dot-3 { animation: shimmer3 2.4s ease-in-out infinite; }
+            .tri-line  { animation: shimmer1 2.4s ease-in-out infinite; }
+          `}</style>
         </defs>
         <rect x="0" y="0" width="1440" height="900" fill="url(#centerGlow)" />
 
@@ -83,73 +92,103 @@ function Prelanding() {
       </svg>
 
       {/* Main content */}
-      <div className="max-w-4xl mx-auto text-center relative z-10">
+      <div className="max-w-2xl mx-auto text-center relative z-10 py-12">
 
         {/* Crescent moon + stars hero decoration */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-6">
           <svg width="150" height="120" viewBox="0 0 150 120" xmlns="http://www.w3.org/2000/svg">
-            {/* Moon body */}
             <circle cx="70" cy="62" r="38" fill="#D4A855" opacity="0.18" />
             <circle cx="86" cy="54" r="30" fill="#FFF8F0" />
-
-            {/* 4-pointed star — left */}
             <path d="M20,28 L22.5,37 L20,46 L17.5,37 Z" fill="#D4A855" opacity="0.8" />
             <path d="M11,37 L20,39.5 L29,37 L20,34.5 Z" fill="#D4A855" opacity="0.8" />
             <circle cx="20" cy="37" r="2" fill="#D4A855" opacity="0.9" />
-
-            {/* 4-pointed star — right */}
             <path d="M122,20 L124.5,29 L122,38 L119.5,29 Z" fill="#C8963E" opacity="0.8" />
             <path d="M113,29 L122,31.5 L131,29 L122,26.5 Z" fill="#C8963E" opacity="0.8" />
             <circle cx="122" cy="29" r="2" fill="#C8963E" opacity="0.9" />
-
-            {/* Small accent dots */}
             <circle cx="16"  cy="66"  r="2.5" fill="#D4A855" opacity="0.45" />
             <circle cx="133" cy="54"  r="1.5" fill="#C8963E" opacity="0.55" />
             <circle cx="8"   cy="48"  r="1.5" fill="#D4A855" opacity="0.35" />
             <circle cx="140" cy="80"  r="1.5" fill="#D4A855" opacity="0.35" />
-            <circle cx="38"  cy="96"  r="1"   fill="#C8963E" opacity="0.4" />
-            <circle cx="112" cy="100" r="1"   fill="#D4A855" opacity="0.4" />
           </svg>
         </div>
 
-        <h1 className="text-5xl md:text-6xl text-gold-600 mb-6">
-          Descubra o Bloqueio Invisível que Trava sua Prosperidade
+        {/* Headline */}
+        <h1 className="text-4xl md:text-5xl font-bold text-gold-600 mb-5 leading-tight">
+          Seu Bloqueio Financeiro Tem Nome.<br />E Tem Data de Validade.
         </h1>
 
-        <p className="text-xl md:text-2xl text-gray-700 mb-8">
-          Mais de 3.800 mulheres já identificaram o padrão que sabotava sua vida financeira — e descobriram QUANDO agir para destravar
+        {/* Subheadline */}
+        <p className="text-lg md:text-xl text-gray-700 mb-8 leading-relaxed">
+          O Diagnóstico Tridimensional da Mestra Renata cruza numerologia, astrologia e ciclos lunares
+          para identificar <strong>O QUE</strong> trava sua prosperidade — e <strong>QUANDO</strong> a trava afrouxa.
+          Mais de 3.800 mulheres já fizeram. Leva 2 minutos.
         </p>
 
-        <div className="mb-8">
-          <div className="inline-block bg-white rounded-lg shadow-lg p-6">
-            <p className="text-gray-600 text-sm mb-2">
-              ✓ Numeróloga e Terapeuta Vibracional
-            </p>
-            <p className="text-gold-600 font-medium">
-              +3.847 pessoas já fizeram o Diagnóstico Tridimensional
-            </p>
+        {/* Mestra Renata card */}
+        <div className="flex flex-col items-center mb-8">
+          {/* Avatar placeholder with verification badge */}
+          <div className="relative mb-3">
+            <div className="w-24 h-24 rounded-full border-2 border-gold-600 overflow-hidden">
+              <img src="/FotoRenata.png" alt="Mestra Renata Alves" className="w-full h-full object-cover" />
+            </div>
+            {/* Blue verification badge */}
+            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center border-2 border-white">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 6L5 9L10 3" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
           </div>
+          <p className="text-sm font-semibold text-gray-800">Mestra Renata Alves</p>
+          <span className="text-xs text-gray-500 bg-amber-50 border border-amber-200 rounded-full px-3 py-1 mt-1">
+            Numeróloga e Terapeuta Vibracional
+          </span>
         </div>
 
-        {/* Sacred triangle ornament — Triângulo de Desbloqueio */}
-        <div className="flex justify-center mb-6">
-          <svg width="210" height="52" viewBox="0 0 210 52" xmlns="http://www.w3.org/2000/svg">
-            <line x1="0"   y1="26" x2="78"  y2="26" stroke="#D4A855" strokeWidth="1" opacity="0.45" />
-            <polygon points="105,5 125,42 85,42" fill="none" stroke="#D4A855" strokeWidth="1.5" opacity="0.65" />
-            <circle cx="105" cy="5"  r="2.5" fill="#D4A855" opacity="0.7" />
-            <circle cx="125" cy="42" r="2.5" fill="#D4A855" opacity="0.7" />
-            <circle cx="85"  cy="42" r="2.5" fill="#D4A855" opacity="0.7" />
-            <line x1="132" y1="26" x2="210" y2="26" stroke="#D4A855" strokeWidth="1" opacity="0.45" />
+        {/* Triângulo de Desbloqueio — animated */}
+        <div className="flex flex-col items-center mb-8">
+          <svg width="240" height="140" viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <style>{`
+                @keyframes glow1 { 0%,100%{opacity:0.5;r:3} 33%{opacity:1;r:5} }
+                @keyframes glow2 { 0%,100%{opacity:0.5;r:3} 66%{opacity:1;r:5} }
+                @keyframes glow3 { 0%,100%{opacity:0.5;r:3} 0%,99%{opacity:0.5;r:3} 50%{opacity:1;r:5} }
+                @keyframes fadeEdge { 0%,100%{opacity:0.4} 50%{opacity:0.75} }
+                .g1 { animation: glow1 2.4s ease-in-out infinite; }
+                .g2 { animation: glow2 2.4s ease-in-out infinite; }
+                .g3 { animation: glow3 2.4s ease-in-out infinite; }
+                .ge { animation: fadeEdge 2.4s ease-in-out infinite; }
+              `}</style>
+            </defs>
+            {/* Triangle edges */}
+            <polygon points="120,12 210,125 30,125" fill="none" stroke="#D4A855" strokeWidth="1.5" className="ge" />
+            {/* Vertex dots */}
+            <circle cx="120" cy="12"  r="4" fill="#D4A855" className="g1" />
+            <circle cx="210" cy="125" r="4" fill="#D4A855" className="g2" />
+            <circle cx="30"  cy="125" r="4" fill="#D4A855" className="g3" />
+            {/* Labels */}
+            <text x="120" y="6"   textAnchor="middle" fontSize="9" fill="#C8963E" fontFamily="serif">Numerologia</text>
+            <text x="222" y="132" textAnchor="start"  fontSize="9" fill="#C8963E" fontFamily="serif">Astrologia</text>
+            <text x="18"  y="132" textAnchor="end"    fontSize="9" fill="#C8963E" fontFamily="serif">Lunar</text>
           </svg>
+          <p className="text-xs text-gray-500 -mt-2">Triângulo de Desbloqueio</p>
         </div>
 
-        <button
-          onClick={handleStart}
-          disabled={loading}
-          className="btn-primary text-lg px-8 py-4 disabled:opacity-70 disabled:cursor-not-allowed"
-        >
-          {loading ? 'Iniciando...' : 'Descobrir meu bloqueio →'}
-        </button>
+        {/* Social proof */}
+        <div className="inline-flex items-center gap-2 bg-white rounded-full shadow px-5 py-2 mb-8 border border-amber-100">
+          <span className="text-gold-600 font-bold text-sm">+3.847</span>
+          <span className="text-gray-600 text-sm">diagnósticos realizados</span>
+        </div>
+
+        {/* CTA */}
+        <div className="flex justify-center">
+          <button
+            onClick={handleStart}
+            disabled={loading}
+            className="btn-primary text-lg px-8 py-4 disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Iniciando...' : 'Descobrir o nome do meu bloqueio →'}
+          </button>
+        </div>
       </div>
     </div>
   )
