@@ -8,9 +8,15 @@ interface SingleSelectTextProps {
   question: string;
   options: SelectOption[];
   onNext: () => void;
+  variant?: string;
 }
 
-export function SingleSelectText({ step, question, options, onNext }: SingleSelectTextProps) {
+const BINARY_COLORS = [
+  'border-green-400 bg-green-50 text-green-800 hover:border-green-500 hover:bg-green-100',
+  'border-red-400 bg-red-50 text-red-800 hover:border-red-500 hover:bg-red-100',
+];
+
+export function SingleSelectText({ step, question, options, onNext, variant }: SingleSelectTextProps) {
   const { sessionToken, saveStepResponse } = useQuizStore();
 
   const handleSelect = async (value: string) => {
@@ -22,6 +28,8 @@ export function SingleSelectText({ step, question, options, onNext }: SingleSele
     }
     setTimeout(onNext, 300);
   };
+
+  const isBinary = variant === 'binary';
 
   return (
     <div className="max-w-lg mx-auto px-4">
@@ -41,7 +49,11 @@ export function SingleSelectText({ step, question, options, onNext }: SingleSele
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.08 }}
             onClick={() => handleSelect(opt.value)}
-            className="w-full bg-white border border-gray-200 rounded-xl px-6 py-4 text-center font-medium text-gray-700 hover:border-gold-400 hover:bg-gold-50 hover:text-gold-700 hover:shadow-md transition-all duration-200"
+            className={`w-full border-2 rounded-xl px-6 py-5 text-center font-semibold text-base transition-all duration-200 ${
+              isBinary
+                ? BINARY_COLORS[i] ?? BINARY_COLORS[0]
+                : 'bg-white border-gray-200 text-gray-700 hover:border-gold-400 hover:bg-gold-50 hover:text-gold-700 hover:shadow-md'
+            }`}
           >
             {opt.label}
           </motion.button>

@@ -46,9 +46,9 @@ export function QuizFlow() {
       case 'single-select-emoji':
         return <SingleSelectEmoji {...props} question={config.question!} options={config.options!} />;
       case 'single-select-text':
-        return <SingleSelectText {...props} question={config.question!} options={config.options!} />;
+        return <SingleSelectText {...props} question={config.question!} options={config.options!} variant={config.variant} />;
       case 'multi-select':
-        return <MultiSelectCheckbox {...props} question={config.question!} options={config.options!} subtitle={config.subtitle} />;
+        return <MultiSelectCheckbox {...props} question={config.question!} options={config.options!} subtitle={config.subtitle} minSelect={config.minSelect} />;
       case 'emoji-scale':
         return <EmojiScale {...props} question={config.question!} subtitle={config.subtitle} />;
       case 'transition-statistic':

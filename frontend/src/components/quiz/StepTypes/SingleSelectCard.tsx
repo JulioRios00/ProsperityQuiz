@@ -45,17 +45,31 @@ export function SingleSelectCard({ step, question, subtitle, options, onNext }: 
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.08 }}
             onClick={() => handleSelect(opt.value)}
-            className="group flex items-center gap-4 w-full bg-white border border-gray-200 rounded-xl px-5 py-4 text-left shadow-sm hover:border-gold-400 hover:shadow-md hover:bg-gold-50 transition-all duration-200"
+            className="group flex items-center w-full bg-white border border-gray-200 rounded-xl text-left shadow-sm hover:border-gold-400 hover:shadow-md hover:bg-gold-50 transition-all duration-200 overflow-hidden"
+            style={{ borderRadius: '12px' }}
           >
-            {opt.icon && (
-              <span className="text-2xl w-8 text-center flex-shrink-0">{opt.icon}</span>
-            )}
-            <div>
-              <p className="font-medium text-gray-800 group-hover:text-gold-700">{opt.label}</p>
-              {opt.description && (
-                <p className="text-xs text-gray-400 mt-0.5">{opt.description}</p>
+            {/* Text side */}
+            <div className="flex-1 flex items-center gap-3 px-5 py-4">
+              {opt.icon && !opt.image && (
+                <span className="text-2xl w-8 text-center flex-shrink-0">{opt.icon}</span>
               )}
+              <div>
+                <p className="font-medium text-gray-800 group-hover:text-gold-700">{opt.label}</p>
+                {opt.description && !opt.image && (
+                  <p className="text-xs text-gray-400 mt-0.5">{opt.description}</p>
+                )}
+              </div>
             </div>
+            {/* Image side */}
+            {opt.image && (
+              <div className="flex-shrink-0 w-24 h-20 overflow-hidden">
+                <img
+                  src={opt.image}
+                  alt={opt.label}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
           </motion.button>
         ))}
       </div>

@@ -10,9 +10,10 @@ interface MultiSelectCheckboxProps {
   subtitle?: string;
   options: SelectOption[];
   onNext: () => void;
+  minSelect?: number;
 }
 
-export function MultiSelectCheckbox({ step, question, subtitle, options, onNext }: MultiSelectCheckboxProps) {
+export function MultiSelectCheckbox({ step, question, subtitle, options, onNext, minSelect = 1 }: MultiSelectCheckboxProps) {
   const [selected, setSelected] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const { sessionToken, saveStepResponse } = useQuizStore();
@@ -24,7 +25,7 @@ export function MultiSelectCheckbox({ step, question, subtitle, options, onNext 
   };
 
   const handleContinue = async () => {
-    if (selected.length < 2) return;
+    if (selected.length < minSelect) return;
     setLoading(true);
     saveStepResponse(step, selected);
     try {
@@ -70,6 +71,7 @@ export function MultiSelectCheckbox({ step, question, subtitle, options, onNext 
               }`}>
                 {isSelected && <span className="text-white text-xs">✓</span>}
               </span>
+              {opt.icon && <span className="text-xl flex-shrink-0">{opt.icon}</span>}
               <span className="font-medium text-sm">{opt.label}</span>
             </motion.button>
           );
@@ -78,9 +80,9 @@ export function MultiSelectCheckbox({ step, question, subtitle, options, onNext 
 
       <motion.button
         initial={{ opacity: 0 }}
-        animate={{ opacity: selected.length >= 2 ? 1 : 0.4 }}
+        animate={{ opacity: selected.length >= minSelect ? 1 : 0.4 }}
         onClick={handleContinue}
-        disabled={selected.length < 2 || loading}
+        disabled={selected.length < minSelect || loading}
         className="mt-6 w-full btn-primary py-4 text-base disabled:cursor-not-allowed"
       >
         {loading ? 'Salvando...' : 'Continuar →'}

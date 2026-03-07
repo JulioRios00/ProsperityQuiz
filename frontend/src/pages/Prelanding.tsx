@@ -114,14 +114,13 @@ function Prelanding() {
 
         {/* Headline */}
         <h1 className="text-4xl md:text-5xl font-bold text-gold-600 mb-5 leading-tight">
-          Seu Bloqueio Financeiro Tem Nome.<br />E Tem Data de Validade.
+          Descubra o Bloqueio Invisível que Trava sua Prosperidade
         </h1>
 
         {/* Subheadline */}
         <p className="text-lg md:text-xl text-gray-700 mb-8 leading-relaxed">
-          O Diagnóstico Tridimensional da Mestra Renata cruza numerologia, astrologia e ciclos lunares
-          para identificar <strong>O QUE</strong> trava sua prosperidade — e <strong>QUANDO</strong> a trava afrouxa.
-          Mais de 3.800 mulheres já fizeram. Leva 2 minutos.
+          Mais de 3.800 mulheres já identificaram o padrão que sabotava sua vida financeira — e
+          descobriram <strong>QUANDO</strong> agir para destravar.
         </p>
 
         {/* Mestra Renata card */}
@@ -176,7 +175,7 @@ function Prelanding() {
         {/* Social proof */}
         <div className="inline-flex items-center gap-2 bg-white rounded-full shadow px-5 py-2 mb-8 border border-amber-100">
           <span className="text-gold-600 font-bold text-sm">+3.847</span>
-          <span className="text-gray-600 text-sm">diagnósticos realizados</span>
+          <span className="text-gray-600 text-sm">pessoas já fizeram o Diagnóstico Tridimensional</span>
         </div>
 
         {/* CTA */}
@@ -186,7 +185,7 @@ function Prelanding() {
             disabled={loading}
             className="btn-primary text-lg px-8 py-4 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {loading ? 'Iniciando...' : 'Descobrir o nome do meu bloqueio →'}
+            {loading ? 'Iniciando...' : 'Descobrir meu bloqueio →'}
           </button>
         </div>
       </div>

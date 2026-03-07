@@ -2,93 +2,92 @@ import type { QuizStepConfig } from '../types/quiz';
 
 // 16 steps — index 0 = step 1, index 15 = step 16
 export const quizConfig: QuizStepConfig[] = [
-  // Step 1: Age range
+  // Step 1: Money relationship
   {
     type: 'single-select-card',
-    question: 'Qual é a sua faixa etária?',
+    question: 'Como você descreveria sua relação com dinheiro hoje?',
     options: [
-      { value: '25-34', label: '25 a 34 anos', icon: '🌱' },
-      { value: '35-44', label: '35 a 44 anos', icon: '🌿' },
-      { value: '45-54', label: '45 a 54 anos', icon: '🌳' },
-      { value: '55+',   label: '55 anos ou mais', icon: '🌸' },
+      { value: 'travada',   label: 'Travada',   description: 'Mulher frustrada olhando contas, mãos na cabeça' },
+      { value: 'instavel',  label: 'Instável',  description: 'Mulher preocupada olhando celular, dúvida' },
+      { value: 'limitada',  label: 'Limitada',  description: 'Mulher controlando planilha, cansada' },
+      { value: 'caotica',   label: 'Caótica',   description: 'Mesa bagunçada com contas e cartões' },
     ],
   },
 
-  // Step 2: Blocked area
+  // Step 2: Age range
   {
     type: 'single-select-card',
-    question: 'Em qual área da vida você se sente mais bloqueada?',
-    subtitle: 'Escolha a área que mais te preocupa agora',
+    question: 'Qual sua faixa de idade?',
+    subtitle: 'Isso influencia diretamente o tipo de bloqueio predominante',
     options: [
-      { value: 'financeiro',      label: 'Prosperidade Financeira', icon: '✦', description: 'Dinheiro, carreira e abundância' },
-      { value: 'relacionamentos', label: 'Relacionamentos',          icon: '♥', description: 'Amor, família e conexões' },
-      { value: 'saude',           label: 'Saúde e Vitalidade',       icon: '✿', description: 'Corpo, energia e bem-estar' },
-      { value: 'proposito',       label: 'Propósito e Missão',       icon: '★', description: 'Sentido, impacto e realização' },
+      { value: '25-34', label: '25 a 34 anos', image: '/25-34.png' },
+      { value: '35-44', label: '35 a 44 anos', image: '/35-44.png' },
+      { value: '45-54', label: '45 a 54 anos', image: '/45-54.png' },
+      { value: '55+',   label: '55+ anos',     image: '/55+.png'   },
     ],
   },
 
   // Step 3: Transition statistic (dynamic content inside component)
   { type: 'transition-statistic' },
 
-  // Step 4: Emotional state
+  // Step 4: Blocked area emoji
   {
     type: 'single-select-emoji',
-    question: 'Como você descreveria seu estado interno nos últimos meses?',
+    question: 'Qual área da sua vida está MAIS travada hoje?',
     options: [
-      { value: 'travada',   label: 'Travada',   icon: '😶' },
-      { value: 'frustrada', label: 'Frustrada', icon: '😔' },
-      { value: 'cansada',   label: 'Esgotada',  icon: '😩' },
-      { value: 'ansiosa',   label: 'Ansiosa',   icon: '😟' },
+      { value: 'financeiro',      label: 'Dinheiro e finanças',    icon: '💰' },
+      { value: 'proposito',       label: 'Carreira e propósito',   icon: '💼' },
+      { value: 'relacionamentos', label: 'Relacionamentos',         icon: '❤️' },
+      { value: 'saude',           label: 'Saúde e energia vital',  icon: '🧘' },
+      { value: 'tudo',            label: 'Tudo parece travado',    icon: '🔒' },
     ],
   },
 
-  // Step 5: Tried before
+  // Step 5: Repeating patterns (binary)
   {
     type: 'single-select-text',
-    question: 'Você já tentou mudar esse padrão antes e não conseguiu de forma duradoura?',
+    variant: 'binary',
+    question: 'Você sente que REPETE os mesmos padrões financeiros, mesmo quando muda de estratégia?',
     options: [
-      { value: 'sim-varias', label: 'Sim, várias vezes' },
-      { value: 'sim-uma',    label: 'Sim, uma ou duas vezes' },
-      { value: 'nao-tentei', label: 'Ainda não tentei, mas quero' },
+      { value: 'sim', label: '✅ Sim, sempre volto ao mesmo lugar' },
+      { value: 'nao', label: '❌ Não, acho que é só falta de oportunidade' },
     ],
   },
 
-  // Step 6: Self-worth
+  // Step 6: Money disappears (binary)
   {
     type: 'single-select-text',
-    question: 'No fundo, você acredita que merece uma vida mais abundante e plena?',
+    variant: 'binary',
+    question: 'O dinheiro que entra na sua vida costuma SUMIR rápido, como se escorresse pelas mãos?',
     options: [
-      { value: 'sim-certeza', label: 'Sim, com toda certeza' },
-      { value: 'sim-mas',     label: 'Acredito, mas algo sempre me impede' },
-      { value: 'nao-sei',     label: 'Honestamente, não tenho certeza' },
+      { value: 'sim', label: '✅ Sim, é exatamente assim' },
+      { value: 'nao', label: '❌ Não, consigo manter' },
     ],
   },
 
-  // Step 7: Transition affirmation — reassurance (dynamic content inside component)
+  // Step 7: Transition affirmation (dynamic on age from step 2)
   { type: 'transition-affirmation' },
 
   // Step 8: Signs multi-select
   {
     type: 'multi-select',
-    question: 'Quais desses sinais você reconhece em sua vida?',
-    subtitle: 'Selecione todos que se aplicam (mínimo 2)',
+    question: 'Quais desses sinais você reconhece na sua vida?',
+    subtitle: 'Selecione todos que se aplicam',
+    minSelect: 1,
     options: [
-      { value: 'anxiety',            label: 'Ansiedade ou preocupação constante' },
-      { value: 'procrastination',    label: 'Procrastinação em projetos importantes' },
-      { value: 'self_sabotage',      label: 'Autossabotagem nos momentos cruciais' },
-      { value: 'money_repulsion',    label: 'Dificuldade em manter dinheiro' },
-      { value: 'fatigue',            label: 'Cansaço profundo e persistente' },
-      { value: 'low_self_esteem',    label: 'Dificuldade em se sentir merecedora' },
-      { value: 'relationship_issues',label: 'Padrões repetitivos em relacionamentos' },
-      { value: 'insomnia',           label: 'Pensamentos acelerados à noite' },
+      { value: 'money_gone',      icon: '💸', label: 'Dinheiro entra e some sem explicação' },
+      { value: 'projects',        icon: '🚫', label: 'Projetos que nunca decolam de verdade' },
+      { value: 'restart',         icon: '🔄', label: 'Sensação de estar sempre recomeçando do zero' },
+      { value: 'self_sabotage',   icon: '🧠', label: 'Autossabotagem em momentos-chave' },
+      { value: 'charge_fear',     icon: '😶', label: 'Medo de cobrar o que vale' },
+      { value: 'not_for_me',      icon: '🔒', label: 'Sensação de que "não é pra mim"' },
     ],
   },
 
   // Step 9: Blockage level scale
   {
     type: 'emoji-scale',
-    question: 'Com qual intensidade esse bloqueio afeta sua vida hoje?',
-    subtitle: 'Seja honesta consigo mesma',
+    question: 'De 1 a 5, o quanto você sente que ALGO INVISÍVEL trava sua prosperidade?',
     min: 1,
     max: 5,
   },
@@ -96,14 +95,15 @@ export const quizConfig: QuizStepConfig[] = [
   // Step 10: Pivot — the most important screen (dynamic inside component)
   { type: 'pivot' },
 
-  // Step 11: Readiness
+  // Step 11: Urgency / timing
   {
     type: 'single-select-emoji',
-    question: 'Se você soubesse exatamente quando e como agir para destravar, o que faria?',
+    question: 'Quando você quer começar a destravar sua prosperidade?',
     options: [
-      { value: 'agir-agora', label: 'Agiria agora mesmo!',    icon: '🔥' },
-      { value: 'agir-logo',  label: 'Agiria o quanto antes',  icon: '⚡' },
-      { value: 'pensar',     label: 'Precisaria pensar mais',  icon: '💭' },
+      { value: 'hoje',    label: 'Hoje mesmo',                icon: '⚡' },
+      { value: 'semana',  label: 'Esta semana',               icon: '📅' },
+      { value: 'mes',     label: 'Este mês',                  icon: '🗓' },
+      { value: 'hora',    label: 'Quando sentir que é a hora', icon: '🕐' },
     ],
   },
 

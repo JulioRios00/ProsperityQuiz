@@ -1,35 +1,12 @@
 import { motion } from 'framer-motion';
 import { useQuizStore } from '../../../store/quizStore';
-import type { BlockedArea } from '../../../types/quiz';
+import type { AgeRange } from '../../../types/quiz';
 
-interface AffirmationContent {
-  title: string;
-  text: string;
-  quote?: string;
-}
-
-// Step 7 — reassurance: validates the user's struggle
-const REASSURANCES: Record<BlockedArea, AffirmationContent> = {
-  financeiro: {
-    title: 'Isso não é falta de esforço.',
-    text: 'O bloqueio financeiro não é fraqueza nem incompetência. É um padrão energético herdado que precisa ser tratado na origem — não apenas na superfície. Nenhuma técnica de finanças vai resolver o que é uma questão vibracional.',
-    quote: '"A prosperidade começa por dentro."',
-  },
-  relacionamentos: {
-    title: 'Você não está condenada a esse ciclo.',
-    text: 'O padrão nos relacionamentos não é o seu destino. É uma programação que pode ser reescrita quando você entende onde ela começou. Amor genuíno é algo para o qual você está completamente pronta.',
-    quote: '"Conexão verdadeira começa com você."',
-  },
-  saude: {
-    title: 'Seu corpo está pedindo por você.',
-    text: 'A desconexão entre mente e corpo não é fraqueza — é um sinal de que algo precisa ser realinhado em um nível mais profundo. Seu corpo não está contra você. Ele está tentando se comunicar.',
-    quote: '"Vitalidade é seu estado natural."',
-  },
-  proposito: {
-    title: 'Você já nasceu para isso.',
-    text: 'A sensação de não estar vivendo seu propósito não é uma falha de caráter. É o resultado de um bloqueio que impede você de aparecer da forma que realmente é. O mundo precisa do que só você tem.',
-    quote: '"Seu impacto está esperando por você."',
-  },
+const AGE_LABEL: Record<AgeRange, string> = {
+  '25-34': '25 aos 34',
+  '35-44': '35 aos 44',
+  '45-54': '45 aos 54',
+  '55+':   '55+',
 };
 
 interface TransitionAffirmationProps {
@@ -39,56 +16,50 @@ interface TransitionAffirmationProps {
 
 export function TransitionAffirmation({ onNext }: TransitionAffirmationProps) {
   const { responses } = useQuizStore();
-  const blockedArea = (responses.step_2 as BlockedArea) ?? 'financeiro';
-  const content = REASSURANCES[blockedArea] ?? REASSURANCES['financeiro'];
+  const ageRange = (responses.step_2 as AgeRange) ?? '35-44';
+  const ageLabel = AGE_LABEL[ageRange] ?? AGE_LABEL['35-44'];
 
   return (
-    <div className="max-w-lg mx-auto px-4 text-center">
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-2"
-      >
-        <span className="text-4xl">✦</span>
-      </motion.div>
+    <div className="max-w-lg mx-auto px-4 text-center relative">
+      {/* Subtle golden triangle background — first visual appearance */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ opacity: 0.10 }}>
+        <svg width="260" height="220" viewBox="-60 -10 360 175" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="120,12 210,138 30,138" fill="none" stroke="#D4A855" strokeWidth="2" />
+          <circle cx="120" cy="12"  r="5" fill="#D4A855" />
+          <circle cx="210" cy="138" r="5" fill="#D4A855" />
+          <circle cx="30"  cy="138" r="5" fill="#D4A855" />
+        </svg>
+      </div>
 
       <motion.h2
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="text-2xl md:text-3xl font-serif text-gold-600 mb-6"
+        className="text-3xl md:text-4xl font-serif text-gold-600 mb-6"
       >
-        {content.title}
+        Isso não é coincidência.
       </motion.h2>
 
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
-        className="text-gray-700 text-lg leading-relaxed mb-6"
+        transition={{ delay: 0.3 }}
+        className="text-gray-700 text-lg leading-relaxed mb-8"
       >
-        {content.text}
+        Mulheres na faixa dos{' '}
+        <strong className="text-gold-600">{ageLabel} anos</strong>{' '}
+        frequentemente carregam um bloqueio energético que se manifesta como um ciclo: o dinheiro
+        vem, cria esperança — e depois some. A boa notícia? Esse ciclo tem um padrão. E todo
+        padrão pode ser mapeado.
       </motion.p>
-
-      {content.quote && (
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="text-gold-500 italic text-sm mb-8"
-        >
-          {content.quote}
-        </motion.p>
-      )}
 
       <motion.button
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8 }}
+        transition={{ delay: 0.6 }}
         onClick={onNext}
         className="btn-primary px-10 py-4 text-base"
       >
-        Entendi, continuar →
+        Entendi →
       </motion.button>
     </div>
   );

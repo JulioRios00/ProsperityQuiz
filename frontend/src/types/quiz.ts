@@ -21,6 +21,7 @@ export interface SelectOption {
   label: string;
   icon?: string;
   description?: string;
+  image?: string;
 }
 
 export interface QuizStepConfig {
@@ -30,6 +31,8 @@ export interface QuizStepConfig {
   options?: SelectOption[];
   min?: number;
   max?: number;
+  variant?: string;
+  minSelect?: number;
 }
 
 export interface DiagnosisResult {

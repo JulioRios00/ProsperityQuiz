@@ -25,13 +25,9 @@ export function EmailCapture({ onNext }: EmailCaptureProps) {
     saveStepResponse(13, email);
 
     try {
-      // 1. Capture email
       await quizService.captureEmail(email, sessionToken!, responses as Record<string, unknown>);
-
-      // 2. Generate diagnosis
       const diagnosis = await quizService.generateDiagnosis(sessionToken!);
       setDiagnosis(diagnosis);
-
       onNext();
     } catch {
       setError('Algo deu errado. Tente novamente.');
@@ -41,45 +37,42 @@ export function EmailCapture({ onNext }: EmailCaptureProps) {
 
   return (
     <div className="max-w-lg mx-auto px-4 text-center">
+      {/* Checkmark icon */}
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-2"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="flex justify-center mb-4"
       >
-        <span className="text-5xl">📬</span>
+        <div className="w-16 h-16 rounded-full bg-gold-50 border-2 border-gold-300 flex items-center justify-center">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <path d="M6 14L11 19L22 9" stroke="#C8963E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
       </motion.div>
 
       <motion.h2
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
+        transition={{ delay: 0.15 }}
         className="text-2xl md:text-3xl font-serif text-gold-600 mb-3"
       >
-        Seu Diagnóstico está pronto!
+        Seu Diagnóstico Tridimensional está pronto!
       </motion.h2>
 
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="text-gray-600 mb-2"
+        transition={{ delay: 0.25 }}
+        className="text-gray-600 mb-8 leading-relaxed"
       >
-        Onde devemos enviar seu <strong>Diagnóstico Tridimensional</strong>?
-      </motion.p>
-
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
-        className="text-gray-400 text-sm mb-8"
-      >
-        Também enviaremos seu calendário de dias favoráveis por e-mail.
+        Digite seu melhor email para salvar seu diagnóstico e receber seus{' '}
+        <strong>dias favoráveis do mês</strong>.
       </motion.p>
 
       <motion.form
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
+        transition={{ delay: 0.35 }}
         onSubmit={handleSubmit}
         className="flex flex-col gap-3"
       >
@@ -105,10 +98,10 @@ export function EmailCapture({ onNext }: EmailCaptureProps) {
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
+        transition={{ delay: 0.5 }}
         className="text-gray-400 text-xs mt-4"
       >
-        🔒 Seus dados estão protegidos. Sem spam, prometemos.
+        🔒 Seus dados estão seguros. Sem spam.
       </motion.p>
     </div>
   );

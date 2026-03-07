@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuizStore } from '../../../store/quizStore';
 import { quizService } from '../../../services/quizService';
@@ -10,25 +9,20 @@ interface EmojiScaleProps {
   onNext: () => void;
 }
 
-const SCALE_EMOJIS = ['😐', '😕', '😟', '😔', '😩'];
-const SCALE_LABELS = ['Leve', 'Moderado', 'Significativo', 'Intenso', 'Crítico'];
+const SCALE_EMOJIS = ['😐', '🤔', '😕', '😣', '🔮'];
+const SCALE_LABELS = ['Nada', 'Pouco', 'Moderado', 'Muito', 'Totalmente'];
 
 export function EmojiScale({ step, question, subtitle, onNext }: EmojiScaleProps) {
-  const [selected, setSelected] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
   const { sessionToken, saveStepResponse } = useQuizStore();
 
-  const handleContinue = async () => {
-    if (!selected) return;
-    setLoading(true);
-    saveStepResponse(step, selected);
+  const handleSelect = async (value: number) => {
+    saveStepResponse(step, value);
     try {
-      await quizService.saveStep(sessionToken!, step, selected);
+      await quizService.saveStep(sessionToken!, step, value);
     } catch {
       // continue
     }
-    setLoading(false);
-    onNext();
+    setTimeout(onNext, 350);
   };
 
   return (
@@ -47,38 +41,21 @@ export function EmojiScale({ step, question, subtitle, onNext }: EmojiScaleProps
       <div className="flex justify-center gap-3 mt-8">
         {SCALE_EMOJIS.map((emoji, i) => {
           const value = i + 1;
-          const isSelected = selected === value;
           return (
             <motion.button
               key={value}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              onClick={() => setSelected(value)}
-              className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-200 w-20 ${
-                isSelected
-                  ? 'border-gold-400 bg-gold-50 scale-110'
-                  : 'border-gray-200 bg-white hover:border-gold-300'
-              }`}
+              onClick={() => handleSelect(value)}
+              className="flex flex-col items-center gap-2 p-4 rounded-2xl border-2 border-gray-200 bg-white hover:border-gold-400 hover:bg-gold-50 hover:scale-110 transition-all duration-200 w-[4.5rem]"
             >
               <span className="text-3xl">{emoji}</span>
-              <span className={`text-xs font-medium ${isSelected ? 'text-gold-700' : 'text-gray-400'}`}>
-                {SCALE_LABELS[i]}
-              </span>
+              <span className="text-xs font-medium text-gray-400">{SCALE_LABELS[i]}</span>
             </motion.button>
           );
         })}
       </div>
-
-      <motion.button
-        initial={{ opacity: 0 }}
-        animate={{ opacity: selected ? 1 : 0.4 }}
-        onClick={handleContinue}
-        disabled={!selected || loading}
-        className="mt-8 w-full btn-primary py-4 text-base disabled:cursor-not-allowed"
-      >
-        {loading ? 'Salvando...' : 'Continuar →'}
-      </motion.button>
     </div>
   );
 }
