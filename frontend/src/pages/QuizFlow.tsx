@@ -9,20 +9,24 @@ import { SingleSelectEmoji } from '../components/quiz/StepTypes/SingleSelectEmoj
 import { SingleSelectText } from '../components/quiz/StepTypes/SingleSelectText';
 import { MultiSelectCheckbox } from '../components/quiz/StepTypes/MultiSelectCheckbox';
 import { EmojiScale } from '../components/quiz/StepTypes/EmojiScale';
-import { TransitionStatistic } from '../components/quiz/StepTypes/TransitionStatistic';
-import { TransitionAffirmation } from '../components/quiz/StepTypes/TransitionAffirmation';
-import { Pivot } from '../components/quiz/StepTypes/Pivot';
+import { NameInput } from '../components/quiz/StepTypes/NameInput';
+import { BirthDatePicker } from '../components/quiz/StepTypes/BirthDatePicker';
+import { PalmistryCapture } from '../components/quiz/StepTypes/PalmistryCapture';
+import { PalmistryAnalysis } from '../components/quiz/StepTypes/PalmistryAnalysis';
 import { LoadingScreen } from '../components/quiz/StepTypes/LoadingScreen';
 import { EmailCapture } from '../components/quiz/StepTypes/EmailCapture';
 import { ResultPage } from '../components/quiz/StepTypes/ResultPage';
 import { MicroVSL } from '../components/quiz/StepTypes/MicroVSL';
 import { Checkout } from '../components/quiz/StepTypes/Checkout';
 
-// Steps where the back button should be hidden
-const NO_BACK_STEPS = new Set([1, 3, 7, 10, 12, 13, 14, 15, 16]);
+// Steps where back button should be hidden
+const NO_BACK_STEPS = new Set([1, 10, 11, 13, 14, 15, 16, 17]);
+
+// Steps that have a dark bg (palmistry + birth date)
+const DARK_BG_STEPS = new Set([4, 10, 11]);
 
 export function QuizFlow() {
-  const { currentStep, sessionToken, nextStep, previousStep } = useQuizStore();
+  const { currentStep, sessionToken, nextStep, previousStep, palmistrySkipped } = useQuizStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,11 +35,19 @@ export function QuizFlow() {
     }
   }, [sessionToken, navigate]);
 
+  // Auto-skip palmistry analysis if user skipped palmistry capture
+  useEffect(() => {
+    if (currentStep === 11 && palmistrySkipped) {
+      nextStep();
+    }
+  }, [currentStep, palmistrySkipped, nextStep]);
+
   if (!sessionToken || currentStep === 0) return null;
 
   const config = quizConfig[currentStep - 1];
   const showBack = currentStep > 1 && !NO_BACK_STEPS.has(currentStep);
-  const showProgress = currentStep < 12; // hide during loading/email/result/checkout
+  const showProgress = currentStep <= 9; // show for first 9 steps
+  const isDark = DARK_BG_STEPS.has(currentStep);
 
   const renderStep = () => {
     const props = { step: currentStep, onNext: nextStep };
@@ -51,12 +63,14 @@ export function QuizFlow() {
         return <MultiSelectCheckbox {...props} question={config.question!} options={config.options!} subtitle={config.subtitle} minSelect={config.minSelect} />;
       case 'emoji-scale':
         return <EmojiScale {...props} question={config.question!} subtitle={config.subtitle} />;
-      case 'transition-statistic':
-        return <TransitionStatistic {...props} />;
-      case 'transition-affirmation':
-        return <TransitionAffirmation {...props} />;
-      case 'pivot':
-        return <Pivot {...props} />;
+      case 'name-input':
+        return <NameInput {...props} />;
+      case 'birth-date':
+        return <BirthDatePicker {...props} />;
+      case 'palmistry-capture':
+        return <PalmistryCapture {...props} />;
+      case 'palmistry-analysis':
+        return <PalmistryAnalysis onNext={nextStep} />;
       case 'loading':
         return <LoadingScreen onComplete={nextStep} />;
       case 'email-capture':
@@ -73,8 +87,8 @@ export function QuizFlow() {
   };
 
   return (
-    <div className="min-h-screen bg-cream-50 flex flex-col">
-      {showProgress && <ProgressBar current={currentStep} total={11} />}
+    <div className={`min-h-screen flex flex-col ${isDark ? '' : 'bg-cream-50'}`}>
+      {showProgress && <ProgressBar current={currentStep} total={9} />}
 
       <main className="flex-1 flex items-center justify-center py-10 px-2">
         <AnimatePresence mode="wait">

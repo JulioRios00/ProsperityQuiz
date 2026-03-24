@@ -8,6 +8,14 @@ interface QuizState {
   responses: Record<string, unknown>;
   isCompleted: boolean;
   diagnosis: DiagnosisResult | null;
+  // User personal data for numerology
+  userName: string | null;
+  userBirthDate: string | null;
+  destinyNumber: number | null;
+  expressionNumber: number | null;
+  prosperityBlock: number | null;
+  // Palmistry
+  palmistrySkipped: boolean;
 
   startQuiz: (sessionToken: string) => void;
   saveStepResponse: (step: number, response: unknown) => void;
@@ -15,6 +23,8 @@ interface QuizState {
   previousStep: () => void;
   completeQuiz: () => void;
   setDiagnosis: (diagnosis: DiagnosisResult) => void;
+  setUserData: (name: string, birthDate: string, destinyNumber: number, expressionNumber: number, prosperityBlock: number) => void;
+  setPalmistrySkipped: (skipped: boolean) => void;
   resetQuiz: () => void;
 }
 
@@ -26,6 +36,12 @@ export const useQuizStore = create<QuizState>()(
       responses: {},
       isCompleted: false,
       diagnosis: null,
+      userName: null,
+      userBirthDate: null,
+      destinyNumber: null,
+      expressionNumber: null,
+      prosperityBlock: null,
+      palmistrySkipped: false,
 
       startQuiz: (sessionToken) => set({ sessionToken, currentStep: 1 }),
 
@@ -35,7 +51,7 @@ export const useQuizStore = create<QuizState>()(
         })),
 
       nextStep: () =>
-        set((state) => ({ currentStep: Math.min(state.currentStep + 1, 16) })),
+        set((state) => ({ currentStep: Math.min(state.currentStep + 1, 17) })),
 
       previousStep: () =>
         set((state) => ({ currentStep: Math.max(state.currentStep - 1, 1) })),
@@ -44,8 +60,25 @@ export const useQuizStore = create<QuizState>()(
 
       setDiagnosis: (diagnosis) => set({ diagnosis }),
 
+      setUserData: (name, birthDate, destinyNumber, expressionNumber, prosperityBlock) =>
+        set({ userName: name, userBirthDate: birthDate, destinyNumber, expressionNumber, prosperityBlock }),
+
+      setPalmistrySkipped: (skipped) => set({ palmistrySkipped: skipped }),
+
       resetQuiz: () =>
-        set({ sessionToken: null, currentStep: 0, responses: {}, isCompleted: false, diagnosis: null }),
+        set({
+          sessionToken: null,
+          currentStep: 0,
+          responses: {},
+          isCompleted: false,
+          diagnosis: null,
+          userName: null,
+          userBirthDate: null,
+          destinyNumber: null,
+          expressionNumber: null,
+          prosperityBlock: null,
+          palmistrySkipped: false,
+        }),
     }),
     { name: 'quiz-storage' }
   )

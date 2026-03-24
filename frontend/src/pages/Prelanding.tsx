@@ -117,6 +117,36 @@ function Prelanding() {
           Descubra o Bloqueio Invisível que Trava sua Prosperidade
         </h1>
 
+        {/* Micro VSL Entry — between headline and CTA */}
+        <div className="flex justify-center mb-6">
+          <div
+            className="relative w-full rounded-2xl overflow-hidden bg-gray-900"
+            style={{ maxWidth: 360, aspectRatio: '9/16' }}
+          >
+            {/* Fallback: authority image + play button */}
+            <img
+              src="/FotoRenata.png"
+              alt="Mestra Renata Alves"
+              className="w-full h-full object-cover object-top"
+            />
+            <div className="absolute inset-0 flex flex-col items-center justify-center"
+              style={{ background: 'rgba(10,10,20,0.45)' }}>
+              <div
+                className="w-16 h-16 rounded-full flex items-center justify-center mb-3"
+                style={{ background: 'rgba(212,168,85,0.9)' }}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+              <span className="text-xs text-white font-medium px-4 text-center"
+                style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
+                Dra. Renata, numeróloga há 12 anos
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Subheadline */}
         <p className="text-lg md:text-xl text-gray-700 mb-8 leading-relaxed">
           Mais de 3.800 mulheres já identificaram o padrão que sabotava sua vida financeira — e
