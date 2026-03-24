@@ -1,6 +1,6 @@
 import type { QuizStepConfig } from '../types/quiz';
 
-// 16 steps — index 0 = step 1, index 15 = step 16
+// 17 steps — index 0 = step 1, index 16 = step 17
 export const quizConfig: QuizStepConfig[] = [
   // Step 1: Money relationship
   {
@@ -27,10 +27,13 @@ export const quizConfig: QuizStepConfig[] = [
     ],
   },
 
-  // Step 3: Transition statistic (dynamic content inside component)
-  { type: 'transition-statistic' },
+  // Step 3: Full name — numerology
+  { type: 'name-input' },
 
-  // Step 4: Blocked area emoji
+  // Step 4: Birth date — destiny number
+  { type: 'birth-date' },
+
+  // Step 5: Blocked area emoji
   {
     type: 'single-select-emoji',
     question: 'Qual área da sua vida está MAIS travada hoje?',
@@ -43,7 +46,7 @@ export const quizConfig: QuizStepConfig[] = [
     ],
   },
 
-  // Step 5: Repeating patterns (binary)
+  // Step 6: Repeating patterns (binary)
   {
     type: 'single-select-text',
     variant: 'binary',
@@ -54,7 +57,7 @@ export const quizConfig: QuizStepConfig[] = [
     ],
   },
 
-  // Step 6: Money disappears (binary)
+  // Step 7: Money disappears (binary)
   {
     type: 'single-select-text',
     variant: 'binary',
@@ -64,9 +67,6 @@ export const quizConfig: QuizStepConfig[] = [
       { value: 'nao', label: '❌ Não, consigo manter' },
     ],
   },
-
-  // Step 7: Transition affirmation (dynamic on age from step 2)
-  { type: 'transition-affirmation' },
 
   // Step 8: Signs multi-select
   {
@@ -92,10 +92,13 @@ export const quizConfig: QuizStepConfig[] = [
     max: 5,
   },
 
-  // Step 10: Pivot — the most important screen (dynamic inside component)
-  { type: 'pivot' },
+  // Step 10: Palmistry Capture (OPCIONAL)
+  { type: 'palmistry-capture' },
 
-  // Step 11: Urgency / timing
+  // Step 11: Palmistry Analysis (skipped if user skipped step 10)
+  { type: 'palmistry-analysis' },
+
+  // Step 12: Urgency / timing
   {
     type: 'single-select-emoji',
     question: 'Quando você quer começar a destravar sua prosperidade?',
@@ -107,18 +110,18 @@ export const quizConfig: QuizStepConfig[] = [
     ],
   },
 
-  // Step 12: Loading / analysis screen
+  // Step 13: Loading / analysis screen
   { type: 'loading' },
 
-  // Step 13: Email capture (gates the result)
+  // Step 14: Email capture (gates the result)
   { type: 'email-capture' },
 
-  // Step 14: Diagnosis result
+  // Step 15: Diagnosis result
   { type: 'result' },
 
-  // Step 15: Micro VSL
+  // Step 16: Micro VSL
   { type: 'micro-vsl' },
 
-  // Step 16: Checkout
+  // Step 17: Checkout
   { type: 'checkout' },
 ];
