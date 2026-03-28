@@ -15,7 +15,7 @@ export type StepType =
   | 'email-capture'
   | 'result'
   | 'micro-vsl'
-  | 'checkout';
+  | 'paywall';
 
 export interface SelectOption {
   value: string;
@@ -34,6 +34,7 @@ export interface QuizStepConfig {
   max?: number;
   variant?: string;
   minSelect?: number;
+  confirmLabel?: string;
 }
 
 export interface DiagnosisResult {

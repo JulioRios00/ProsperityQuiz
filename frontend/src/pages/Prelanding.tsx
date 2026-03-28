@@ -3,17 +3,23 @@ import { useNavigate } from 'react-router-dom'
 import { quizService } from '../services/quizService'
 import { useQuizStore } from '../store/quizStore'
 
-function Prelanding() {
+interface PrelandingProps {
+  variant?: 'a' | 'b'
+}
+
+function Prelanding({ variant }: PrelandingProps) {
   const [loading, setLoading] = useState(false)
   const { startQuiz } = useQuizStore()
   const navigate = useNavigate()
+
+  const quizPath = variant === 'b' ? '/quiz/b' : variant === 'a' ? '/quiz/a' : '/quiz'
 
   const handleStart = async () => {
     setLoading(true)
     try {
       const { session_token } = await quizService.startQuiz()
       startQuiz(session_token)
-      navigate('/quiz')
+      navigate(quizPath)
     } catch {
       setLoading(false)
     }
@@ -34,178 +40,76 @@ function Prelanding() {
             <stop offset="0%" stopColor="#D4A855" stopOpacity="0.07" />
             <stop offset="100%" stopColor="#D4A855" stopOpacity="0" />
           </radialGradient>
-          <style>{`
-            @keyframes shimmer1 { 0%,100%{opacity:0.55} 33%{opacity:1} }
-            @keyframes shimmer2 { 0%,100%{opacity:0.45} 66%{opacity:1} }
-            @keyframes shimmer3 { 0%,100%{opacity:0.5}  0%{opacity:1}  }
-            .tri-dot-1 { animation: shimmer1 2.4s ease-in-out infinite; }
-            .tri-dot-2 { animation: shimmer2 2.4s ease-in-out infinite; }
-            .tri-dot-3 { animation: shimmer3 2.4s ease-in-out infinite; }
-            .tri-line  { animation: shimmer1 2.4s ease-in-out infinite; }
-          `}</style>
         </defs>
         <rect x="0" y="0" width="1440" height="900" fill="url(#centerGlow)" />
-
-        {/* Dot stars */}
-        <circle cx="72"  cy="90"  r="2"   fill="#D4A855" opacity="0.5" />
-        <circle cx="173" cy="225" r="1.5" fill="#C8963E" opacity="0.55" />
-        <circle cx="288" cy="72"  r="2.5" fill="#D4A855" opacity="0.3" />
-        <circle cx="115" cy="405" r="1.5" fill="#D4A855" opacity="0.45" />
-        <circle cx="216" cy="585" r="2"   fill="#C8963E" opacity="0.4" />
-        <circle cx="360" cy="720" r="1.5" fill="#D4A855" opacity="0.45" />
-        <circle cx="43"  cy="630" r="2.5" fill="#C8963E" opacity="0.25" />
-        <circle cx="1267" cy="108" r="2"  fill="#D4A855" opacity="0.45" />
+        <circle cx="72"   cy="90"  r="2"   fill="#D4A855" opacity="0.5" />
+        <circle cx="173"  cy="225" r="1.5" fill="#C8963E" opacity="0.55" />
+        <circle cx="288"  cy="72"  r="2.5" fill="#D4A855" opacity="0.3" />
+        <circle cx="115"  cy="405" r="1.5" fill="#D4A855" opacity="0.45" />
+        <circle cx="216"  cy="585" r="2"   fill="#C8963E" opacity="0.4" />
+        <circle cx="1267" cy="108" r="2"   fill="#D4A855" opacity="0.45" />
         <circle cx="1368" cy="270" r="1.5" fill="#C8963E" opacity="0.5" />
-        <circle cx="1181" cy="180" r="2.5" fill="#D4A855" opacity="0.3" />
-        <circle cx="1325" cy="495" r="2"  fill="#C8963E" opacity="0.4" />
+        <circle cx="1325" cy="495" r="2"   fill="#C8963E" opacity="0.4" />
         <circle cx="1123" cy="675" r="1.5" fill="#D4A855" opacity="0.5" />
-        <circle cx="1382" cy="720" r="2.5" fill="#C8963E" opacity="0.3" />
-        <circle cx="1224" cy="810" r="1.5" fill="#D4A855" opacity="0.45" />
         <circle cx="504"  cy="45"  r="1.5" fill="#C8963E" opacity="0.5" />
-        <circle cx="720"  cy="27"  r="2"  fill="#D4A855" opacity="0.4" />
-        <circle cx="936"  cy="63"  r="1.5" fill="#C8963E" opacity="0.45" />
-        <circle cx="648"  cy="828" r="2"  fill="#D4A855" opacity="0.4" />
+        <circle cx="720"  cy="27"  r="2"   fill="#D4A855" opacity="0.4" />
+        <circle cx="648"  cy="828" r="2"   fill="#D4A855" opacity="0.4" />
         <circle cx="864"  cy="855" r="1.5" fill="#C8963E" opacity="0.5" />
-        <circle cx="1037" cy="792" r="2.5" fill="#D4A855" opacity="0.3" />
-        <circle cx="432"  cy="450" r="1.5" fill="#C8963E" opacity="0.2" />
-        <circle cx="1008" cy="360" r="1.5" fill="#D4A855" opacity="0.2" />
-
-        {/* 4-pointed star — top left */}
-        <path d="M115,135 L118,148 L115,161 L112,148 Z" fill="#D4A855" opacity="0.5" />
-        <path d="M102,148 L115,151 L128,148 L115,145 Z" fill="#D4A855" opacity="0.5" />
-        <circle cx="115" cy="148" r="2.5" fill="#D4A855" opacity="0.65" />
-
-        {/* 4-pointed star — top right */}
-        <path d="M1325,170 L1328,183 L1325,196 L1322,183 Z" fill="#C8963E" opacity="0.5" />
-        <path d="M1312,183 L1325,186 L1338,183 L1325,180 Z" fill="#C8963E" opacity="0.5" />
-        <circle cx="1325" cy="183" r="2.5" fill="#C8963E" opacity="0.65" />
-
-        {/* 4-pointed star — bottom left */}
-        <path d="M144,756 L147,769 L144,782 L141,769 Z" fill="#D4A855" opacity="0.4" />
-        <path d="M131,769 L144,772 L157,769 L144,766 Z" fill="#D4A855" opacity="0.4" />
-        <circle cx="144" cy="769" r="2" fill="#D4A855" opacity="0.55" />
-
-        {/* 4-pointed star — bottom right */}
-        <path d="M1296,720 L1299,733 L1296,746 L1293,733 Z" fill="#C8963E" opacity="0.4" />
-        <path d="M1283,733 L1296,736 L1309,733 L1296,730 Z" fill="#C8963E" opacity="0.4" />
-        <circle cx="1296" cy="733" r="2" fill="#C8963E" opacity="0.55" />
       </svg>
 
       {/* Main content */}
-      <div className="max-w-2xl mx-auto text-center relative z-10 py-12">
-
-        {/* Crescent moon + stars hero decoration */}
-        <div className="flex justify-center mb-6">
-          <svg width="150" height="120" viewBox="0 0 150 120" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="70" cy="62" r="38" fill="#D4A855" opacity="0.18" />
-            <circle cx="86" cy="54" r="30" fill="#FFF8F0" />
-            <path d="M20,28 L22.5,37 L20,46 L17.5,37 Z" fill="#D4A855" opacity="0.8" />
-            <path d="M11,37 L20,39.5 L29,37 L20,34.5 Z" fill="#D4A855" opacity="0.8" />
-            <circle cx="20" cy="37" r="2" fill="#D4A855" opacity="0.9" />
-            <path d="M122,20 L124.5,29 L122,38 L119.5,29 Z" fill="#C8963E" opacity="0.8" />
-            <path d="M113,29 L122,31.5 L131,29 L122,26.5 Z" fill="#C8963E" opacity="0.8" />
-            <circle cx="122" cy="29" r="2" fill="#C8963E" opacity="0.9" />
-            <circle cx="16"  cy="66"  r="2.5" fill="#D4A855" opacity="0.45" />
-            <circle cx="133" cy="54"  r="1.5" fill="#C8963E" opacity="0.55" />
-            <circle cx="8"   cy="48"  r="1.5" fill="#D4A855" opacity="0.35" />
-            <circle cx="140" cy="80"  r="1.5" fill="#D4A855" opacity="0.35" />
-          </svg>
-        </div>
+      <div className="max-w-sm mx-auto text-center relative z-10 py-12">
 
         {/* Headline */}
-        <h1 className="text-4xl md:text-5xl font-bold text-gold-600 mb-5 leading-tight">
+        <h1 className="text-4xl md:text-5xl font-bold text-gold-600 mb-6 leading-tight">
           Descubra o Bloqueio Invisível que Trava sua Prosperidade
         </h1>
 
-        {/* Micro VSL Entry — between headline and CTA */}
-        <div className="flex justify-center mb-6">
-          <div
-            className="relative w-full rounded-2xl overflow-hidden bg-gray-900"
-            style={{ maxWidth: 360, aspectRatio: '9/16' }}
-          >
-            {/* Fallback: authority image + play button */}
-            <img
-              src="/FotoRenata.png"
-              alt="Mestra Renata Alves"
-              className="w-full h-full object-cover object-top"
-            />
-            <div className="absolute inset-0 flex flex-col items-center justify-center"
-              style={{ background: 'rgba(10,10,20,0.45)' }}>
-              <div
-                className="w-16 h-16 rounded-full flex items-center justify-center mb-3"
-                style={{ background: 'rgba(212,168,85,0.9)' }}
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </div>
-              <span className="text-xs text-white font-medium px-4 text-center"
-                style={{ textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
-                Dra. Renata, numeróloga há 12 anos
-              </span>
+        {/* Micro VSL — 9:16 vertical, max-width 400px, autoplay muted */}
+        <div
+          className="relative mx-auto rounded-2xl overflow-hidden mb-8 shadow-xl"
+          style={{ aspectRatio: '9/16', maxWidth: 360, background: '#0a0a14' }}
+        >
+          {/* TODO: replace with actual video embed
+              <iframe
+                src="VIDEO_URL?autoplay=1&mute=1&loop=1"
+                allow="autoplay; fullscreen"
+                className="absolute inset-0 w-full h-full"
+              />
+          */}
+          <img
+            src="/FotoRenata.png"
+            alt="Mestra Renata Alves"
+            className="absolute inset-0 w-full h-full object-cover object-top opacity-80"
+          />
+          <div className="absolute inset-0 flex items-end justify-center pb-8">
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center cursor-pointer"
+              style={{ background: 'rgba(212,168,85,0.9)' }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                <path d="M8 5v14l11-7z" />
+              </svg>
             </div>
           </div>
         </div>
 
-        {/* Subheadline */}
-        <p className="text-lg md:text-xl text-gray-700 mb-8 leading-relaxed">
-          Mais de 3.800 mulheres já identificaram o padrão que sabotava sua vida financeira — e
-          descobriram <strong>QUANDO</strong> agir para destravar.
-        </p>
-
-        {/* Mestra Renata card */}
-        <div className="flex flex-col items-center mb-8">
-          {/* Avatar placeholder with verification badge */}
-          <div className="relative mb-3">
-            <div className="w-24 h-24 rounded-full border-2 border-gold-600 overflow-hidden">
+        {/* Authority mini card */}
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <div className="relative flex-shrink-0">
+            <div className="w-14 h-14 rounded-full border-2 border-gold-400 overflow-hidden">
               <img src="/FotoRenata.png" alt="Mestra Renata Alves" className="w-full h-full object-cover" />
             </div>
-            {/* Blue verification badge */}
-            <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center border-2 border-white">
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center border-2 border-white">
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M2 6L5 9L10 3" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
           </div>
-          <p className="text-sm font-semibold text-gray-800">Mestra Renata Alves</p>
-          <span className="text-xs text-gray-500 bg-amber-50 border border-amber-200 rounded-full px-3 py-1 mt-1">
-            Numeróloga e Terapeuta Vibracional
-          </span>
-        </div>
-
-        {/* Triângulo de Desbloqueio — animated */}
-        <div className="flex flex-col items-center mb-8 px-10">
-          <svg width="100%" viewBox="-60 -10 360 175" overflow="visible" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <style>{`
-                @keyframes glow1 { 0%,100%{opacity:0.5} 33%{opacity:1} }
-                @keyframes glow2 { 0%,100%{opacity:0.5} 66%{opacity:1} }
-                @keyframes glow3 { 0%,100%{opacity:0.5} 50%{opacity:1} }
-                @keyframes fadeEdge { 0%,100%{opacity:0.4} 50%{opacity:0.75} }
-                .g1 { animation: glow1 2.4s ease-in-out infinite; }
-                .g2 { animation: glow2 2.4s ease-in-out infinite; }
-                .g3 { animation: glow3 2.4s ease-in-out infinite; }
-                .ge { animation: fadeEdge 2.4s ease-in-out infinite; }
-              `}</style>
-            </defs>
-            {/* Triangle edges */}
-            <polygon points="120,12 210,138 30,138" fill="none" stroke="#D4A855" strokeWidth="1.5" className="ge" />
-            {/* Vertex dots */}
-            <circle cx="120" cy="12"  r="4" fill="#D4A855" className="g1" />
-            <circle cx="210" cy="138" r="4" fill="#D4A855" className="g2" />
-            <circle cx="30"  cy="138" r="4" fill="#D4A855" className="g3" />
-            {/* Labels */}
-            <text x="120" y="4"   textAnchor="middle" fontSize="11" fill="#C8963E" fontFamily="serif">Numerologia</text>
-            <text x="218" y="146" textAnchor="start"  fontSize="11" fill="#C8963E" fontFamily="serif">Astrologia</text>
-            <text x="22"  y="146" textAnchor="end"    fontSize="11" fill="#C8963E" fontFamily="serif">Lunar</text>
-          </svg>
-          <p className="text-xs text-gray-500 mt-1">Triângulo de Desbloqueio</p>
-        </div>
-
-        {/* Social proof */}
-        <div className="inline-flex items-center gap-2 bg-white rounded-full shadow px-5 py-2 mb-8 border border-amber-100">
-          <span className="text-gold-600 font-bold text-sm">+3.847</span>
-          <span className="text-gray-600 text-sm">pessoas já fizeram o Diagnóstico Tridimensional</span>
+          <div className="text-left">
+            <p className="text-sm font-semibold text-gray-800">Mestra Renata Alves</p>
+            <span className="text-xs text-gray-500">Numeróloga e Terapeuta Vibracional</span>
+          </div>
         </div>
 
         {/* CTA */}
@@ -218,6 +122,10 @@ function Prelanding() {
             {loading ? 'Iniciando...' : 'Descobrir meu bloqueio →'}
           </button>
         </div>
+
+        <p className="text-xs text-gray-400 mt-4">
+          +3.847 mulheres já fizeram o diagnóstico
+        </p>
       </div>
     </div>
   )

@@ -16,6 +16,7 @@ interface QuizState {
   prosperityBlock: number | null;
   // Palmistry
   palmistrySkipped: boolean;
+  palmistryPhotoUrl: string | null;
 
   startQuiz: (sessionToken: string) => void;
   saveStepResponse: (step: number, response: unknown) => void;
@@ -25,6 +26,7 @@ interface QuizState {
   setDiagnosis: (diagnosis: DiagnosisResult) => void;
   setUserData: (name: string, birthDate: string, destinyNumber: number, expressionNumber: number, prosperityBlock: number) => void;
   setPalmistrySkipped: (skipped: boolean) => void;
+  setPalmistryPhoto: (url: string | null) => void;
   resetQuiz: () => void;
 }
 
@@ -42,6 +44,7 @@ export const useQuizStore = create<QuizState>()(
       expressionNumber: null,
       prosperityBlock: null,
       palmistrySkipped: false,
+      palmistryPhotoUrl: null,
 
       startQuiz: (sessionToken) => set({ sessionToken, currentStep: 1 }),
 
@@ -65,6 +68,8 @@ export const useQuizStore = create<QuizState>()(
 
       setPalmistrySkipped: (skipped) => set({ palmistrySkipped: skipped }),
 
+      setPalmistryPhoto: (url) => set({ palmistryPhotoUrl: url }),
+
       resetQuiz: () =>
         set({
           sessionToken: null,
@@ -78,6 +83,7 @@ export const useQuizStore = create<QuizState>()(
           expressionNumber: null,
           prosperityBlock: null,
           palmistrySkipped: false,
+          palmistryPhotoUrl: null,
         }),
     }),
     { name: 'quiz-storage' }
