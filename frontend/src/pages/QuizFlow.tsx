@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuizStore } from '../store/quizStore';
-import { quizConfig } from '../config/quizConfig';
+import type { QuizStepConfig } from '../types/quiz';
 import { ProgressBar } from '../components/quiz/ProgressBar';
 import { SingleSelectCard } from '../components/quiz/StepTypes/SingleSelectCard';
 import { SingleSelectEmoji } from '../components/quiz/StepTypes/SingleSelectEmoji';
@@ -17,23 +17,28 @@ import { LoadingScreen } from '../components/quiz/StepTypes/LoadingScreen';
 import { EmailCapture } from '../components/quiz/StepTypes/EmailCapture';
 import { ResultPage } from '../components/quiz/StepTypes/ResultPage';
 import { MicroVSL } from '../components/quiz/StepTypes/MicroVSL';
-import { Checkout } from '../components/quiz/StepTypes/Checkout';
+import { Paywall } from '../components/quiz/StepTypes/Paywall';
 
 // Steps where back button should be hidden
 const NO_BACK_STEPS = new Set([1, 10, 11, 13, 14, 15, 16, 17]);
 
-// Steps that have a dark bg (palmistry + birth date)
+// Steps that have a dark bg
 const DARK_BG_STEPS = new Set([4, 10, 11]);
 
-export function QuizFlow() {
+interface QuizFlowProps {
+  config: QuizStepConfig[];
+  returnPath?: string; // where to redirect if no session (default '/')
+}
+
+export function QuizFlow({ config, returnPath = '/' }: QuizFlowProps) {
   const { currentStep, sessionToken, nextStep, previousStep, palmistrySkipped } = useQuizStore();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!sessionToken) {
-      navigate('/');
+      navigate(returnPath);
     }
-  }, [sessionToken, navigate]);
+  }, [sessionToken, navigate, returnPath]);
 
   // Auto-skip palmistry analysis if user skipped palmistry capture
   useEffect(() => {
@@ -44,25 +49,28 @@ export function QuizFlow() {
 
   if (!sessionToken || currentStep === 0) return null;
 
-  const config = quizConfig[currentStep - 1];
+  const stepConfig = config[currentStep - 1];
+  if (!stepConfig) return null;
+
+  const totalSteps = config.length;
   const showBack = currentStep > 1 && !NO_BACK_STEPS.has(currentStep);
-  const showProgress = currentStep <= 9; // show for first 9 steps
+  const showProgress = currentStep <= 9;
   const isDark = DARK_BG_STEPS.has(currentStep);
 
   const renderStep = () => {
     const props = { step: currentStep, onNext: nextStep };
 
-    switch (config.type) {
+    switch (stepConfig.type) {
       case 'single-select-card':
-        return <SingleSelectCard {...props} question={config.question!} options={config.options!} subtitle={config.subtitle} />;
+        return <SingleSelectCard {...props} question={stepConfig.question!} options={stepConfig.options!} subtitle={stepConfig.subtitle} />;
       case 'single-select-emoji':
-        return <SingleSelectEmoji {...props} question={config.question!} options={config.options!} />;
+        return <SingleSelectEmoji {...props} question={stepConfig.question!} options={stepConfig.options!} confirmLabel={stepConfig.confirmLabel} />;
       case 'single-select-text':
-        return <SingleSelectText {...props} question={config.question!} options={config.options!} variant={config.variant} />;
+        return <SingleSelectText {...props} question={stepConfig.question!} options={stepConfig.options!} variant={stepConfig.variant} />;
       case 'multi-select':
-        return <MultiSelectCheckbox {...props} question={config.question!} options={config.options!} subtitle={config.subtitle} minSelect={config.minSelect} />;
+        return <MultiSelectCheckbox {...props} question={stepConfig.question!} options={stepConfig.options!} subtitle={stepConfig.subtitle} minSelect={stepConfig.minSelect} />;
       case 'emoji-scale':
-        return <EmojiScale {...props} question={config.question!} subtitle={config.subtitle} />;
+        return <EmojiScale {...props} question={stepConfig.question!} subtitle={stepConfig.subtitle} />;
       case 'name-input':
         return <NameInput {...props} />;
       case 'birth-date':
@@ -79,12 +87,15 @@ export function QuizFlow() {
         return <ResultPage {...props} />;
       case 'micro-vsl':
         return <MicroVSL {...props} />;
-      case 'checkout':
-        return <Checkout />;
+      case 'paywall':
+        return <Paywall {...props} />;
       default:
         return null;
     }
   };
+
+  // suppress unused var warning — totalSteps used for future progress bar extension
+  void totalSteps;
 
   return (
     <div className={`min-h-screen flex flex-col ${isDark ? '' : 'bg-cream-50'}`}>

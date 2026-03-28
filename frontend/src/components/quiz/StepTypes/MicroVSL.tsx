@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { AUTHORITY_IMAGE_URL, AUTHORITY_NAME, AUTHORITY_TITLE } from '../../../config/authorityImage';
+import { useQuizStore } from '../../../store/quizStore';
+import { AUTHORITY_IMAGE_URL, AUTHORITY_NAME } from '../../../config/authorityImage';
 
 interface MicroVSLProps {
   step: number;
@@ -8,96 +8,53 @@ interface MicroVSLProps {
 }
 
 export function MicroVSL({ onNext }: MicroVSLProps) {
-  const [imgLoaded, setImgLoaded] = useState(false);
+  const { userName, destinyNumber } = useQuizStore();
+  const firstName = userName ? userName.trim().split(' ')[0] : null;
 
   return (
-    <div className="max-w-2xl mx-auto px-4">
-      {/* Label */}
+    <div className="max-w-sm mx-auto px-4 pb-12">
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="text-center text-sm text-gold-500 font-medium uppercase tracking-wide mb-6"
+        className="text-center text-sm text-gold-500 font-medium uppercase tracking-wide mb-4"
       >
         Uma mensagem especial para você
       </motion.p>
 
-      {/* Split layout: photo + message */}
+      {/* VSL video — 9:16 vertical, max-width 400px */}
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-        className="bg-white rounded-2xl shadow-md overflow-hidden mb-6 border border-gray-100"
+        transition={{ delay: 0.1 }}
+        className="mx-auto rounded-2xl overflow-hidden mb-6 shadow-xl"
+        style={{ aspectRatio: '9/16', maxWidth: 360, background: '#0a0a14' }}
       >
-        <div className="md:flex">
-          {/* Portrait */}
-          <div className="md:w-2/5 relative bg-gradient-to-b from-gold-50 to-cream-100 flex items-end justify-center min-h-56">
-            {!imgLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-10 h-10 border-2 border-gold-300 border-t-gold-500 rounded-full animate-spin" />
-              </div>
-            )}
-            <img
-              src={AUTHORITY_IMAGE_URL}
-              alt={AUTHORITY_NAME}
-              onLoad={() => setImgLoaded(true)}
-              className={`w-full h-64 md:h-full object-cover object-top transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
-            />
-          </div>
-
-          {/* Message */}
-          <div className="md:w-3/5 p-6 flex flex-col justify-between">
-            <div>
-              <p className="font-serif text-lg text-gold-600 mb-1">{AUTHORITY_NAME}</p>
-              <p className="text-xs text-gray-400 mb-4">{AUTHORITY_TITLE}</p>
-
-              <p className="text-gray-700 text-sm leading-relaxed mb-4">
-                "Depois de acompanhar mais de 3.800 mulheres, percebi que o problema
-                nunca foi esforço, vontade ou inteligência.{' '}
-                <strong>Foi sempre o bloqueio energético agindo na sombra.</strong>"
-              </p>
-
-              <p className="text-gray-700 text-sm leading-relaxed">
-                "Quando você conhece seu padrão e age na janela certa, a transformação
-                acontece de forma natural — sem forçar, sem lutar contra si mesma."
-              </p>
-            </div>
-
-            <div className="mt-5 pt-4 border-t border-gray-100">
-              <p className="text-xs text-gray-400 italic">
-                Numeróloga com 18 anos de experiência · 3.847 diagnósticos realizados
-              </p>
-            </div>
-          </div>
+        {/* TODO: replace with actual video embed — autoplay muted, unmute on click */}
+        <div className="w-full h-full flex flex-col items-center justify-center gap-4 px-6 text-center">
+          <img
+            src={AUTHORITY_IMAGE_URL}
+            alt={AUTHORITY_NAME}
+            className="w-24 h-24 rounded-full object-cover object-top border-2 border-gold-400"
+          />
+          <p className="text-sm leading-relaxed" style={{ color: '#e8d5a8' }}>
+            "Acabei de ver seu diagnóstico
+            {firstName ? `, ${firstName}` : ''}. Seu padrão é
+            surpreendentemente claro. Pessoas com o Número{' '}
+            <strong style={{ color: '#D4A855' }}>{destinyNumber ?? '?'}</strong>{' '}
+            estão a UMA decisão de destravar tudo."
+          </p>
+          <p className="text-xs" style={{ color: '#a89070' }}>— vídeo aqui —</p>
         </div>
-      </motion.div>
-
-      {/* Key points */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.35 }}
-        className="space-y-2 mb-7"
-      >
-        {[
-          'Por que a maioria das técnicas falha — e o que realmente funciona',
-          'Como o Triângulo de Desbloqueio age diretamente na raiz do padrão',
-          'Como usar seus dias favoráveis com precisão para agir no timing certo',
-        ].map((point, i) => (
-          <div key={i} className="flex items-start gap-3 bg-white rounded-xl px-4 py-3 border border-gray-100">
-            <span className="text-gold-500 font-bold mt-0.5 flex-shrink-0">✦</span>
-            <p className="text-gray-700 text-sm">{point}</p>
-          </div>
-        ))}
       </motion.div>
 
       <motion.button
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
+        transition={{ delay: 0.3 }}
         onClick={onNext}
-        className="w-full btn-primary py-4 text-base"
+        className="w-full bg-gold-500 hover:bg-gold-600 text-white font-bold py-4 rounded-xl text-lg transition-colors shadow-lg"
       >
-        Quero destravar agora →
+        Ver minha oferta →
       </motion.button>
     </div>
   );
