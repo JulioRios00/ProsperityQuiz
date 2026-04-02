@@ -14,6 +14,80 @@ const STEPS = [
   'Diagnóstico Palm-Numerológico completo! ✨',
 ];
 
+interface PalmReading {
+  label: string;
+  lineDominant: string;
+  blockFound: string;
+  opportunity: string;
+  detail: string;
+}
+
+const PALM_READINGS: Record<number, PalmReading> = {
+  1: {
+    label: 'Abertura',
+    lineDominant: 'Linha da Vida longa e profunda',
+    blockFound: 'Bloqueio de auto-sabotagem nos momentos de pico',
+    opportunity: 'Você tem força vital acima da média — o bloqueio é comportamental, não energético.',
+    detail: 'Sua Linha da Vida indica energia e resistência excepcionais. O problema não é falta de força — é um padrão de recuo justo quando a prosperidade está ao alcance. Isso é desbloqueável.',
+  },
+  2: {
+    label: 'Expansão',
+    lineDominant: 'Linha do Coração bifurcada',
+    blockFound: 'Bloqueio emocional ligado a merecimento',
+    opportunity: 'Sua capacidade afetiva é um ativo financeiro subutilizado.',
+    detail: 'A bifurcação na sua Linha do Coração revela uma tensão entre dar e receber. Você sabe gerar valor para os outros mas inconscientemente bloqueia o retorno. Esse padrão tem solução clara.',
+  },
+  3: {
+    label: 'Transformação',
+    lineDominant: 'Linha da Cabeça longa e inclinada',
+    blockFound: 'Excesso de análise — paralisia por perfeccionismo',
+    opportunity: 'Mente analítica poderosa, basta direcionar para ação.',
+    detail: 'Sua Linha da Cabeça é uma das mais longas que analisamos — isso indica inteligência estratégica. O problema é que você pensa mais do que age nos dias certos. O calendário vai resolver isso.',
+  },
+  4: {
+    label: 'Abundância',
+    lineDominant: 'Linha do Destino central e contínua',
+    blockFound: 'Bloqueio de timing — ação nos dias errados',
+    opportunity: 'Sua trajetória tem propósito claro. Falta apenas sincronizar.',
+    detail: 'A presença de uma Linha do Destino forte e contínua é rara — indica que você tem um caminho definido. O bloqueio não é de propósito, é de timing. Cada ação no dia errado custa o dobro.',
+  },
+  5: {
+    label: 'Renovação',
+    lineDominant: 'Linhas de influência múltiplas',
+    blockFound: 'Dispersão de energia — muitas portas abertas ao mesmo tempo',
+    opportunity: 'Capacidade de conexão e influência acima da média.',
+    detail: 'As múltiplas linhas de influência na sua palma indicam uma pessoa magnética, com capacidade de mover pessoas e recursos. O problema é dispersão: muita energia em direções diferentes. Foco nos dias favoráveis muda tudo.',
+  },
+  6: {
+    label: 'Fluxo',
+    lineDominant: 'Linha de Mercúrio (comunicação) visível',
+    blockFound: 'Bloqueio na comunicação do próprio valor',
+    opportunity: 'Dom natural para vender, negociar e persuadir quando desbloqueada.',
+    detail: 'A presença da Linha de Mercúrio revela habilidade inata para comunicação e negócios. Mas há um bloqueio específico: dificuldade em comunicar seu próprio valor sem sentir culpa. Isso explica por que você aceita menos do que merece.',
+  },
+  7: {
+    label: 'Manifestação',
+    lineDominant: 'Monte de Vênus desenvolvido',
+    blockFound: 'Bloqueio de prazer e recompensa — dificuldade em receber',
+    opportunity: 'Alta capacidade criativa e de realização quando em fluxo.',
+    detail: 'O Monte de Vênus desenvolvido na sua palma indica uma pessoa com grande capacidade de criar e realizar. Porém, há um condicionamento profundo que associa prazer e recompensa com culpa. Desbloqueando isso, o fluxo financeiro muda rapidamente.',
+  },
+  8: {
+    label: 'Desbloqueio',
+    lineDominant: 'Cruzamento entre Linha do Coração e Cabeça',
+    blockFound: 'Conflito entre emoção e razão nas decisões financeiras',
+    opportunity: 'Quando integradas, intuição e lógica formam uma combinação rara.',
+    detail: 'O cruzamento entre as linhas do Coração e da Cabeça indica uma pessoa que toma decisões emocionais em situações que pedem lógica, e vice-versa. Isso gera inconsistência financeira. O diagnóstico vai mapear exatamente quando esse conflito surge.',
+  },
+  9: {
+    label: 'Prosperidade',
+    lineDominant: 'Linha do Sol (sucesso) presente',
+    blockFound: 'Bloqueio de visibilidade — medo do sucesso pleno',
+    opportunity: 'Potencial de reconhecimento e sucesso financeiro elevado.',
+    detail: 'A presença da Linha do Sol é o sinal mais promissor que existe em uma palma — indica potencial de sucesso e reconhecimento. Mas há um paradoxo: um medo inconsciente de se tornar completamente visível. Quando esse bloqueio é removido, os resultados são rápidos.',
+  },
+};
+
 export function PalmistryAnalysis({ onNext }: Props) {
   const { destinyNumber, expressionNumber, palmistryPhotoUrl } = useQuizStore();
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
@@ -45,19 +119,20 @@ export function PalmistryAnalysis({ onNext }: Props) {
 
   const circumference = 2 * Math.PI * 52;
 
-  // Personalized palm result based on destiny + expression numbers
   const codeNumber = destinyNumber && expressionNumber
     ? ((destinyNumber * 3 + expressionNumber * 7) % 9) + 1
-    : destinyNumber ?? 7;
+    : destinyNumber
+      ? ((destinyNumber * 4) % 9) + 1
+      : 7;
 
-  const PALM_LABELS = ['', 'Abertura', 'Expansão', 'Transformação', 'Abundância', 'Renovação', 'Fluxo', 'Manifestação', 'Desbloqueio', 'Prosperidade'];
+  const reading = PALM_READINGS[codeNumber] ?? PALM_READINGS[7];
 
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden"
       style={{ background: 'linear-gradient(135deg, #0a0a14 0%, #1a1228 50%, #0d0a18 100%)' }}
     >
-      {/* Hand photo as background (30% opacity, blur) */}
+      {/* Hand photo as background */}
       {palmistryPhotoUrl && (
         <div
           className="absolute inset-0 pointer-events-none"
@@ -120,26 +195,47 @@ export function PalmistryAnalysis({ onNext }: Props) {
           })}
         </div>
 
-        {/* Result card + CTA — shown after analysis completes */}
+        {/* Result card */}
         {done && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-          >
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
             <div
-              className="rounded-xl p-4 mb-5"
-              style={{ background: 'rgba(212,168,85,0.1)', border: '1px solid rgba(212,168,85,0.3)' }}
+              className="rounded-xl p-5 mb-5 text-left"
+              style={{ background: 'rgba(212,168,85,0.08)', border: '1px solid rgba(212,168,85,0.3)' }}
             >
-              <p className="text-sm font-semibold mb-2" style={{ color: '#D4A855' }}>
-                Seu Código de Abundância foi revelado
-              </p>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm font-semibold" style={{ color: '#D4A855' }}>
+                  Código de Abundância revelado
+                </p>
+                <span className="text-2xl font-bold" style={{ color: '#D4A855' }}>{codeNumber}</span>
+              </div>
+
               <p className="text-xs mb-1" style={{ color: '#a89070' }}>
-                Código Palm-Numerológico:{' '}
-                <strong style={{ color: '#D4A855', fontSize: '1.1rem' }}>{codeNumber}</strong>
-              </p>
-              <p className="text-xs" style={{ color: '#a89070' }}>
                 Vibração predominante:{' '}
-                <strong style={{ color: '#D4A855' }}>{PALM_LABELS[codeNumber] ?? 'Abundância'}</strong>
+                <strong style={{ color: '#D4A855' }}>{reading.label}</strong>
+              </p>
+              <p className="text-xs mb-3" style={{ color: '#a89070' }}>
+                Linha dominante:{' '}
+                <strong style={{ color: '#fff8f0' }}>{reading.lineDominant}</strong>
+              </p>
+
+              <div
+                className="rounded-lg p-3 mb-3"
+                style={{ background: 'rgba(200,50,50,0.12)', border: '1px solid rgba(200,80,80,0.25)' }}
+              >
+                <p className="text-xs font-semibold mb-1" style={{ color: '#ff9090' }}>🔒 Bloqueio identificado</p>
+                <p className="text-xs" style={{ color: '#c89080' }}>{reading.blockFound}</p>
+              </div>
+
+              <div
+                className="rounded-lg p-3 mb-3"
+                style={{ background: 'rgba(50,150,80,0.12)', border: '1px solid rgba(80,180,100,0.25)' }}
+              >
+                <p className="text-xs font-semibold mb-1" style={{ color: '#80d890' }}>✨ Oportunidade oculta</p>
+                <p className="text-xs" style={{ color: '#80c090' }}>{reading.opportunity}</p>
+              </div>
+
+              <p className="text-xs leading-relaxed" style={{ color: '#a89070' }}>
+                {reading.detail}
               </p>
             </div>
 
@@ -151,7 +247,7 @@ export function PalmistryAnalysis({ onNext }: Props) {
               className="w-full py-4 text-base font-bold rounded-xl"
               style={{ background: '#D4A855', color: '#0a0a14' }}
             >
-              Ver Diagnóstico →
+              Ver Diagnóstico Completo →
             </motion.button>
           </motion.div>
         )}
