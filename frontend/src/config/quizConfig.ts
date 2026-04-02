@@ -7,10 +7,10 @@ export const quizConfig: QuizStepConfig[] = [
     type: 'single-select-card',
     question: 'Como você descreveria sua relação com dinheiro hoje?',
     options: [
-      { value: 'travada',   label: 'Travada',   description: 'Mulher frustrada olhando contas, mãos na cabeça' },
-      { value: 'instavel',  label: 'Instável',  description: 'Mulher preocupada olhando celular, dúvida' },
-      { value: 'limitada',  label: 'Limitada',  description: 'Mulher controlando planilha, cansada' },
-      { value: 'caotica',   label: 'Caótica',   description: 'Mesa bagunçada com contas e cartões' },
+      { value: 'travada',   label: 'Travada',   image: '/frustradaComContas.png' },
+      { value: 'instavel',  label: 'Instável',  image: '/mulherInstavel.png' },
+      { value: 'limitada',  label: 'Limitada',  image: '/mulherLimitada.png' },
+      { value: 'caotica',   label: 'Caótica',   image: '/mulherCaotica.png' },
     ],
   },
 
