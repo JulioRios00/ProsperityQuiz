@@ -1,54 +1,47 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { useQuizStore } from '../../../store/quizStore';
-import { AUTHORITY_IMAGE_URL, AUTHORITY_NAME, AUTHORITY_TITLE } from '../../../config/authorityImage';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-// TODO: replace with actual checkout URL
-const CHECKOUT_URL = '#';
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'vturb-smartplayer': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+    }
+  }
+}
 
-const TIMER_SECONDS = 14 * 60 + 59; // 14:59
+const CHECKOUT_URL = '#hotmart';
 
-const VALUE_STACK = [
-  { label: 'Calendário de Desbloqueio Personalizado', value: 'R$97' },
-  { label: '21 Rituais de Prosperidade',              value: 'R$67' },
-  { label: 'Acesso ao App Completo',                  value: 'R$47' },
-];
+const KNOWN_NEW_MOON = new Date('2025-01-29T12:36:00Z');
+const SYNODIC_MS = 29.530589 * 86400 * 1000;
 
-const TESTIMONIALS = [
-  {
-    name: 'Adriana S.',
-    text: 'Em 3 semanas seguindo o calendário minha renda aumentou 40%. Parecia impossível mas funcionou.',
-    stars: 5,
-    age: '38 anos',
-  },
-  {
-    name: 'Cláudia M.',
-    text: 'Finalmente entendi porque o dinheiro sempre sumia. O diagnóstico foi cirúrgico.',
-    stars: 5,
-    age: '44 anos',
-  },
-  {
-    name: 'Fernanda R.',
-    text: 'Investi R$9,90 com medo, mas em 2 meses recuperei R$3.200 que achei que nunca veria.',
-    stars: 5,
-    age: '51 anos',
-  },
-];
-
-function useCountdown(initialSeconds: number) {
-  const [seconds, setSeconds] = useState(initialSeconds);
+function useLunarCountdown() {
+  const [parts, setParts] = useState({ dd: '00', hh: '00', mm: '00', ss: '00' });
 
   useEffect(() => {
-    const id = setInterval(() => {
-      setSeconds((s) => (s > 0 ? s - 1 : 0));
-    }, 1000);
+    function calc() {
+      const elapsed = Date.now() - KNOWN_NEW_MOON.getTime();
+      const frac = (elapsed / SYNODIC_MS) % 1;
+      const toNext = frac < 0.5 ? (0.5 - frac) * SYNODIC_MS : (1 - frac) * SYNODIC_MS;
+      const totalSec = Math.max(0, Math.floor(toNext / 1000));
+      const dd = String(Math.floor(totalSec / 86400)).padStart(2, '0');
+      const hh = String(Math.floor((totalSec % 86400) / 3600)).padStart(2, '0');
+      const mm = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+      const ss = String(totalSec % 60).padStart(2, '0');
+      setParts({ dd, hh, mm, ss });
+    }
+    calc();
+    const id = setInterval(calc, 1000);
     return () => clearInterval(id);
   }, []);
 
-  const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
-  const ss = String(seconds % 60).padStart(2, '0');
-  return `${mm}:${ss}`;
+  return parts;
 }
+
+const MARCIA_PHOTO = 'data:image/jpeg;base64,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';
+
+const PATRICIA_PHOTO = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCABwAHADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7KooorqMwooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/2Q==';
+
+const FERNANDA_PHOTO = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCABwAHADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7KooorqMwooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/2Q==';
 
 interface PaywallProps {
   step: number;
@@ -56,151 +49,434 @@ interface PaywallProps {
 }
 
 export function Paywall({}: PaywallProps) {
-  const { userName, diagnosis } = useQuizStore();
-  const firstName = userName ? userName.trim().split(' ')[0] : null;
-  const timer = useCountdown(TIMER_SECONDS);
+  const [unlocked, setUnlocked] = useState(false);
+  const [bump1, setBump1] = useState(false);
+  const [bump2, setBump2] = useState(false);
+  const [faqOpen, setFaqOpen] = useState<number | null>(null);
+  const scriptLoadedRef = useRef(false);
+  const lunar = useLunarCountdown();
+
+  useEffect(() => {
+    // Performance timing script
+    (window as Window & { _plt?: number })._plt =
+      (window as Window & { _plt?: number })._plt ||
+      (performance?.timeOrigin ? performance.timeOrigin + performance.now() : Date.now());
+
+    // Load Vturb player script once
+    if (!scriptLoadedRef.current) {
+      scriptLoadedRef.current = true;
+      const script = document.createElement('script');
+      script.src =
+        'https://scripts.converteai.net/859d3a9a-adcf-4da6-86a3-43be35f0e474/players/69cc705f9a29533f270b1d5f/v4/player.js';
+      script.async = true;
+      document.head.appendChild(script);
+    }
+
+    // Unlock after 42 seconds
+    const timer = setTimeout(() => setUnlocked(true), 42000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const faqs = [
+    {
+      q: 'O que exatamente eu recebo ao assinar?',
+      a: 'Você recebe o Diagnóstico Tridimensional completo, o Calendário de Abundância personalizado atualizado mensalmente, alertas 24h antes dos seus dias favoráveis, o Perfil Financeiro Tridimensional, Previsão Lunar do mês e o Plano de Ação Personalizado.',
+    },
+    {
+      q: 'Em quanto tempo vou ver resultados?',
+      a: 'A maioria das usuárias começa a perceber mudanças nas primeiras 2 a 4 semanas. Ao alinhar suas ações com os dias favoráveis do seu perfil, os esforços passam a render muito mais — mesmo sem trabalhar mais.',
+    },
+    {
+      q: 'Posso cancelar a qualquer momento?',
+      a: 'Sim. Com 1 clique, sem burocracia, sem perguntas. Você tem garantia total de 30 dias. Se não sentir diferença, cancele e não paga mais nada.',
+    },
+    {
+      q: 'O método funciona pra qualquer pessoa?',
+      a: 'O TimingGold foi criado especialmente para mulheres que sentem que algo invisível trava sua prosperidade — mesmo trabalhando muito. Se você se identifica com esse padrão, o método é pra você.',
+    },
+  ];
 
   return (
-    <div className="max-w-lg mx-auto px-4 pb-16">
-      {/* Urgency timer banner */}
+    <div className="max-w-[480px] mx-auto px-4 pb-16 bg-[#FFF8F0] font-[DM_Sans,sans-serif]">
+
+      {/* BLOCK 1 — Badge */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-red-600 text-white text-center py-3 rounded-xl mb-6 font-bold text-lg tracking-wide"
+        className="flex justify-center pt-6 pb-4"
       >
-        ⏳ Esta oferta expira em{' '}
-        <span className="font-mono text-xl">{timer}</span>
+        <span className="inline-flex items-center gap-2 bg-gradient-to-r from-green-100 to-gold-50 border border-gold-400 text-gold-600 text-xs font-bold px-4 py-2 rounded-full uppercase tracking-wide shadow-sm">
+          ✨ SEU DIAGNÓSTICO TRIDIMENSIONAL ESTÁ PRONTO
+        </span>
       </motion.div>
 
-      {/* Headline */}
+      {/* BLOCK 2 — VSL */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.1 }}
-        className="text-center mb-6"
+        className="mb-6"
       >
-        <h2 className="text-2xl font-serif text-gold-600 leading-snug mb-2">
-          {firstName
-            ? `${firstName}, seu Calendário de Desbloqueio está pronto.`
-            : 'Seu Calendário de Desbloqueio está pronto.'}
-        </h2>
-        <p className="text-sm text-gray-500 leading-relaxed">
-          Acesse agora com seus{' '}
-          <strong className="text-gold-600">
-            {diagnosis?.favorable_days ?? 14} dias favoráveis
-          </strong>{' '}
-          e comece a destravar sua prosperidade hoje.
-        </p>
+        <vturb-smartplayer
+          id="vid-69cc705f9a29533f270b1d5f"
+          style={{ display: 'block', margin: '0 auto', width: '100%', maxWidth: '400px' }}
+        />
       </motion.div>
 
-      {/* Value stack */}
-      <motion.div
+      {/* BLOCK 3 — Headline */}
+      <motion.h1
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.15 }}
+        className="font-serif text-2xl text-gold-600 text-center leading-snug mb-4"
+      >
+        Chega de Sobreviver, Você Nasceu Pra Fluir.
+      </motion.h1>
+
+      {/* BLOCK 4 — Support text */}
+      <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4"
+        className="text-sm text-gray-600 text-center leading-relaxed mb-6"
       >
-        <p className="text-xs text-center text-gray-400 uppercase tracking-wide mb-3">
-          O que você leva hoje
-        </p>
-        <div className="space-y-2">
-          {VALUE_STACK.map((item) => (
-            <div key={item.label} className="flex justify-between items-center text-sm">
-              <span className="text-gray-600 flex items-center gap-1">
-                <span className="text-gold-500">✦</span> {item.label}
-              </span>
-              <span className="text-gray-400 line-through text-xs">{item.value}</span>
+        Em 2 minutos seu diagnóstico revelou o que te trava — e seu calendário mostra os dias em que tudo solta. Personalizado, atualizado, sem esforço extra. Só timing certo. +3.800 mulheres já fizeram a virada — seus dias favoráveis deste mês estão passando.
+      </motion.p>
+
+      {/* BLUR GATE WRAPPER */}
+      <div className="relative">
+        {/* Blur overlay when locked */}
+        {!unlocked && (
+          <div className="absolute inset-0 z-10 flex items-start justify-center pt-10 backdrop-blur-sm bg-[#FFF8F0]/60 rounded-xl">
+            <div className="bg-white/90 border border-gold-400 rounded-2xl px-6 py-5 mx-4 text-center shadow-lg">
+              <p className="text-base font-semibold text-gray-800">
+                🔒 Assista o vídeo para desbloquear seu diagnóstico completo
+              </p>
             </div>
-          ))}
-          <div className="border-t border-amber-200 pt-3 flex justify-between items-center">
-            <div>
-              <p className="text-xs text-gray-400 line-through">De R$197</p>
-              <p className="text-sm font-semibold text-gray-700">Hoje por apenas:</p>
-            </div>
-            <span className="text-3xl font-bold text-gold-600">R$9,90</span>
           </div>
-        </div>
-      </motion.div>
+        )}
 
-      {/* Guarantee */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl p-3 mb-5"
-      >
-        <span className="text-2xl">🛡️</span>
-        <div>
-          <p className="text-sm font-semibold text-green-800">Garantia de 7 dias</p>
-          <p className="text-xs text-green-700">Reembolso em 1 clique. Sem perguntas.</p>
-        </div>
-      </motion.div>
+        {/* Gated content wrapper */}
+        <div
+          className={`transition-all duration-1000 ${
+            unlocked ? 'blur-0 pointer-events-auto opacity-100' : 'blur-sm pointer-events-none select-none opacity-60'
+          }`}
+        >
 
-      {/* CTA */}
-      <motion.a
-        href={CHECKOUT_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35 }}
-        className="block w-full text-center bg-gold-500 hover:bg-gold-600 text-white font-bold py-4 rounded-xl text-lg transition-colors shadow-lg mb-3"
-      >
-        QUERO DESTRAVAR AGORA →
-      </motion.a>
-
-      <p className="text-center text-xs text-gray-400 mb-8">
-        🔒 Pagamento 100% seguro · Garantia de 7 dias · Reembolso em 1 clique
-      </p>
-
-      {/* Testimonials */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.45 }}
-        className="space-y-4 mb-8"
-      >
-        <p className="text-xs text-center text-gray-400 uppercase tracking-wide">
-          O que dizem as mulheres que desbloquearam
-        </p>
-        {TESTIMONIALS.map((t) => (
-          <div key={t.name} className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 rounded-full bg-gold-100 flex items-center justify-center text-gold-600 font-bold text-sm">
-                {t.name[0]}
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-gray-700">{t.name}</p>
-                <p className="text-xs text-gray-400">{t.age}</p>
-              </div>
-              <span className="ml-auto text-xs text-yellow-400">{'★'.repeat(t.stars)}</span>
+          {/* BLOCK 5 — SEM vs COM */}
+          <div className="mb-6 space-y-3">
+            <div className="border border-red-300 rounded-2xl p-4 bg-red-50">
+              <p className="font-bold text-red-700 mb-2">❌ Sem o Calendário de Abundância:</p>
+              <ul className="text-sm text-red-800 space-y-1">
+                <li>• Você continua tomando decisões financeiras no escuro</li>
+                <li>• O dinheiro entra e some no mesmo ciclo de sempre</li>
+                <li>• Você trabalha o dobro nos dias errados e colhe metade</li>
+                <li>• Cada oportunidade perdida num dia favorável não volta</li>
+                <li>• Você continua sentindo que algo invisível te trava</li>
+                <li>• E daqui a 6 meses: por que não mudei quando tive a chance?</li>
+              </ul>
             </div>
-            <p className="text-xs text-gray-600 italic leading-relaxed">"{t.text}"</p>
+            <div className="border border-green-300 rounded-2xl p-4 bg-green-50">
+              <p className="font-bold text-green-700 mb-2">✅ Com o Calendário de Abundância:</p>
+              <ul className="text-sm text-green-800 space-y-1">
+                <li>• Você sabe EXATAMENTE quais dias agir e quais ficar quieta</li>
+                <li>• Negociações acontecem nos dias em que o bloqueio está fraco</li>
+                <li>• Mesmo esforço, resultado multiplicado — timing a favor</li>
+                <li>• Alertas 24h antes de cada dia favorável</li>
+                <li>• Os rituais impedem o bloqueio de se recuperar nos dias vermelhos</li>
+                <li>• Em 4 semanas, 87% das mulheres relatam vida financeira diferente</li>
+              </ul>
+            </div>
+            <p className="text-center text-sm font-semibold text-gray-700">
+              👆 Você decide. Qual das duas opções faz sentido pra você?
+            </p>
           </div>
-        ))}
-      </motion.div>
 
-      {/* Authority */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.55 }}
-        className="flex items-center gap-3 bg-white rounded-xl p-4 border border-gray-100"
-      >
-        <img
-          src={AUTHORITY_IMAGE_URL}
-          alt={AUTHORITY_NAME}
-          className="w-12 h-12 rounded-full object-cover object-top flex-shrink-0"
-        />
-        <div>
-          <p className="text-xs text-gray-700 italic leading-snug">
-            "Esse método mudou a vida de mais de 3.847 mulheres. Chegou a sua vez."
-          </p>
-          <p className="text-xs text-gold-600 font-medium mt-1">
-            {AUTHORITY_NAME} · {AUTHORITY_TITLE}
-          </p>
+          {/* BLOCK 6 — Lunar timer */}
+          <div className="bg-[#1a0e2e] rounded-2xl p-5 mb-6 text-center">
+            <p className="text-gold-400 text-sm font-semibold mb-3">
+              ⏰ Seus dias favoráveis deste mês estão passando. Esta oferta expira quando o ciclo lunar atual terminar.
+            </p>
+            <div className="flex justify-center gap-3 mb-3">
+              {[
+                { val: lunar.dd, label: 'Dias' },
+                { val: lunar.hh, label: 'Horas' },
+                { val: lunar.mm, label: 'Min' },
+                { val: lunar.ss, label: 'Seg' },
+              ].map(({ val, label }) => (
+                <div key={label} className="flex flex-col items-center">
+                  <div className="bg-white/10 border border-gold-500/40 rounded-xl w-14 h-14 flex items-center justify-center">
+                    <span className="text-2xl font-bold text-white font-mono">{val}</span>
+                  </div>
+                  <span className="text-gold-400 text-xs mt-1">{label}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-gray-400 text-xs">
+              Quando o tempo zerar, o preço volta ao valor original.
+            </p>
+          </div>
+
+          {/* BLOCK 7 — Deliverables */}
+          <div className="mb-6">
+            <p className="text-center text-xs font-bold text-gold-600 uppercase tracking-widest mb-3">
+              O QUE VOCÊ RECEBE
+            </p>
+            <div className="border border-gold-200 rounded-2xl overflow-hidden">
+              {[
+                {
+                  icon: '🔮',
+                  title: 'Diagnóstico Tridimensional Completo',
+                  desc: 'Seu padrão de bloqueio com nome, intensidade e origem',
+                  real: 'R$ 97,00',
+                },
+                {
+                  icon: '📅',
+                  title: 'Calendário de Abundância (atualiza todo mês)',
+                  desc: 'Dias favoráveis e desfavoráveis personalizados',
+                  real: 'R$ 67/mês',
+                },
+                {
+                  icon: '🔔',
+                  title: 'Alertas Automáticos 24h Antes',
+                  desc: 'Notificação antes de cada dia favorável',
+                  real: 'R$ 37/mês',
+                },
+                {
+                  icon: '📊',
+                  title: 'Perfil Financeiro Tridimensional',
+                  desc: 'Ano Pessoal + Número de Expressão + Ciclo Lunar',
+                  real: 'R$ 47,00',
+                },
+                {
+                  icon: '🌙',
+                  title: 'Previsão Lunar + Trânsitos do Mês',
+                  desc: 'Como os ciclos cósmicos afetam SEU perfil',
+                  real: 'R$ 37,00',
+                },
+                {
+                  icon: '✨',
+                  title: 'Plano de Ação Personalizado',
+                  desc: 'O que fazer em cada tipo de dia',
+                  real: 'R$ 47,00',
+                },
+              ].map((item, i) => (
+                <div
+                  key={i}
+                  className={`flex items-start gap-3 p-3 ${i % 2 === 0 ? 'bg-gold-50' : 'bg-white'}`}
+                >
+                  <span className="text-2xl flex-shrink-0">{item.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-800">{item.title}</p>
+                    <p className="text-xs text-gray-500">{item.desc}</p>
+                  </div>
+                  <div className="flex-shrink-0 text-right">
+                    <p className="text-xs text-gray-400 line-through">{item.real}</p>
+                    <p className="text-xs text-green-600 font-bold">Incluso</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* BLOCK 8 — Price anchor */}
+          <div className="text-center bg-white border-2 border-gold-400 rounded-2xl p-5 mb-6 shadow-sm">
+            <p className="text-gray-400 text-lg line-through mb-1">Valor total: R$ 332,00</p>
+            <p className="text-gold-600 text-4xl font-bold mb-1">R$37,90<span className="text-xl">/mês</span></p>
+            <p className="text-sm text-gray-600 mb-1">Menos de R$1,27 por dia para saber exatamente QUANDO agir.</p>
+            <p className="text-xs text-gray-500">Cancela quando quiser. Sem contrato, sem fidelidade.</p>
+          </div>
+
+          {/* BLOCK 9 — CTA primary */}
+          <div className="mb-6">
+            <a
+              href={CHECKOUT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`flex items-center justify-center w-full h-[60px] bg-[#C8963E] text-[#0D0B1A] text-lg font-bold rounded-xl shadow-lg transition-all ${unlocked ? 'animate-pulse' : ''}`}
+            >
+              ACESSAR MEU CALENDÁRIO DE ABUNDÂNCIA →
+            </a>
+            <p className="text-center text-xs text-gray-500 mt-2">
+              🔒 Pagamento 100% seguro · Cancele quando quiser · Seus dados estão protegidos
+            </p>
+          </div>
+
+          {/* BLOCK 10+11 — Order bumps */}
+          <div className="bg-white border border-gold-200 rounded-2xl p-4 mb-6">
+            <p className="text-sm font-bold text-center text-gray-800 mb-3">Potencialize Seus Resultados</p>
+            <div className="space-y-3">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={bump1}
+                  onChange={() => setBump1(!bump1)}
+                  className="mt-1 accent-gold-500 w-4 h-4 flex-shrink-0"
+                />
+                <div>
+                  <p className="text-sm font-semibold text-gray-700">📍 Mapa dos 7 Primeiros Dias (+R$8,98)</p>
+                </div>
+              </label>
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={bump2}
+                  onChange={() => setBump2(!bump2)}
+                  className="mt-1 accent-gold-500 w-4 h-4 flex-shrink-0"
+                />
+                <div>
+                  <p className="text-sm font-semibold text-gray-700">📍 21 Rituais de Desbloqueio (+R$19,98)</p>
+                </div>
+              </label>
+            </div>
+            <p className="text-xs text-gray-400 text-center mt-3">Você poderá selecionar na próxima tela.</p>
+          </div>
+
+          {/* BLOCK 12 — Guarantee */}
+          <div className="bg-green-50 border border-green-300 rounded-2xl p-5 mb-6">
+            <p className="font-bold text-green-800 text-base mb-2">🛡️ Garantia de 30 Dias</p>
+            <p className="text-sm text-green-700 leading-relaxed">
+              Se em 30 dias você não sentir diferença na sua vida financeira, cancele e não pague mais nada. Sem perguntas. Sem burocracia. Você tem 30 dias completos para testar o calendário, seguir os dias favoráveis e ver se faz sentido pra você. O risco é zero.
+            </p>
+          </div>
+
+          {/* BLOCK 13 — Testimonials */}
+          <div className="mb-6">
+            <p className="text-center text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">
+              O que dizem quem já desbloqueou
+            </p>
+            <p className="text-center text-sm text-gold-600 font-semibold mb-4">
+              Resultados reais de usuárias do TimingGold
+            </p>
+            <div className="space-y-4">
+              {[
+                {
+                  photo: MARCIA_PHOTO,
+                  name: 'Márcia',
+                  age: '45 anos',
+                  city: 'Belo Horizonte MG',
+                  text: 'Meu salão de beleza estava às moscas até eu encontrar o TimingGold. Comecei a agir certo nos dias certos, e ',
+                  bold: 'depois de 2 meses e meio meu salão está lotando todos os dias praticamente.',
+                  after: ' Obrigadaa Renata s2!!',
+                },
+                {
+                  photo: PATRICIA_PHOTO,
+                  name: 'Patrícia',
+                  age: '55 anos',
+                  city: 'São Paulo SP',
+                  text: 'Fiz o diagnóstico sem esperar nada. Segui o calendário por 2 semanas e ',
+                  bold: 'fechei um contrato que estava parado há 5 meses.',
+                  after: ' No dia exato que o app marcou.',
+                },
+                {
+                  photo: FERNANDA_PHOTO,
+                  name: 'Fernanda',
+                  age: '30 anos',
+                  city: 'Rio de Janeiro RJ',
+                  text: 'Eu achava que o problema era eu. Era o dia. Comecei a agir nos dias favoráveis e ',
+                  bold: 'em 3 meses quitei uma dívida que me perseguia há 2 anos.',
+                  after: '',
+                },
+              ].map((t, i) => (
+                <div
+                  key={i}
+                  className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <img
+                      src={t.photo}
+                      alt={t.name}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-[#C8963E] flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-gray-800">
+                        {t.name}, {t.age}
+                      </p>
+                      <p className="text-xs text-gray-500">{t.city}</p>
+                      <div className="flex gap-0.5 mt-0.5">
+                        {Array.from({ length: 5 }).map((_, s) => (
+                          <span key={s} style={{ color: '#C8963E' }} className="text-sm">★</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700 italic leading-relaxed">
+                    "{t.text}<strong>{t.bold}</strong>{t.after}"
+                  </p>
+                  <div className="mt-2 flex items-center gap-1">
+                    <span className="w-2 h-2 bg-green-500 rounded-full inline-block"></span>
+                    <span className="text-xs text-green-600 font-medium">Compra verificada</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* BLOCK 15 — CTA secondary */}
+          <div className="mb-6">
+            <a
+              href={CHECKOUT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center w-full h-[60px] bg-[#C8963E] text-[#0D0B1A] text-lg font-bold rounded-xl shadow-lg transition-all hover:bg-gold-600"
+            >
+              QUERO COMEÇAR HOJE → R$37,90/mês
+            </a>
+            <p className="text-center text-xs text-gray-500 mt-2">
+              Cancele quando quiser. Garantia de 30 dias.
+            </p>
+          </div>
+
+          {/* BLOCK 16 — FAQ */}
+          <div className="mb-6">
+            <p className="text-center text-sm font-bold text-gray-700 mb-3">Perguntas Frequentes</p>
+            <div className="space-y-2">
+              {faqs.map((faq, i) => (
+                <div key={i} className="border border-gray-200 rounded-xl overflow-hidden bg-white">
+                  <button
+                    onClick={() => setFaqOpen(faqOpen === i ? null : i)}
+                    className="w-full flex items-center justify-between px-4 py-3 text-left"
+                  >
+                    <span className="text-sm font-semibold text-gray-800 pr-2">{faq.q}</span>
+                    <span className="text-gold-500 flex-shrink-0 text-lg font-bold">
+                      {faqOpen === i ? '−' : '+'}
+                    </span>
+                  </button>
+                  <AnimatePresence>
+                    {faqOpen === i && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25 }}
+                        className="overflow-hidden"
+                      >
+                        <p className="px-4 pb-3 text-sm text-gray-600 leading-relaxed">{faq.a}</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* BLOCK 17 — Trust badges */}
+          <div className="grid grid-cols-4 gap-2 text-center">
+            {[
+              { icon: '🔒', label: 'Pagamento Seguro' },
+              { icon: '⚡', label: 'Acesso Imediato' },
+              { icon: '🛡️', label: 'Garantia 30 Dias' },
+              { icon: '❌', label: 'Cancele Quando Quiser' },
+            ].map((b, i) => (
+              <div key={i} className="bg-white border border-gray-100 rounded-xl p-2 flex flex-col items-center gap-1 shadow-sm">
+                <span className="text-xl">{b.icon}</span>
+                <span className="text-[10px] text-gray-500 font-medium leading-tight">{b.label}</span>
+              </div>
+            ))}
+          </div>
+
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
