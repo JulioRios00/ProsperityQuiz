@@ -73,6 +73,14 @@ export function PalmistryCapture({ step, onNext }: Props) {
 
   useEffect(() => () => stopStream(), [stopStream]);
 
+  // Assign stream to video element once 'camera' state is rendered
+  useEffect(() => {
+    if (uiState === 'camera' && streamRef.current && videoRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+      videoRef.current.play().catch(() => {});
+    }
+  }, [uiState]);
+
   // ----- Camera via getUserMedia -----
   const openCamera = async () => {
     try {
@@ -81,13 +89,6 @@ export function PalmistryCapture({ step, onNext }: Props) {
       });
       streamRef.current = stream;
       setUiState('camera');
-      // Assign stream after state update so the video element is mounted
-      setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play().catch(() => {});
-        }
-      }, 50);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes('Permission') || msg.includes('NotAllowed') || msg.includes('denied')) {
@@ -105,11 +106,14 @@ export function PalmistryCapture({ step, onNext }: Props) {
     const video = videoRef.current;
     const canvas = canvasRef.current;
     if (!video || !canvas) return;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    const w = video.videoWidth || video.clientWidth;
+    const h = video.videoHeight || video.clientHeight;
+    if (!w || !h) return;
+    canvas.width = w;
+    canvas.height = h;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    ctx.drawImage(video, 0, 0);
+    ctx.drawImage(video, 0, 0, w, h);
     stopStream();
     canvas.toBlob((blob) => {
       if (!blob) return;
