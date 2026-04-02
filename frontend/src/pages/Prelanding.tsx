@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { quizService } from '../services/quizService'
 import { useQuizStore } from '../store/quizStore'
@@ -7,8 +7,27 @@ interface PrelandingProps {
   variant?: 'a' | 'b'
 }
 
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'vturb-smartplayer': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+    }
+  }
+}
+
 function Prelanding({ variant }: PrelandingProps) {
   const [loading, setLoading] = useState(false)
+  const scriptLoadedRef = useRef(false)
+
+  useEffect(() => {
+    if (!scriptLoadedRef.current) {
+      scriptLoadedRef.current = true
+      const s = document.createElement('script')
+      s.src = 'https://scripts.converteai.net/859d3a9a-adcf-4da6-86a3-43be35f0e474/players/69cc705f9a29533f270b1d5f/v4/player.js'
+      s.async = true
+      document.head.appendChild(s)
+    }
+  }, [])
   const { startQuiz } = useQuizStore()
   const navigate = useNavigate()
 
@@ -65,33 +84,12 @@ function Prelanding({ variant }: PrelandingProps) {
           Descubra o Bloqueio Invisível que Trava sua Prosperidade
         </h1>
 
-        {/* Micro VSL — 9:16 vertical, max-width 400px, autoplay muted */}
-        <div
-          className="relative mx-auto rounded-2xl overflow-hidden mb-8 shadow-xl"
-          style={{ aspectRatio: '9/16', maxWidth: 360, background: '#0a0a14' }}
-        >
-          {/* TODO: replace with actual video embed
-              <iframe
-                src="VIDEO_URL?autoplay=1&mute=1&loop=1"
-                allow="autoplay; fullscreen"
-                className="absolute inset-0 w-full h-full"
-              />
-          */}
-          <img
-            src="/FotoRenata.png"
-            alt="Mestra Renata Alves"
-            className="absolute inset-0 w-full h-full object-cover object-top opacity-80"
-          />
-          <div className="absolute inset-0 flex items-end justify-center pb-8">
-            <div
-              className="w-16 h-16 rounded-full flex items-center justify-center cursor-pointer"
-              style={{ background: 'rgba(212,168,85,0.9)' }}
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </div>
-          </div>
+        {/* Micro VSL — Vturb player */}
+        <div className="mb-8">
+          <vturb-smartplayer
+            id="vid-69cc705f9a29533f270b1d5f"
+            style={{ display: 'block', margin: '0 auto', width: '100%', maxWidth: '400px' }}
+          ></vturb-smartplayer>
         </div>
 
         {/* Authority mini card */}
