@@ -15,7 +15,8 @@ export type StepType =
   | 'email-capture'
   | 'result'
   | 'micro-vsl'
-  | 'paywall';
+  | 'paywall'
+  | 'checkout';
 
 export interface SelectOption {
   value: string;

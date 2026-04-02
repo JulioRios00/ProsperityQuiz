@@ -37,6 +37,7 @@ export const quizConfig: QuizStepConfig[] = [
   {
     type: 'single-select-emoji',
     question: 'Qual área da sua vida está MAIS travada hoje?',
+    confirmLabel: 'Continuar Meu Diagnóstico',
     options: [
       { value: 'financeiro',      label: 'Dinheiro e finanças',    icon: '💰' },
       { value: 'proposito',       label: 'Carreira e propósito',   icon: '💼' },
@@ -87,7 +88,7 @@ export const quizConfig: QuizStepConfig[] = [
   // Step 9: Blockage level scale
   {
     type: 'emoji-scale',
-    question: 'De 1 a 5, o quanto você sente que ALGO INVISÍVEL trava sua prosperidade?',
+    question: 'O quanto você sente que ALGO INVISÍVEL trava sua prosperidade?',
     min: 1,
     max: 5,
   },
@@ -119,9 +120,6 @@ export const quizConfig: QuizStepConfig[] = [
   // Step 15: Diagnosis result
   { type: 'result' },
 
-  // Step 16: Micro VSL
+  // Step 16: VSL + Checkout (merged)
   { type: 'micro-vsl' },
-
-  // Step 17: Checkout
-  { type: 'checkout' },
 ];

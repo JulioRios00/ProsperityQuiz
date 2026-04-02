@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useQuizStore } from '../../../store/quizStore';
 import { quizService } from '../../../services/quizService';
@@ -13,7 +13,19 @@ export function NameInput({ step, onNext }: Props) {
   const { sessionToken, saveStepResponse, setUserData, userBirthDate } = useQuizStore();
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showInsight, setShowInsight] = useState(false);
   const liveNumber = calcExpressionLive(name);
+
+  // Show insight only after user stops typing for 1s
+  useEffect(() => {
+    if (name.trim().length < 3) {
+      setShowInsight(false);
+      return;
+    }
+    setShowInsight(false);
+    const timer = setTimeout(() => setShowInsight(true), 1000);
+    return () => clearTimeout(timer);
+  }, [name]);
 
   const handleContinue = async () => {
     if (!name.trim()) return;
@@ -115,8 +127,8 @@ export function NameInput({ step, onNext }: Props) {
         )}
       </motion.div>
 
-      {/* Mini insight */}
-      {name.trim().length >= 3 && (
+      {/* Mini insight — only shows after user pauses typing */}
+      {showInsight && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -137,7 +149,7 @@ export function NameInput({ step, onNext }: Props) {
         disabled={name.trim().length < 2 || loading}
         className="btn-primary w-full py-4 text-lg disabled:cursor-not-allowed"
       >
-        {loading ? 'Calculando...' : 'Continuar →'}
+        {loading ? 'Calculando...' : 'Continuar Meu Diagnóstico'}
       </motion.button>
     </div>
   );

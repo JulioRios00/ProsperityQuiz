@@ -15,9 +15,10 @@ const STEPS = [
 ];
 
 export function PalmistryAnalysis({ onNext }: Props) {
-  const { destinyNumber } = useQuizStore();
+  const { destinyNumber, expressionNumber, palmistryPhotoUrl } = useQuizStore();
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
     const total = STEPS.length;
@@ -37,19 +38,40 @@ export function PalmistryAnalysis({ onNext }: Props) {
 
   useEffect(() => {
     if (currentStepIdx === STEPS.length - 1) {
-      const t = setTimeout(onNext, 1500);
+      const t = setTimeout(() => setDone(true), 800);
       return () => clearTimeout(t);
     }
-  }, [currentStepIdx, onNext]);
+  }, [currentStepIdx]);
 
   const circumference = 2 * Math.PI * 52;
 
+  // Personalized palm result based on destiny + expression numbers
+  const codeNumber = destinyNumber && expressionNumber
+    ? ((destinyNumber * 3 + expressionNumber * 7) % 9) + 1
+    : destinyNumber ?? 7;
+
+  const PALM_LABELS = ['', 'Abertura', 'Expansão', 'Transformação', 'Abundância', 'Renovação', 'Fluxo', 'Manifestação', 'Desbloqueio', 'Prosperidade'];
+
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center px-4"
+      className="min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden"
       style={{ background: 'linear-gradient(135deg, #0a0a14 0%, #1a1228 50%, #0d0a18 100%)' }}
     >
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center max-w-sm w-full">
+      {/* Hand photo as background (30% opacity, blur) */}
+      {palmistryPhotoUrl && (
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: `url(${palmistryPhotoUrl})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            opacity: 0.3,
+            filter: 'blur(8px)',
+          }}
+        />
+      )}
+
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center max-w-sm w-full relative z-10">
         <p className="text-xs tracking-widest uppercase mb-8" style={{ color: '#D4A855' }}>
           Análise Palm-Numerológica
         </p>
@@ -77,8 +99,8 @@ export function PalmistryAnalysis({ onNext }: Props) {
         <div className="space-y-3 mb-8 text-left">
           {STEPS.map((s, i) => {
             const label = i === 3 ? s.replace('...', ` (${destinyNumber ?? '?'})...`) : s;
-            const done = i < currentStepIdx;
-            const active = i === currentStepIdx;
+            const isDone = i < currentStepIdx;
+            const isActive = i === currentStepIdx;
             return (
               <motion.div
                 key={i}
@@ -87,10 +109,10 @@ export function PalmistryAnalysis({ onNext }: Props) {
                 transition={{ delay: i * 0.1 }}
                 className="flex items-center gap-3"
               >
-                <span className="text-sm" style={{ color: done ? '#D4A855' : active ? '#fff8f0' : '#5a4a3a' }}>
-                  {done ? '✓' : active ? '◉' : '○'}
+                <span className="text-sm" style={{ color: isDone ? '#D4A855' : isActive ? '#fff8f0' : '#5a4a3a' }}>
+                  {isDone ? '✓' : isActive ? '◉' : '○'}
                 </span>
-                <span className="text-sm" style={{ color: done ? '#D4A855' : active ? '#fff8f0' : '#5a4a3a' }}>
+                <span className="text-sm" style={{ color: isDone ? '#D4A855' : isActive ? '#fff8f0' : '#5a4a3a' }}>
                   {label}
                 </span>
               </motion.div>
@@ -98,19 +120,39 @@ export function PalmistryAnalysis({ onNext }: Props) {
           })}
         </div>
 
-        {currentStepIdx === STEPS.length - 1 && (
+        {/* Result card + CTA — shown after analysis completes */}
+        {done && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="rounded-xl p-4"
-            style={{ background: 'rgba(212,168,85,0.1)', border: '1px solid rgba(212,168,85,0.3)' }}
           >
-            <p className="text-sm font-semibold" style={{ color: '#D4A855' }}>
-              Seu Código de Abundância foi identificado.
-            </p>
-            <p className="text-xs mt-1" style={{ color: '#a89070' }}>
-              Número do Destino: <strong style={{ color: '#D4A855' }}>{destinyNumber ?? '—'}</strong>
-            </p>
+            <div
+              className="rounded-xl p-4 mb-5"
+              style={{ background: 'rgba(212,168,85,0.1)', border: '1px solid rgba(212,168,85,0.3)' }}
+            >
+              <p className="text-sm font-semibold mb-2" style={{ color: '#D4A855' }}>
+                Seu Código de Abundância foi revelado
+              </p>
+              <p className="text-xs mb-1" style={{ color: '#a89070' }}>
+                Código Palm-Numerológico:{' '}
+                <strong style={{ color: '#D4A855', fontSize: '1.1rem' }}>{codeNumber}</strong>
+              </p>
+              <p className="text-xs" style={{ color: '#a89070' }}>
+                Vibração predominante:{' '}
+                <strong style={{ color: '#D4A855' }}>{PALM_LABELS[codeNumber] ?? 'Abundância'}</strong>
+              </p>
+            </div>
+
+            <motion.button
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              onClick={onNext}
+              className="w-full py-4 text-base font-bold rounded-xl"
+              style={{ background: '#D4A855', color: '#0a0a14' }}
+            >
+              Ver Diagnóstico →
+            </motion.button>
           </motion.div>
         )}
       </motion.div>
