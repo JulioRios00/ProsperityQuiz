@@ -136,7 +136,7 @@ export function BirthDatePicker({ step, onNext }: Props) {
             color: '#0a0a14',
           }}
         >
-          {loading ? 'Calculando...' : 'Revelar meu Número →'}
+          {loading ? 'Calculando...' : 'Continuar meu diagnóstico →'}
         </motion.button>
       </div>
     </div>
