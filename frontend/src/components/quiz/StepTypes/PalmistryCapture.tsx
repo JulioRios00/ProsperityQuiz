@@ -16,8 +16,8 @@ function validateHandPhoto(objectUrl: string): Promise<boolean> {
       try {
         const MAX = 120;
         const scale = Math.min(MAX / img.width, MAX / img.height, 1);
-        const w = Math.round(img.width * scale);
-        const h = Math.round(img.height * scale);
+        const w = Math.round(img.width * scale) || MAX;
+        const h = Math.round(img.height * scale) || MAX;
         const canvas = document.createElement('canvas');
         canvas.width = w;
         canvas.height = h;
@@ -30,17 +30,11 @@ function validateHandPhoto(objectUrl: string): Promise<boolean> {
           const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
           if (a < 128) continue;
           total++;
-          const max = Math.max(r, g, b);
-          const min = Math.min(r, g, b);
-          if (
-            r > 60 && g > 30 && b > 15 &&
-            max - min > 10 &&
-            r > b &&
-            r > g * 0.7 &&
-            r < 255 && g < 230 && b < 210
-          ) skin++;
+          // Broad skin-tone range — covers light to very dark complexions
+          if (r > 45 && g > 25 && b > 10 && r > b && r > g * 0.6) skin++;
         }
-        resolve(total > 0 && skin / total > 0.07);
+        // Accept if ≥3% of pixels match — fail open on errors
+        resolve(total === 0 || skin / total > 0.03);
       } catch {
         resolve(true);
       }
@@ -55,7 +49,7 @@ type UIState = 'idle' | 'camera' | 'camera-error' | 'validating' | 'invalid' | '
 export function PalmistryCapture({ step, onNext }: Props) {
   const { sessionToken, saveStepResponse, setPalmistrySkipped, setPalmistryPhoto } = useQuizStore();
   const galleryRef = useRef<HTMLInputElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -73,13 +67,14 @@ export function PalmistryCapture({ step, onNext }: Props) {
 
   useEffect(() => () => stopStream(), [stopStream]);
 
-  // Assign stream to video element once 'camera' state is rendered
-  useEffect(() => {
-    if (uiState === 'camera' && streamRef.current && videoRef.current) {
-      videoRef.current.srcObject = streamRef.current;
-      videoRef.current.play().catch(() => {});
+  // Callback ref: fires the moment <video> mounts — assigns stream immediately
+  const videoCallbackRef = useCallback((node: HTMLVideoElement | null) => {
+    videoRef.current = node;
+    if (node && streamRef.current) {
+      node.srcObject = streamRef.current;
+      node.play().catch(() => {});
     }
-  }, [uiState]);
+  }, []);
 
   // ----- Camera via getUserMedia -----
   const openCamera = async () => {
@@ -243,7 +238,7 @@ export function PalmistryCapture({ step, onNext }: Props) {
               </p>
               <div className="relative mx-auto mb-4 rounded-2xl overflow-hidden" style={{ maxWidth: 320 }}>
                 <video
-                  ref={videoRef}
+                  ref={videoCallbackRef}
                   autoPlay
                   playsInline
                   muted

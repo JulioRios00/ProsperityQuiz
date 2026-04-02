@@ -9,7 +9,7 @@ declare global {
   }
 }
 
-const CHECKOUT_URL = '#hotmart';
+const CHECKOUT_URL = 'https://pay.hotmart.com/X104864827J?checkoutMode=10';
 
 const KNOWN_NEW_MOON = new Date('2025-01-29T12:36:00Z');
 const SYNODIC_MS = 29.530589 * 86400 * 1000;
@@ -50,8 +50,6 @@ interface PaywallProps {
 
 export function Paywall({}: PaywallProps) {
   const [unlocked, setUnlocked] = useState(false);
-  const [bump1, setBump1] = useState(false);
-  const [bump2, setBump2] = useState(false);
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
   const scriptLoadedRef = useRef(false);
   const lunar = useLunarCountdown();
@@ -88,7 +86,7 @@ export function Paywall({}: PaywallProps) {
     },
     {
       q: 'Posso cancelar a qualquer momento?',
-      a: 'Sim. Com 1 clique, sem burocracia, sem perguntas. Você tem garantia total de 30 dias. Se não sentir diferença, cancele e não paga mais nada.',
+      a: 'Sim. Com 1 clique, sem burocracia, sem perguntas. Garantia total com estorno em até 30 dias. Se não sentir diferença, cancele e não paga mais nada.',
     },
     {
       q: 'O método funciona pra qualquer pessoa?',
@@ -128,7 +126,7 @@ export function Paywall({}: PaywallProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.15 }}
-        className="font-serif text-2xl text-gold-600 text-center leading-snug mb-4"
+        className="font-serif text-3xl md:text-4xl text-gold-600 text-center leading-tight mb-4"
       >
         Chega de Sobreviver, Você Nasceu Pra Fluir.
       </motion.h1>
@@ -306,28 +304,12 @@ export function Paywall({}: PaywallProps) {
           <div className="bg-white border border-gold-200 rounded-2xl p-4 mb-6">
             <p className="text-sm font-bold text-center text-gray-800 mb-3">Potencialize Seus Resultados</p>
             <div className="space-y-3">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={bump1}
-                  onChange={() => setBump1(!bump1)}
-                  className="mt-1 accent-gold-500 w-4 h-4 flex-shrink-0"
-                />
-                <div>
-                  <p className="text-sm font-semibold text-gray-700">📍 Mapa dos 7 Primeiros Dias (+R$8,98)</p>
-                </div>
-              </label>
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={bump2}
-                  onChange={() => setBump2(!bump2)}
-                  className="mt-1 accent-gold-500 w-4 h-4 flex-shrink-0"
-                />
-                <div>
-                  <p className="text-sm font-semibold text-gray-700">📍 21 Rituais de Desbloqueio (+R$19,98)</p>
-                </div>
-              </label>
+              <div className="flex items-start gap-3">
+                <p className="text-sm font-semibold text-gray-700">📍 Mapa dos 7 Primeiros Dias (+R$8,98)</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <p className="text-sm font-semibold text-gray-700">📍 21 Rituais de Desbloqueio (+R$19,98)</p>
+              </div>
             </div>
             <p className="text-xs text-gray-400 text-center mt-3">Você poderá selecionar na próxima tela.</p>
           </div>
