@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function PalmistryCapture({ step, onNext }: Props) {
-  const { sessionToken, saveStepResponse, setPalmistrySkipped } = useQuizStore();
+  const { sessionToken, saveStepResponse, setPalmistrySkipped, setPalmistryPhoto } = useQuizStore();
   const fileRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [showOverlay, setShowOverlay] = useState(false);
@@ -19,8 +19,9 @@ export function PalmistryCapture({ step, onNext }: Props) {
     if (!file) return;
     const url = URL.createObjectURL(file);
     setPreview(url);
+    setPalmistryPhoto(url);
     setShowOverlay(true);
-    // After 3s overlay, proceed
+    // After 3s reading animation, proceed
     setTimeout(() => {
       saveStepResponse(step, 'captured');
       setPalmistrySkipped(false);
@@ -32,6 +33,7 @@ export function PalmistryCapture({ step, onNext }: Props) {
   const handleSkip = () => {
     saveStepResponse(step, 'skipped');
     setPalmistrySkipped(true);
+    setPalmistryPhoto(null);
     try { quizService.saveStep(sessionToken!, step, 'skipped'); } catch { /* continue */ }
     onNext(); // go to step 11 — QuizFlow useEffect will auto-skip to step 12
   };
@@ -55,27 +57,6 @@ export function PalmistryCapture({ step, onNext }: Props) {
       {showOverlay && preview ? (
         <div className="relative w-full max-w-xs mx-auto">
           <img src={preview} alt="sua mão" className="w-full rounded-2xl opacity-70" style={{ filter: 'blur(1px)' }} />
-          {/* SVG lines overlay */}
-          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice">
-            <defs>
-              <style>{`
-                @keyframes drawLine { from { stroke-dashoffset: 300; } to { stroke-dashoffset: 0; } }
-                .palm-line { stroke-dasharray: 300; animation: drawLine 1s ease-out forwards; }
-              `}</style>
-            </defs>
-            {/* Heart line */}
-            <path className="palm-line" d="M40,80 Q120,60 200,90 Q240,100 270,80" stroke="#D4A855" strokeWidth="2" fill="none" style={{ animationDelay: '0s' }} />
-            <text x="280" y="80" fill="#D4A855" fontSize="10" fontFamily="serif">Abundância</text>
-            {/* Head line */}
-            <path className="palm-line" d="M35,140 Q130,130 220,160 Q250,168 270,155" stroke="#C8963E" strokeWidth="2" fill="none" style={{ animationDelay: '0.4s' }} />
-            <text x="275" y="155" fill="#C8963E" fontSize="10" fontFamily="serif">Bloqueio</text>
-            {/* Life line */}
-            <path className="palm-line" d="M120,70 Q80,160 90,280 Q95,340 110,380" stroke="#D4A855" strokeWidth="2" fill="none" style={{ animationDelay: '0.8s' }} />
-            <text x="5" y="280" fill="#D4A855" fontSize="10" fontFamily="serif">Destino</text>
-            {/* Fate line */}
-            <path className="palm-line" d="M150,380 Q148,280 150,180 Q152,120 155,80" stroke="#C8963E" strokeWidth="1.5" fill="none" style={{ animationDelay: '1.2s' }} />
-            <text x="160" y="75" fill="#C8963E" fontSize="10" fontFamily="serif">Sucesso</text>
-          </svg>
           <motion.p
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 0.8, repeat: Infinity }}

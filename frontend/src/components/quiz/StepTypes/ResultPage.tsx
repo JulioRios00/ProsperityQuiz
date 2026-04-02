@@ -49,7 +49,7 @@ interface ResultPageProps {
 }
 
 export function ResultPage({ onNext }: ResultPageProps) {
-  const { diagnosis, responses } = useQuizStore();
+  const { diagnosis, responses, destinyNumber, expressionNumber } = useQuizStore();
 
   // Preload MicroVSL authority image
   useEffect(() => {
@@ -67,9 +67,24 @@ export function ResultPage({ onNext }: ResultPageProps) {
 
   const ageRange = (responses.step_2 as AgeRange) ?? '35-44';
   const ageLabel = AGE_LABEL[ageRange] ?? AGE_LABEL['35-44'];
-  const blockedArea = (responses.step_4 as string) ?? diagnosis.blocked_area ?? 'financeiro';
+  // Fixed: blocked area is step_5, not step_4
+  const blockedArea = (responses.step_5 as string) ?? diagnosis.blocked_area ?? 'financeiro';
   const areaLabel = AREA_LABELS[blockedArea] ?? AREA_LABELS['financeiro'];
-  const [numScore, astScore, lunScore] = TRIANGLE_SCORES[blockedArea] ?? TRIANGLE_SCORES['financeiro'];
+
+  // Personalize scores based on user responses
+  const blockLevel = (responses.step_9 as number) ?? 3; // 1-5
+  const signsSelected = Array.isArray(responses.step_8) ? (responses.step_8 as string[]).length : 3;
+  const hasPatterns = responses.step_6 === 'sim';
+  const hasMoneyDrain = responses.step_7 === 'sim';
+  const numBonus = Math.round((blockLevel - 3) * 4 + (signsSelected - 3) * 2 + (hasPatterns ? 5 : -3));
+  const astBonus = Math.round((blockLevel - 3) * 3 + (signsSelected - 3) * 2 + (hasMoneyDrain ? 5 : -2));
+  const lunBonus = Math.round((blockLevel - 3) * 3 + ((destinyNumber ?? 5) % 3) * 2 + ((expressionNumber ?? 4) % 3));
+
+  const [baseNum, baseAst, baseLun] = TRIANGLE_SCORES[blockedArea] ?? TRIANGLE_SCORES['financeiro'];
+  const numScore = Math.min(98, Math.max(48, baseNum + numBonus));
+  const astScore = Math.min(98, Math.max(48, baseAst + astBonus));
+  const lunScore = Math.min(98, Math.max(48, baseLun + lunBonus));
+
   const favorableDays = diagnosis.favorable_days;
 
   // Paragraph split
