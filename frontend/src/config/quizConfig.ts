@@ -120,6 +120,6 @@ export const quizConfig: QuizStepConfig[] = [
   // Step 15: Diagnosis result
   { type: 'result' },
 
-  // Step 16: VSL + Checkout (merged)
-  { type: 'micro-vsl' },
+  // Step 16: Full Paywall with VSL
+  { type: 'paywall' },
 ];
