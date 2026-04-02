@@ -67,7 +67,7 @@ export function Paywall({}: PaywallProps) {
       scriptLoadedRef.current = true;
       const script = document.createElement('script');
       script.src =
-        'https://scripts.converteai.net/859d3a9a-adcf-4da6-86a3-43be35f0e474/players/69cc705f9a29533f270b1d5f/v4/player.js';
+        'https://scripts.converteai.net/859d3a9a-adcf-4da6-86a3-43be35f0e474/players/69cc6fc72aa9a5be9ed83776/v4/player.js';
       script.async = true;
       document.head.appendChild(script);
     }
@@ -118,9 +118,9 @@ export function Paywall({}: PaywallProps) {
         className="mb-6"
       >
         <vturb-smartplayer
-          id="vid-69cc705f9a29533f270b1d5f"
+          id="vid-69cc6fc72aa9a5be9ed83776"
           style={{ display: 'block', margin: '0 auto', width: '100%', maxWidth: '400px' }}
-        />
+        ></vturb-smartplayer>
       </motion.div>
 
       {/* BLOCK 3 — Headline */}
