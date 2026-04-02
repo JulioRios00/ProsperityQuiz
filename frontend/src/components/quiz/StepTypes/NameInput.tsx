@@ -4,6 +4,39 @@ import { useQuizStore } from '../../../store/quizStore';
 import { quizService } from '../../../services/quizService';
 import { calcExpressionLive, calcExpressionNumber, calcDestinyNumber, calcProsperityBlock } from '../../../utils/numerology';
 
+function getInsight(name: string): { title: string; text: string } {
+  const letters = name.trim().replace(/\s+/g, '').length;
+
+  if (letters <= 4) {
+    return {
+      title: 'Nome curto, vibração intensa.',
+      text: 'Nomes com poucas letras concentram energia densa — o bloqueio tende a ser antigo e enraizado, muitas vezes herdado da linhagem.',
+    };
+  }
+  if (letters <= 6) {
+    return {
+      title: 'Vibração de transição.',
+      text: `Seu nome tem ${letters} letras — uma configuração que revela alguém em constante recomeço. O bloqueio costuma se esconder justo nas viradas que deveriam ser definitivas.`,
+    };
+  }
+  if (letters <= 9) {
+    return {
+      title: 'Padrão de dupla energia detectado.',
+      text: `Com ${letters} letras, seu nome carrega uma tensão entre dois impulsos opostos: avançar e segurar. Isso explica a sensação de "quase chegar" que nunca se completa.`,
+    };
+  }
+  if (letters <= 12) {
+    return {
+      title: 'Vibração complexa — raro.',
+      text: `Nomes com ${letters} letras formam uma das configurações numerológicas mais ricas. Você tem potencial acima da média, mas o bloqueio que te trava é igualmente sofisticado.`,
+    };
+  }
+  return {
+    title: 'Nome de múltiplas camadas.',
+    text: `${letters} letras é uma das configurações mais incomuns que analisamos. Seu diagnóstico vai revelar um padrão que a maioria das pessoas nunca consegue nomear — mas que você sente todo dia.`,
+  };
+}
+
 interface Props {
   step: number;
   onNext: () => void;
@@ -130,15 +163,13 @@ export function NameInput({ step, onNext }: Props) {
       {/* Mini insight — only shows after user pauses typing */}
       {showInsight && (
         <motion.div
+          key={getInsight(name).text}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 text-sm text-amber-800"
         >
-          <span className="font-semibold">Interessante...</span> seu nome tem{' '}
-          <span className="font-bold text-gold-600">
-            {name.trim().replace(/\s+/g, ' ').split('').filter(c => c !== ' ').length}
-          </span>{' '}
-          letras. Nomes com essa vibração costumam carregar um bloqueio muito específico.
+          <span className="font-semibold">{getInsight(name).title}</span>{' '}
+          {getInsight(name).text}
         </motion.div>
       )}
 
