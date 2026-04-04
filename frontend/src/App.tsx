@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Prelanding from './pages/Prelanding'
+import PrelandingB from './pages/PrelandingB'
 import { QuizFlow } from './pages/QuizFlow'
 import { QuizFlowA } from './pages/QuizFlowA'
 import { QuizFlowB } from './pages/QuizFlowB'
@@ -15,7 +16,7 @@ function App() {
 
         {/* A/B test variants */}
         <Route path="/a" element={<Prelanding variant="a" />} />
-        <Route path="/b" element={<Prelanding variant="b" />} />
+        <Route path="/b" element={<PrelandingB />} />
         <Route path="/quiz/a" element={<QuizFlowA />} />
         <Route path="/quiz/b" element={<QuizFlowB />} />
       </Routes>

@@ -16,6 +16,7 @@ export type StepType =
   | 'result'
   | 'micro-vsl'
   | 'paywall'
+  | 'paywall-b'
   | 'checkout';
 
 export interface SelectOption {

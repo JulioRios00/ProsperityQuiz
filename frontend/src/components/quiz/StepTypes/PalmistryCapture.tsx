@@ -6,6 +6,7 @@ import { quizService } from '../../../services/quizService';
 interface Props {
   step: number;
   onNext: () => void;
+  variant?: string;
 }
 
 /** Canvas-based skin-tone heuristic. Returns true if image likely contains a hand. */
@@ -46,7 +47,8 @@ function validateHandPhoto(objectUrl: string): Promise<boolean> {
 
 type UIState = 'idle' | 'camera' | 'camera-error' | 'validating' | 'invalid' | 'reading';
 
-export function PalmistryCapture({ step, onNext }: Props) {
+export function PalmistryCapture({ step, onNext, variant }: Props) {
+  const isB = variant === 'b';
   const { sessionToken, saveStepResponse, setPalmistrySkipped, setPalmistryPhoto } = useQuizStore();
   const galleryRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -199,7 +201,9 @@ export function PalmistryCapture({ step, onNext }: Props) {
               >
                 🤚
               </motion.div>
-              <p className="text-xs tracking-widest uppercase mb-3" style={{ color: '#D4A855' }}>O mais revelador</p>
+              <p className="text-xs tracking-widest uppercase mb-3" style={{ color: '#D4A855' }}>
+                {isB ? 'Agora o mais revelador:' : 'O mais revelador'}
+              </p>
               <h2 className="text-2xl md:text-3xl font-serif mb-3 leading-snug" style={{ color: '#fff8f0' }}>
                 A linha da sua mão esconde seu Código de Abundância.
               </h2>
@@ -213,7 +217,7 @@ export function PalmistryCapture({ step, onNext }: Props) {
                   className="w-full py-4 text-lg font-bold rounded-xl"
                   style={{ background: '#D4A855', color: '#0a0a14' }}
                 >
-                  📸 Tirar foto agora
+                  {isB ? '✨ Revelar meu Código' : '📸 Tirar foto agora'}
                 </motion.button>
                 <motion.button
                   initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}

@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { quizService } from '../services/quizService'
 import { useQuizStore } from '../store/quizStore'
+import { useFacebookPixels } from '../hooks/useFacebookPixels'
+
+const PIXELS_A = ['1899887307317878', '25534330632909821']
 
 interface PrelandingProps {
   variant?: 'a' | 'b'
@@ -18,6 +21,9 @@ declare global {
 function Prelanding({ variant }: PrelandingProps) {
   const [loading, setLoading] = useState(false)
   const scriptLoadedRef = useRef(false)
+
+  // Fire Meta Pixels only for the A variant (not the default / route)
+  useFacebookPixels(variant === 'a' ? PIXELS_A : [])
 
   useEffect(() => {
     if (!scriptLoadedRef.current) {
@@ -96,7 +102,7 @@ function Prelanding({ variant }: PrelandingProps) {
         <div className="flex items-center justify-center gap-3 mb-8">
           <div className="relative flex-shrink-0">
             <div className="w-14 h-14 rounded-full border-2 border-gold-400 overflow-hidden">
-              <img src="/FotoRenata.png" alt="Mestra Renata Alves" className="w-full h-full object-cover" />
+              <img src="/FotoRenata.jpg" alt="Mestra Renata Alves" className="w-full h-full object-cover" />
             </div>
             <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center border-2 border-white">
               <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">

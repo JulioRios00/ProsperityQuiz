@@ -1,4 +1,5 @@
 """Diagnosis domain service — orchestrates diagnosis generation."""
+import calendar
 from datetime import datetime
 
 from ..entities.diagnosis import DiagnosisEntity
@@ -15,7 +16,8 @@ class DiagnosisService:
         signs = quiz.get_signs()
         blockage_level = quiz.get_blockage_level()
 
-        favorable_days = self._calculate_favorable_days(age_range, blockage_level)
+        destiny = self._calc_destiny_number(quiz.get_birth_date())
+        favorable_days = self._calculate_favorable_days(destiny)
         text = build_diagnosis_text(age_range, blocked_area, signs, blockage_level, favorable_days)
 
         return DiagnosisEntity(
@@ -27,11 +29,19 @@ class DiagnosisService:
             blockage_level=blockage_level,
         )
 
-    def _calculate_favorable_days(self, age_range: str, blockage_level: int) -> int:
-        """Numerological calculation: produces a deterministic value between 7 and 20."""
-        age_base = {"25-34": 7, "35-44": 8, "45-54": 9, "55+": 1}.get(age_range, 5)
+    def _calc_destiny_number(self, birth_date: str | None) -> int:
+        """Pythagorean destiny number: sum all digits of birth date, reduce to 1 digit (keep 11, 22)."""
+        if not birth_date:
+            return 5  # neutral fallback
+        digits = [int(d) for d in birth_date if d.isdigit()]
+        n = sum(digits)
+        while n > 9 and n not in (11, 22):
+            n = sum(int(d) for d in str(n))
+        return n
+
+    def _calculate_favorable_days(self, destiny: int) -> int:
+        """Count days in the current month where (day + destiny) % 9 <= 2 (spec formula)."""
         today = datetime.utcnow()
-        day_num = sum(int(d) for d in str(today.day))
-        month_num = sum(int(d) for d in str(today.month))
-        total = (age_base + blockage_level + day_num + month_num) % 14
-        return total + 7  # Range: 7–20
+        days_in_month = calendar.monthrange(today.year, today.month)[1]
+        count = sum(1 for d in range(1, days_in_month + 1) if (d + destiny) % 9 <= 2)
+        return max(7, min(20, count))

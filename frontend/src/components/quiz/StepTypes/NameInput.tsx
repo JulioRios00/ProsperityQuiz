@@ -6,34 +6,9 @@ import { calcExpressionLive, calcExpressionNumber, calcDestinyNumber, calcProspe
 
 function getInsight(name: string): { title: string; text: string } {
   const letters = name.trim().replace(/\s+/g, '').length;
-
-  if (letters <= 4) {
-    return {
-      title: 'Nome curto, vibração intensa.',
-      text: 'Nomes com poucas letras concentram energia densa — o bloqueio tende a ser antigo e enraizado, muitas vezes herdado da linhagem.',
-    };
-  }
-  if (letters <= 6) {
-    return {
-      title: 'Vibração de transição.',
-      text: `Seu nome tem ${letters} letras — uma configuração que revela alguém em constante recomeço. O bloqueio costuma se esconder justo nas viradas que deveriam ser definitivas.`,
-    };
-  }
-  if (letters <= 9) {
-    return {
-      title: 'Padrão de dupla energia detectado.',
-      text: `Com ${letters} letras, seu nome carrega uma tensão entre dois impulsos opostos: avançar e segurar. Isso explica a sensação de "quase chegar" que nunca se completa.`,
-    };
-  }
-  if (letters <= 12) {
-    return {
-      title: 'Vibração complexa — raro.',
-      text: `Nomes com ${letters} letras formam uma das configurações numerológicas mais ricas. Você tem potencial acima da média, mas o bloqueio que te trava é igualmente sofisticado.`,
-    };
-  }
   return {
-    title: 'Nome de múltiplas camadas.',
-    text: `${letters} letras é uma das configurações mais incomuns que analisamos. Seu diagnóstico vai revelar um padrão que a maioria das pessoas nunca consegue nomear — mas que você sente todo dia.`,
+    title: 'Interessante...',
+    text: `seu nome tem ${letters} letras. Nomes com essa vibração costumam ter um bloqueio muito específico.`,
   };
 }
 
