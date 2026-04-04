@@ -4,6 +4,7 @@ import { useQuizStore } from '../../../store/quizStore';
 
 interface Props {
   onNext: () => void;
+  variant?: string;
 }
 
 const STEPS = [
@@ -88,7 +89,7 @@ const PALM_READINGS: Record<number, PalmReading> = {
   },
 };
 
-export function PalmistryAnalysis({ onNext }: Props) {
+export function PalmistryAnalysis({ onNext, variant }: Props) {
   const { destinyNumber, expressionNumber, palmistryPhotoUrl } = useQuizStore();
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -148,7 +149,7 @@ export function PalmistryAnalysis({ onNext }: Props) {
 
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center max-w-sm w-full relative z-10">
         <p className="text-xs tracking-widest uppercase mb-8" style={{ color: '#D4A855' }}>
-          Análise Palm-Numerológica
+          {variant === 'b' ? 'Analisando sua leitura de mão...' : 'Análise Palm-Numerológica'}
         </p>
 
         {/* Circular progress */}

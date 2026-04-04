@@ -18,6 +18,7 @@ import { EmailCapture } from '../components/quiz/StepTypes/EmailCapture';
 import { ResultPage } from '../components/quiz/StepTypes/ResultPage';
 import { MicroVSL } from '../components/quiz/StepTypes/MicroVSL';
 import { Paywall } from '../components/quiz/StepTypes/Paywall';
+import { PaywallB } from '../components/quiz/StepTypes/PaywallB';
 
 // Steps where back button should be hidden
 const NO_BACK_STEPS = new Set([1, 10, 11, 13, 14, 15, 16, 17]);
@@ -76,9 +77,9 @@ export function QuizFlow({ config, returnPath = '/' }: QuizFlowProps) {
       case 'birth-date':
         return <BirthDatePicker {...props} />;
       case 'palmistry-capture':
-        return <PalmistryCapture {...props} />;
+        return <PalmistryCapture {...props} variant={stepConfig.variant} />;
       case 'palmistry-analysis':
-        return <PalmistryAnalysis onNext={nextStep} />;
+        return <PalmistryAnalysis onNext={nextStep} variant={stepConfig.variant} />;
       case 'loading':
         return <LoadingScreen onComplete={nextStep} />;
       case 'email-capture':
@@ -89,6 +90,8 @@ export function QuizFlow({ config, returnPath = '/' }: QuizFlowProps) {
         return <MicroVSL {...props} />;
       case 'paywall':
         return <Paywall {...props} />;
+      case 'paywall-b':
+        return <PaywallB {...props} />;
       default:
         return null;
     }

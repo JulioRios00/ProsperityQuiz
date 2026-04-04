@@ -34,3 +34,6 @@ class QuizResponseEntity:
             return max(1, min(5, int(level)))
         except (ValueError, TypeError):
             return 3
+
+    def get_birth_date(self) -> Optional[str]:
+        return self.responses.get("step_4")
