@@ -107,6 +107,74 @@ BLOCKED_AREA_DIAGNOSIS: Dict[str, Dict] = {
                     "disciplina. É um sistema energético que aprendeu que receber é perigoso."
                 ),
             },
+            {
+                "main": (
+                    "Seu perfil numerológico revela um padrão de ciclos financeiros irregulares — "
+                    "períodos de aparente melhora seguidos por quedas que apagam o progresso anterior. "
+                    "Isso não é má sorte. É um ritmo vibracional que opera como um relógio interno mal calibrado."
+                ),
+                "detail": (
+                    "A cada avanço financeiro, um evento inesperado — uma despesa, uma perda, uma "
+                    "oportunidade que some — repõe você no ponto de partida. Esse ciclo se repete não "
+                    "porque você não sabe o que fazer, mas porque o campo energético ainda não recebeu "
+                    "permissão para avançar de forma permanente."
+                ),
+            },
+            {
+                "main": (
+                    "Identificamos em seu campo vibracional uma frequência de merecimento bloqueada. "
+                    "Você produz, você entrega, você se dedica — mas na hora de receber o retorno "
+                    "proporcional, algo interno recusa. Como se existisse um teto que você mesma "
+                    "colocou, sem saber."
+                ),
+                "detail": (
+                    "Esse teto tem um endereço exato: a primeira vez que você ouviu, direta ou "
+                    "indiretamente, que pedir mais é ganância, que querer prosperar é frescura, ou "
+                    "que dinheiro é coisa de quem não tem valores. Essas frases ficaram — "
+                    "e estão operando até hoje."
+                ),
+            },
+            {
+                "main": (
+                    "O diagnóstico aponta para um bloqueio de identidade financeira — você ainda não "
+                    "se vê, no nível mais profundo, como uma pessoa próspera. Não importa o quanto "
+                    "você trabalhe ou aprenda: enquanto a identidade interna não mudar, o resultado "
+                    "externo se mantém no mesmo lugar."
+                ),
+                "detail": (
+                    "Isso explica por que pessoas com menos talento e esforço ganham mais. A diferença "
+                    "não está na competência — está na frequência vibracional em que operam. Mudar o "
+                    "resultado externo começa por atualizar a imagem interna. E é exatamente isso que "
+                    "o diagnóstico tridimensional revelou sobre você."
+                ),
+            },
+            {
+                "main": (
+                    "Detectamos uma ruptura na sua linha de prosperidade — um ponto no passado onde o "
+                    "fluxo natural de abundância foi interrompido por uma experiência de perda, "
+                    "humilhação ou escassez que deixou uma marca profunda no seu sistema energético."
+                ),
+                "detail": (
+                    "A partir desse ponto, seu inconsciente passou a tratar prosperidade como algo "
+                    "perigoso — porque da última vez que você se aproximou dela, algo doeu. Esse "
+                    "mecanismo de proteção funcionou por um tempo. Mas hoje ele é o maior obstáculo "
+                    "entre você e a vida que você merece."
+                ),
+            },
+            {
+                "main": (
+                    "Seu campo energético carrega o que identificamos como bloqueio de merecimento "
+                    "tardio — uma programação que diz que você pode prosperar, mas só depois: depois "
+                    "de se provar suficiente, depois de trabalhar mais, depois de estar mais pronta. "
+                    "O depois nunca chega."
+                ),
+                "detail": (
+                    "Enquanto isso, oportunidades passam, decisões são adiadas, e o dinheiro que "
+                    "entra é gasto antes de ser acumulado. Não porque você é irresponsável — mas "
+                    "porque inconscientemente você ainda não deu permissão interna para guardar e "
+                    "crescer. Essa permissão é o que o diagnóstico veio ajudá-la a encontrar."
+                ),
+            },
         ],
     },
     "relacionamentos": {
@@ -183,6 +251,71 @@ BLOCKED_AREA_DIAGNOSIS: Dict[str, Dict] = {
                     "Você se aproxima mas não se permite depender. No dinheiro, isso significa nunca "
                     "se sentir segura financeiramente, mesmo quando as condições melhoram. Ambos os "
                     "padrões têm a mesma raiz — e a mesma solução."
+                ),
+            },
+            {
+                "main": (
+                    "Identificamos um padrão de troca desigual nos seus vínculos que tem impacto "
+                    "direto na sua prosperidade. Você tende a dar mais do que recebe — emocionalmente, "
+                    "energeticamente e financeiramente — e isso drena os recursos que deveriam estar "
+                    "sendo direcionados para o seu crescimento."
+                ),
+                "detail": (
+                    "Não é fraqueza. É um sistema de crenças que aprendeu que para ser amada, você "
+                    "precisa ser necessária. Para ser necessária, você precisa se fazer menor. "
+                    "Mas diminuir-se para caber nos outros é o exato oposto do que é necessário para prosperar."
+                ),
+            },
+            {
+                "main": (
+                    "Seu diagnóstico revela uma ferida de rejeição que se manifesta tanto nos "
+                    "relacionamentos quanto nas finanças. O medo de ser rejeitada — por pedir demais, "
+                    "por cobrar mais, por querer mais — faz você recuar exatamente quando mais deveria avançar."
+                ),
+                "detail": (
+                    "No dinheiro, isso aparece como dificuldade em negociar, em se posicionar, em "
+                    "dizer não para condições desfavoráveis. Você prefere a segurança da perda "
+                    "conhecida ao risco da rejeição desconhecida. Mas essa escolha tem um custo "
+                    "mensal e anual que está travando sua prosperidade."
+                ),
+            },
+            {
+                "main": (
+                    "Existe no seu campo energético uma confusão entre amor e sacrifício — a crença "
+                    "de que amar significa abrir mão, incluindo dos seus sonhos financeiros. Isso "
+                    "cria um padrão onde quanto mais você ama, menos você permite para si mesma."
+                ),
+                "detail": (
+                    "O resultado financeiro é concreto: dinheiro destinado ao seu crescimento vai "
+                    "para cobrir os outros, projetos seus são adiados para atender demandas alheias, "
+                    "e sua prosperidade fica sempre em segundo plano. Até que alguém coloque você em "
+                    "primeiro lugar — e esse alguém só pode ser você."
+                ),
+            },
+            {
+                "main": (
+                    "Identificamos um ciclo de dependência e resistência nos seus relacionamentos que "
+                    "replica o mesmo padrão das suas finanças: aproximação, conflito, afastamento, "
+                    "recomeço. Cada ciclo consome energia que deveria estar sendo investida no seu crescimento."
+                ),
+                "detail": (
+                    "A energia desperdiçada em ciclos relacionais dolorosos é a mesma energia que "
+                    "falta para dar os passos financeiros necessários. Não é possível prosperar em "
+                    "esgotamento. O desbloqueio relacional e o financeiro precisam caminhar juntos — "
+                    "e o diagnóstico mostrou exatamente por onde começar."
+                ),
+            },
+            {
+                "main": (
+                    "Seu perfil revela um padrão de escolha de vínculos que inconscientemente "
+                    "confirmam sua limitação financeira. Você se conecta com pessoas que, de formas "
+                    "diferentes, reforçam a crença de que você não pode prosperar além de um certo limite."
+                ),
+                "detail": (
+                    "Isso não é coincidência. É o campo energético atraindo o que vibra na mesma "
+                    "frequência. Mudar os relacionamentos começa por mudar a frequência interna — "
+                    "e quando isso acontece, os vínculos também mudam: os limitantes se afastam "
+                    "naturalmente, e os expansivos se aproximam."
                 ),
             },
         ],
@@ -267,6 +400,75 @@ BLOCKED_AREA_DIAGNOSIS: Dict[str, Dict] = {
                     "você queima energia em excesso tentando compensar. O calendário de abundância "
                     "existe exatamente para acabar com esse ciclo: agir nos dias de alta vibracional "
                     "e preservar energia nos dias de bloqueio ativo."
+                ),
+            },
+            {
+                "main": (
+                    "Seu diagnóstico aponta para um padrão de autoexigência que está destruindo sua "
+                    "vitalidade de dentro para fora. Você se cobra padrões impossíveis, não descansa "
+                    "quando precisa, e trata o cansaço como fraqueza — quando na verdade é um sinal "
+                    "de um sistema operando no limite há tempo demais."
+                ),
+                "detail": (
+                    "Há uma conexão direta com as finanças: a autoexigência que te impede de descansar "
+                    "é a mesma que te impede de cobrar o que vale. A mesma voz que diz 'você precisa "
+                    "fazer mais' também diz 'você ainda não merece mais'. Silenciar essa voz muda "
+                    "as duas dimensões ao mesmo tempo."
+                ),
+            },
+            {
+                "main": (
+                    "Seu campo energético mostra uma desconexão entre o que você diz que quer e o "
+                    "que seu corpo está conseguindo sustentar. Você tem planos, você tem visão — mas "
+                    "a vitalidade para executar não acompanha. Isso não é preguiça. É um sistema "
+                    "energético operando em frequência errada."
+                ),
+                "detail": (
+                    "Quando o corpo está em baixa frequência vibracional, as oportunidades passam "
+                    "invisíveis. A mente não tem a clareza necessária para tomar decisões financeiras "
+                    "acertadas. E a energia para agir nos momentos certos simplesmente não está "
+                    "disponível. O realinhamento energético não é opcional — é o primeiro passo."
+                ),
+            },
+            {
+                "main": (
+                    "Detectamos um padrão de acúmulo de tensão no seu campo físico-energético que "
+                    "está bloqueando o fluxo de prosperidade. Tensão crônica no corpo é tensão "
+                    "crônica no campo vibracional — e tensão vibracional repele abundância com a "
+                    "mesma eficiência que um escudo repele projéteis."
+                ),
+                "detail": (
+                    "Isso se manifesta como dificuldade em relaxar mesmo nos momentos de folga, sono "
+                    "que não restaura, e uma sensação constante de que algo está prestes a dar errado. "
+                    "Esse estado de alerta permanente consome toda a energia disponível para expansão "
+                    "— financeira e pessoal."
+                ),
+            },
+            {
+                "main": (
+                    "Seu diagnóstico revela que sua relação com o corpo espelha sua relação com o "
+                    "dinheiro: você exige muito, investe pouco, e se sente culpada quando precisa de "
+                    "mais. Tanto o corpo quanto as finanças estão pedindo o mesmo: permissão para receber cuidado."
+                ),
+                "detail": (
+                    "Até que você aprenda a receber — descanso, cuidado, investimento em si mesma — "
+                    "seu sistema energético continuará operando em modo de escassez. E escassez "
+                    "energética gera escassez financeira com uma precisão desconcertante. O corpo "
+                    "não mente sobre o que está acontecendo no campo invisível."
+                ),
+            },
+            {
+                "main": (
+                    "Identificamos no seu perfil um padrão de negligência seletiva — você cuida de "
+                    "tudo e de todos com excelência, mas quando se trata de si mesma, os padrões "
+                    "caem drasticamente. Essa negligência tem endereço: a crença de que você "
+                    "não é prioridade."
+                ),
+                "detail": (
+                    "No corpo, isso aparece como sintomas crônicos ignorados e energia que nunca se "
+                    "recupera completamente. Nas finanças, aparece como investimentos em outros que "
+                    "não se revertem, e resistência em gastar com o próprio crescimento. "
+                    "A raiz é a mesma — e a solução também."
                 ),
             },
         ],
@@ -354,6 +556,76 @@ BLOCKED_AREA_DIAGNOSIS: Dict[str, Dict] = {
                     "de recepção é o que muda tudo — e é exatamente para onde o trabalho aponta."
                 ),
             },
+            {
+                "main": (
+                    "Quando o bloqueio está em todas as áreas ao mesmo tempo, existe uma mensagem "
+                    "clara: o sistema está pedindo uma renovação completa, não ajustes pontuais. "
+                    "Cada tentativa de resolver uma área de cada vez resulta em mais frustração — "
+                    "porque o problema não está nas partes, está no sistema todo."
+                ),
+                "detail": (
+                    "Financeiramente, isso significa que mesmo quando uma área melhora, outra piora "
+                    "para compensar. O dinheiro melhora mas a saúde cai. O relacionamento melhora "
+                    "mas o trabalho trava. Isso é o bloqueio central redistribuindo pressão. "
+                    "A solução é tratar a origem — e é exatamente isso que o diagnóstico tridimensional mapeia."
+                ),
+            },
+            {
+                "main": (
+                    "Seu diagnóstico revela o que chamamos de bloqueio sistêmico de prosperidade — "
+                    "uma programação que afeta todas as dimensões da vida porque foi instalada em um "
+                    "nível mais profundo do que qualquer uma delas isoladamente. "
+                    "É como um vírus no sistema operacional: afeta todos os programas."
+                ),
+                "detail": (
+                    "A boa notícia é que um bloqueio sistêmico tem solução sistêmica. Não são "
+                    "necessárias mudanças em cada área separadamente — é necessária uma intervenção "
+                    "no nível da raiz. Quando o sistema operacional é atualizado, todos os programas "
+                    "funcionam melhor ao mesmo tempo."
+                ),
+            },
+            {
+                "main": (
+                    "Identificamos em seu perfil uma sobrecarga vibracional: você está carregando "
+                    "simultaneamente os bloqueios de múltiplas dimensões, e isso gera um esgotamento "
+                    "que vai além do físico. É o esgotamento de quem tenta resolver tudo ao mesmo "
+                    "tempo e não consegue avançar em nada."
+                ),
+                "detail": (
+                    "Esse estado de sobrecarga é autossustentável: o esgotamento impede a clareza "
+                    "necessária para resolver os bloqueios, e os bloqueios geram mais esgotamento. "
+                    "Sair desse ciclo não requer mais esforço — requer estratégia. Especificamente, "
+                    "a estratégia de agir nos dias e momentos certos, quando o campo está receptivo."
+                ),
+            },
+            {
+                "main": (
+                    "Seu campo energético mostra sinais de uma crise de identidade silenciosa: em "
+                    "algum momento, você perdeu o contato com quem você é quando está em expansão. "
+                    "O bloqueio em todas as áreas é, no fundo, um bloqueio de identidade — você "
+                    "não sabe mais como é ser você prosperando."
+                ),
+                "detail": (
+                    "E quando não sabemos como é ser próspera, o sistema inconsciente não sabe para "
+                    "onde apontar. Sem direção interna clara, o campo vibracional fica em estado de "
+                    "espera — e a vida para. O diagnóstico tridimensional é o primeiro passo para "
+                    "lembrar quem você é quando está no seu máximo."
+                ),
+            },
+            {
+                "main": (
+                    "Detectamos no seu perfil um padrão de recomeço perpétuo — você começa projetos, "
+                    "iniciativas, novas fases com energia total, mas algo sempre interrompe o ciclo "
+                    "antes que os resultados cheguem. Esse padrão se repete em finanças, "
+                    "relacionamentos, saúde e propósito ao mesmo tempo."
+                ),
+                "detail": (
+                    "Essa interrupção não é azar e não é falta de persistência. É um mecanismo "
+                    "inconsciente que protege você do resultado — porque no nível mais profundo, "
+                    "uma parte sua ainda não está certa de que merece chegar. Identificar esse "
+                    "padrão é o primeiro e mais importante passo para finalmente completar o ciclo."
+                ),
+            },
         ],
     },
     "proposito": {
@@ -435,6 +707,77 @@ BLOCKED_AREA_DIAGNOSIS: Dict[str, Dict] = {
                     "em renda. Você sabe muito mas entrega pouco no mercado. Não porque não está "
                     "pronta — mas porque o sistema de crenças ainda não atualizou essa informação. "
                     "É exatamente isso que o diagnóstico tridimensional veio revelar."
+                ),
+            },
+            {
+                "main": (
+                    "Seu diagnóstico revela um padrão de comparação que paralisa a ação. Você olha "
+                    "para quem já chegou onde quer chegar e, em vez de se inspirar, se diminui. "
+                    "Essa comparação não é humildade — é um bloqueio que usa referências externas "
+                    "para justificar a inação interna."
+                ),
+                "detail": (
+                    "E o custo financeiro é direto: enquanto você compara, outros agem. Enquanto "
+                    "você espera estar no nível deles, oportunidades que eram suas passam. O seu "
+                    "timing não é o timing de mais ninguém — e o diagnóstico mostrou que o seu "
+                    "momento de agir é agora, não depois."
+                ),
+            },
+            {
+                "main": (
+                    "Identificamos uma contradição central no seu perfil: você tem um propósito "
+                    "claro, mas uma estratégia financeira nebulosa. Você sabe o que quer fazer — "
+                    "mas não tem clareza de como transformar isso em prosperidade consistente. "
+                    "E essa lacuna custa caro todos os meses."
+                ),
+                "detail": (
+                    "Isso não é falta de capacidade de planejamento. É uma crença inconsciente de "
+                    "que propósito e dinheiro são mundos separados — e que misturá-los de alguma "
+                    "forma compromete a pureza do que você veio fazer. Quando essa crença é "
+                    "desfeita, a estratégia financeira surge naturalmente."
+                ),
+            },
+            {
+                "main": (
+                    "Detectamos no seu perfil um bloqueio de monetização do propósito — você tem "
+                    "clareza do que faz bem, recebe reconhecimento por isso, mas não consegue "
+                    "transformar esse reconhecimento em renda consistente e crescente. A distância "
+                    "entre ser boa no que faz e ganhar bem por isso está travada."
+                ),
+                "detail": (
+                    "Esse travamento tem nome: é a crença de que o mercado não vai pagar o suficiente "
+                    "pelo que você oferece, ou que quem pagaria bem não é para você. Ambas são "
+                    "narrativas do bloqueio, não da realidade. Quando a frequência vibracional muda, "
+                    "o mercado que você atrai também muda."
+                ),
+            },
+            {
+                "main": (
+                    "Seu diagnóstico aponta para um padrão de diluição do propósito: em vez de se "
+                    "especializar e aprofundar, você se dispersa. Faz muita coisa, entrega para "
+                    "muita gente, e no fim do mês a conta não fecha na proporção do esforço. "
+                    "Mais volume, menos resultado."
+                ),
+                "detail": (
+                    "Essa dispersão não é falta de foco — é uma estratégia inconsciente de não se "
+                    "comprometer totalmente com nenhuma coisa. Porque comprometimento total significa "
+                    "possibilidade de fracasso total. E o sistema prefere resultado medíocre "
+                    "garantido a resultado extraordinário incerto. Até que alguém mostre que o "
+                    "extraordinário é mais seguro do que parece."
+                ),
+            },
+            {
+                "main": (
+                    "Seu campo energético carrega o peso de um sonho adiado — algo que você sabe "
+                    "que deveria estar fazendo, mas que por anos ficou na gaveta por razões que, "
+                    "no fundo, você sabe que não são as reais. O verdadeiro motivo é o medo. "
+                    "E o medo tem custo financeiro."
+                ),
+                "detail": (
+                    "Cada mês que passa com o propósito na gaveta é um mês de receita abaixo do "
+                    "potencial, de trabalho em coisas que não alimentam, de energia desperdiçada "
+                    "em direções erradas. O diagnóstico não veio te julgar — veio te mostrar o "
+                    "exato custo de adiar o que você sabe que precisa começar."
                 ),
             },
         ],
