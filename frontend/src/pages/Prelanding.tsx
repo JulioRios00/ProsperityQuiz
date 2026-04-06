@@ -40,14 +40,15 @@ function Prelanding({ variant }: PrelandingProps) {
   const quizPath = variant === 'b' ? '/quiz/b' : variant === 'a' ? '/quiz/a' : '/quiz'
 
   const handleStart = async () => {
+    if (loading) return
     setLoading(true)
     try {
       const { session_token } = await quizService.startQuiz()
       startQuiz(session_token)
-      navigate(quizPath)
     } catch {
-      setLoading(false)
+      startQuiz(`local_${Date.now()}`)
     }
+    navigate(quizPath)
   }
 
   return (

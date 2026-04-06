@@ -43,14 +43,15 @@ function PrelandingB() {
   }, [])
 
   const handleStart = async () => {
+    if (loading) return
     setLoading(true)
     try {
       const { session_token } = await quizService.startQuiz()
       startQuiz(session_token)
-      navigate('/quiz/b')
     } catch {
-      setLoading(false)
+      startQuiz(`local_${Date.now()}`)
     }
+    navigate('/quiz/b')
   }
 
   return (
@@ -89,7 +90,7 @@ function PrelandingB() {
       <div className="max-w-sm mx-auto text-center relative z-10 py-12">
 
         {/* Headline */}
-        <h1 className="text-4xl md:text-5xl font-bold text-gold-600 mb-6 leading-tight">
+        <h1 className="text-3xl md:text-4xl font-bold text-gold-600 mb-6 leading-tight">
           O Dinheiro Foge de Você? Descubra o Bloqueio que 87% das Mulheres NÃO Sabem que Carregam
         </h1>
 
@@ -150,7 +151,7 @@ function PrelandingB() {
             disabled={loading}
             className="btn-primary text-lg px-8 py-4 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            {loading ? 'Iniciando...' : 'Quero Descobrir Meu Bloqueio Agora →'}
+            {loading ? 'Iniciando...' : 'Quero Descobrir Meu Bloqueio Grátis →'}
           </button>
         </div>
 

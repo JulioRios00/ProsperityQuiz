@@ -43,7 +43,6 @@ export function MicroVSL({ onNext }: MicroVSLProps) {
             <strong style={{ color: '#D4A855' }}>{destinyNumber ?? '?'}</strong>{' '}
             estão a UMA decisão de destravar tudo."
           </p>
-          <p className="text-xs" style={{ color: '#a89070' }}>— vídeo aqui —</p>
         </div>
       </motion.div>
 
@@ -54,7 +53,7 @@ export function MicroVSL({ onNext }: MicroVSLProps) {
         onClick={onNext}
         className="w-full bg-gold-500 hover:bg-gold-600 text-white font-bold py-4 rounded-xl text-lg transition-colors shadow-lg"
       >
-        Ver minha oferta →
+        Continuar meu diagnóstico →
       </motion.button>
     </div>
   );

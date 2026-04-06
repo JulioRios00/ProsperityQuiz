@@ -72,7 +72,13 @@ export function ResultPage({ onNext }: ResultPageProps) {
   const areaLabel = AREA_LABELS[blockedArea] ?? AREA_LABELS['financeiro'];
 
   // Personalize scores based on user responses
-  const blockLevel = (responses.step_9 as number) ?? 3; // 1-5
+  // step_9 is a number in flow A (emoji-scale 1-5) but a string in flow B — map to a numeric level
+  const BLOCK_LEVEL_MAP: Record<string, number> = { certeza: 5, alta: 4, media: 3, nunca: 2 };
+  const rawBlock = responses.step_9;
+  const blockLevel: number =
+    typeof rawBlock === 'number' ? rawBlock
+    : typeof rawBlock === 'string' ? (BLOCK_LEVEL_MAP[rawBlock] ?? 3)
+    : 3; // 1-5
   const signsSelected = Array.isArray(responses.step_8) ? (responses.step_8 as string[]).length : 3;
   const hasPatterns = responses.step_6 === 'sim';
   const hasMoneyDrain = responses.step_7 === 'sim';

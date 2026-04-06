@@ -67,6 +67,19 @@ BLOCKED_AREA_DIAGNOSIS: Dict[str, Dict[str, str]] = {
             "Seu corpo não está trabalhando contra você. Está tentando se comunicar."
         ),
     },
+    "tudo": {
+        "label": "Múltiplas Dimensões",
+        "main": (
+            "Seu diagnóstico revela algo importante: o bloqueio não está concentrado em uma única área. "
+            "Ele permeia múltiplas dimensões da sua vida — finanças, relacionamentos, saúde e propósito — "
+            "como se uma raiz central estivesse alimentando todas as manifestações ao mesmo tempo."
+        ),
+        "detail": (
+            "Isso não significa que sua situação é mais grave. Significa que o padrão vibracional "
+            "instalado é mais antigo e mais central. Quando tratado na origem, o desbloqueio "
+            "acontece de forma simultânea em todas as áreas — e a transformação é proporcionalmente maior."
+        ),
+    },
     "proposito": {
         "label": "Propósito e Missão",
         "main": (
@@ -84,14 +97,12 @@ BLOCKED_AREA_DIAGNOSIS: Dict[str, Dict[str, str]] = {
 
 # Symptom/sign labels used in step_8
 SIGNS_MAP: Dict[str, str] = {
-    "insomnia": "dificuldades para dormir ou pensamentos acelerados à noite",
-    "anxiety": "ansiedade ou preocupação constante sem causa aparente",
-    "procrastination": "procrastinação crônica mesmo em tarefas importantes",
-    "money_repulsion": "dinheiro que some das mãos antes mesmo de ser investido",
-    "self_sabotage": "autossabotagem em momentos cruciais de oportunidade",
-    "fatigue": "cansaço profundo mesmo depois de descansar",
-    "low_self_esteem": "dificuldade em se ver merecedora de coisas boas",
-    "relationship_issues": "padrões repetitivos em relacionamentos que não evoluem",
+    "money_gone":    "dinheiro que entra e some sem explicação",
+    "projects":      "projetos que nunca decolam de verdade",
+    "restart":       "sensação de estar sempre recomeçando do zero",
+    "self_sabotage": "autossabotagem em momentos-chave",
+    "charge_fear":   "medo de cobrar o que realmente vale",
+    "not_for_me":    "sensação de que prosperidade 'não é pra mim'",
 }
 
 # Blockage level context — intensity of the energetic block

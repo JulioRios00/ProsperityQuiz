@@ -11,37 +11,26 @@ declare global {
 
 const CHECKOUT_URL = 'https://pay.hotmart.com/X104864827J?checkoutMode=10';
 
-const KNOWN_NEW_MOON = new Date('2025-01-29T12:36:00Z');
-const SYNODIC_MS = 29.530589 * 86400 * 1000;
-
-function useLunarCountdown() {
-  const [parts, setParts] = useState({ dd: '00', hh: '00', mm: '00', ss: '00' });
+function useCountdown(totalSeconds: number) {
+  const [remaining, setRemaining] = useState(totalSeconds);
 
   useEffect(() => {
-    function calc() {
-      const elapsed = Date.now() - KNOWN_NEW_MOON.getTime();
-      const frac = (elapsed / SYNODIC_MS) % 1;
-      const toNext = frac < 0.5 ? (0.5 - frac) * SYNODIC_MS : (1 - frac) * SYNODIC_MS;
-      const totalSec = Math.max(0, Math.floor(toNext / 1000));
-      const dd = String(Math.floor(totalSec / 86400)).padStart(2, '0');
-      const hh = String(Math.floor((totalSec % 86400) / 3600)).padStart(2, '0');
-      const mm = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
-      const ss = String(totalSec % 60).padStart(2, '0');
-      setParts({ dd, hh, mm, ss });
-    }
-    calc();
-    const id = setInterval(calc, 1000);
+    const id = setInterval(() => {
+      setRemaining((r) => Math.max(0, r - 1));
+    }, 1000);
     return () => clearInterval(id);
   }, []);
 
-  return parts;
+  const mm = String(Math.floor(remaining / 60)).padStart(2, '0');
+  const ss = String(remaining % 60).padStart(2, '0');
+  return { mm, ss };
 }
 
 const MARCIA_PHOTO = 'data:image/jpeg;base64,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';
 
-const PATRICIA_PHOTO = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCABwAHADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7KooorqMwooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/2Q==';
+const PATRICIA_PHOTO = '/35-44.png';
 
-const FERNANDA_PHOTO = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCABwAHADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7KooorqMwooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/2Q==';
+const FERNANDA_PHOTO = '/25-34.png';
 
 interface PaywallProps {
   step: number;
@@ -52,7 +41,7 @@ export function Paywall({}: PaywallProps) {
   const [unlocked, setUnlocked] = useState(false);
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
   const scriptLoadedRef = useRef(false);
-  const lunar = useLunarCountdown();
+  const lunar = useCountdown(10 * 60);
 
   useEffect(() => {
     // Performance timing script
@@ -126,7 +115,7 @@ export function Paywall({}: PaywallProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.15 }}
-        className="font-serif text-3xl md:text-4xl text-gold-600 text-center leading-tight mb-4"
+        className="font-serif text-4xl md:text-5xl text-gold-600 text-center leading-tight mb-4"
       >
         Chega de Sobreviver, Você Nasceu Pra Fluir.
       </motion.h1>
@@ -193,12 +182,10 @@ export function Paywall({}: PaywallProps) {
           {/* BLOCK 6 — Lunar timer */}
           <div className="bg-[#1a0e2e] rounded-2xl p-5 mb-6 text-center">
             <p className="text-gold-400 text-sm font-semibold mb-3">
-              ⏰ Seus dias favoráveis deste mês estão passando. Esta oferta expira quando o ciclo lunar atual terminar.
+              ⏰ Oferta especial expira em:
             </p>
             <div className="flex justify-center gap-3 mb-3">
               {[
-                { val: lunar.dd, label: 'Dias' },
-                { val: lunar.hh, label: 'Horas' },
                 { val: lunar.mm, label: 'Min' },
                 { val: lunar.ss, label: 'Seg' },
               ].map(({ val, label }) => (

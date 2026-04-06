@@ -19,10 +19,10 @@ class QuizResponseEntity:
     updated_at: datetime = field(default_factory=datetime.utcnow)
 
     def get_age_range(self) -> Optional[str]:
-        return self.responses.get("step_1")
+        return self.responses.get("step_2")
 
     def get_blocked_area(self) -> Optional[str]:
-        return self.responses.get("step_2")
+        return self.responses.get("step_5")
 
     def get_signs(self) -> List[str]:
         signs = self.responses.get("step_8", [])
