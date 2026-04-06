@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuizStore } from '../../../store/quizStore';
 import { quizService } from '../../../services/quizService';
+import { track } from '../../../services/analyticsService';
 
 interface EmailCaptureProps {
   step: number;
@@ -23,10 +24,12 @@ export function EmailCapture({ onNext }: EmailCaptureProps) {
     setLoading(true);
     setError('');
     saveStepResponse(13, email);
+    track({ session_id: sessionToken ?? undefined, event_type: 'email_submitted', screen_id: 14 });
 
     try {
-      await quizService.captureEmail(email, sessionToken!, responses as Record<string, unknown>);
-      const diagnosis = await quizService.generateDiagnosis(sessionToken!);
+      const captured = await quizService.captureEmail(email, sessionToken!, responses as Record<string, unknown>);
+      // Use diagnosis returned by capture-email; fall back to separate call if missing
+      const diagnosis = captured.diagnosis ?? await quizService.generateDiagnosis(sessionToken!);
       setDiagnosis(diagnosis);
       onNext();
     } catch {

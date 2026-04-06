@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useQuizStore } from '../../../store/quizStore';
 import { quizService } from '../../../services/quizService';
+import { track } from '../../../services/analyticsService';
 
 interface EmojiScaleProps {
   step: number;
@@ -17,6 +18,7 @@ export function EmojiScale({ step, question, subtitle, onNext }: EmojiScaleProps
 
   const handleSelect = async (value: number) => {
     saveStepResponse(step, value);
+    track({ session_id: sessionToken ?? undefined, event_type: 'answer', screen_id: step, event_value: value });
     try {
       await quizService.saveStep(sessionToken!, step, value);
     } catch {

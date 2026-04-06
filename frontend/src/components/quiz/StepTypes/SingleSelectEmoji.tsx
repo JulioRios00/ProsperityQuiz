@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuizStore } from '../../../store/quizStore';
 import { quizService } from '../../../services/quizService';
+import { track } from '../../../services/analyticsService';
 import type { SelectOption } from '../../../types/quiz';
 
 interface SingleSelectEmojiProps {
@@ -17,6 +18,7 @@ export function SingleSelectEmoji({ step, question, options, onNext, confirmLabe
   const [selected, setSelected] = useState<string | null>(null);
 
   const handleSelect = async (value: string) => {
+    track({ session_id: sessionToken ?? undefined, event_type: 'answer', screen_id: step, event_value: value });
     if (confirmLabel) {
       // With confirm button: just highlight, don't advance yet
       setSelected(value);

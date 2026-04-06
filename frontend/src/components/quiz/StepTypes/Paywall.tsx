@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { track } from '../../../services/analyticsService';
+import { useQuizStore } from '../../../store/quizStore';
 
 declare global {
   namespace JSX {
@@ -42,6 +44,11 @@ export function Paywall({}: PaywallProps) {
   const [faqOpen, setFaqOpen] = useState<number | null>(null);
   const scriptLoadedRef = useRef(false);
   const lunar = useCountdown(10 * 60);
+  const { sessionToken } = useQuizStore();
+
+  const handleCheckoutClick = () => {
+    track({ session_id: sessionToken ?? undefined, event_type: 'checkout_click', screen_id: 'paywall' });
+  };
 
   useEffect(() => {
     // Performance timing script
@@ -278,6 +285,7 @@ export function Paywall({}: PaywallProps) {
               href={CHECKOUT_URL}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={handleCheckoutClick}
               className={`flex items-center justify-center w-full h-[60px] bg-[#C8963E] text-[#0D0B1A] text-lg font-bold rounded-xl shadow-lg transition-all ${unlocked ? 'animate-pulse' : ''}`}
             >
               ACESSAR MEU CALENDÁRIO DE ABUNDÂNCIA →
@@ -387,6 +395,7 @@ export function Paywall({}: PaywallProps) {
               href={CHECKOUT_URL}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={handleCheckoutClick}
               className="flex items-center justify-center w-full h-[60px] bg-[#C8963E] text-[#0D0B1A] text-lg font-bold rounded-xl shadow-lg transition-all hover:bg-gold-600"
             >
               QUERO COMEÇAR HOJE → R$37,90/mês

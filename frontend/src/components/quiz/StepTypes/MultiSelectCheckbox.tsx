@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuizStore } from '../../../store/quizStore';
 import { quizService } from '../../../services/quizService';
+import { track } from '../../../services/analyticsService';
 import type { SelectOption } from '../../../types/quiz';
 
 interface MultiSelectCheckboxProps {
@@ -28,6 +29,7 @@ export function MultiSelectCheckbox({ step, question, subtitle, options, onNext,
     if (selected.length < minSelect) return;
     setLoading(true);
     saveStepResponse(step, selected);
+    track({ session_id: sessionToken ?? undefined, event_type: 'answer', screen_id: step, event_value: selected });
     try {
       await quizService.saveStep(sessionToken!, step, selected);
     } catch {

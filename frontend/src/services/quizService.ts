@@ -23,7 +23,11 @@ export const quizService = {
     return data;
   },
 
-  async captureEmail(email: string, sessionToken: string, quizData?: Record<string, unknown>) {
+  async captureEmail(
+    email: string,
+    sessionToken: string,
+    quizData?: Record<string, unknown>,
+  ): Promise<{ email: string; captured: boolean; diagnosis: DiagnosisResult | null }> {
     const { data } = await api.post('/diagnosis/capture-email', {
       email,
       session_token: sessionToken,

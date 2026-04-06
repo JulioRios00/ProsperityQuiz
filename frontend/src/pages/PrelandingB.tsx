@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { quizService } from '../services/quizService'
 import { useQuizStore } from '../store/quizStore'
 import { useFacebookPixels } from '../hooks/useFacebookPixels'
+import { track, captureAndStoreUtms } from '../services/analyticsService'
 
 const PIXELS_B = ['908649312046405', '1421941556280579']
 
@@ -24,6 +25,9 @@ function PrelandingB() {
   const navigate = useNavigate()
 
   useEffect(() => {
+    captureAndStoreUtms()
+    track({ event_type: 'page_loaded', screen_id: 'prelanding', event_value: 'b' })
+
     if (!scriptLoadedRef.current) {
       scriptLoadedRef.current = true
       const s = document.createElement('script')
@@ -45,6 +49,7 @@ function PrelandingB() {
   const handleStart = async () => {
     if (loading) return
     setLoading(true)
+    track({ event_type: 'cta_click', screen_id: 'prelanding', event_value: 'b' })
     try {
       const { session_token } = await quizService.startQuiz()
       startQuiz(session_token)

@@ -9,3 +9,4 @@ from .routes import health  # noqa: F401, E402
 from .routes import auth  # noqa: F401, E402
 from .routes import quiz  # noqa: F401, E402
 from .routes import diagnosis  # noqa: F401, E402
+from .routes import analytics  # noqa: F401, E402

@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuizStore } from '../store/quizStore';
+import { track, trackBeacon } from '../services/analyticsService';
 import type { QuizStepConfig } from '../types/quiz';
 import { ProgressBar } from '../components/quiz/ProgressBar';
 import { SingleSelectCard } from '../components/quiz/StepTypes/SingleSelectCard';
@@ -34,6 +35,7 @@ interface QuizFlowProps {
 export function QuizFlow({ config, returnPath = '/' }: QuizFlowProps) {
   const { currentStep, sessionToken, nextStep, previousStep, palmistrySkipped } = useQuizStore();
   const navigate = useNavigate();
+  const stepStartRef = useRef<number>(Date.now());
 
   useEffect(() => {
     if (!sessionToken) {
@@ -47,6 +49,53 @@ export function QuizFlow({ config, returnPath = '/' }: QuizFlowProps) {
       nextStep();
     }
   }, [currentStep, palmistrySkipped, nextStep]);
+
+  // Track screen_loaded on every step change, and time_on_screen when leaving
+  useEffect(() => {
+    if (!sessionToken || currentStep === 0) return;
+    stepStartRef.current = Date.now();
+
+    track({
+      session_id: sessionToken,
+      event_type: 'screen_loaded',
+      screen_id: currentStep,
+    });
+
+    return () => {
+      const elapsed = Math.round((Date.now() - stepStartRef.current) / 1000);
+      track({
+        session_id: sessionToken,
+        event_type: 'screen_time',
+        screen_id: currentStep,
+        time_on_screen: elapsed,
+      });
+    };
+  }, [currentStep, sessionToken]);
+
+  // Track quiz abandonment via beforeunload and visibilitychange
+  useEffect(() => {
+    if (!sessionToken || currentStep === 0) return;
+
+    const handleAbandon = () => {
+      trackBeacon({
+        session_id: sessionToken,
+        event_type: 'quiz_abandoned',
+        screen_id: currentStep,
+        time_on_screen: Math.round((Date.now() - stepStartRef.current) / 1000),
+      });
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'hidden') handleAbandon();
+    };
+
+    window.addEventListener('beforeunload', handleAbandon);
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      window.removeEventListener('beforeunload', handleAbandon);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, [sessionToken, currentStep]);
 
   if (!sessionToken || currentStep === 0) return null;
 

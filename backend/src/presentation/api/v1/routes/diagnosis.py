@@ -9,6 +9,8 @@ from .....application.use_cases.generate_diagnosis import (
     GenerateDiagnosisInput,
     GenerateDiagnosisUseCase,
 )
+from .....domain.entities.quiz_response import QuizResponseEntity
+from .....domain.services.diagnosis_service import DiagnosisService
 from .....infrastructure.database.repositories.diagnosis_repository import (
     SQLAlchemyDiagnosisRepository,
 )
@@ -88,4 +90,40 @@ def capture_email():
     except ValueError as e:
         return jsonify({"error": "Validation Error", "message": str(e)}), 400
 
-    return jsonify({"email": result.email, "captured": result.captured}), 200
+    # Also generate (or retrieve) the diagnosis in the same request
+    diagnosis_data = None
+    try:
+        diag_result = GenerateDiagnosisUseCase(
+            SQLAlchemyQuizRepository(), SQLAlchemyDiagnosisRepository()
+        ).execute(GenerateDiagnosisInput(session_token=data["session_token"]))
+        d = diag_result.diagnosis
+        diagnosis_data = {
+            "id": str(d.id),
+            "diagnosis_text": d.diagnosis_text,
+            "favorable_days": d.favorable_days,
+            "blocked_area": d.blocked_area,
+            "blockage_level": d.blockage_level,
+        }
+    except QuizSessionNotFound:
+        # Session not in DB (e.g. local fallback token) — generate from quiz_data directly
+        quiz_data = data.get("quiz_data") or {}
+        temp_quiz = QuizResponseEntity(
+            session_token=data["session_token"],
+            responses=quiz_data,
+        )
+        d = DiagnosisService().generate(temp_quiz)
+        diagnosis_data = {
+            "id": str(d.id),
+            "diagnosis_text": d.diagnosis_text,
+            "favorable_days": d.favorable_days,
+            "blocked_area": d.blocked_area,
+            "blockage_level": d.blockage_level,
+        }
+    except Exception:
+        pass  # diagnosis_data stays None — frontend will handle gracefully
+
+    return jsonify({
+        "email": result.email,
+        "captured": result.captured,
+        "diagnosis": diagnosis_data,
+    }), 200
