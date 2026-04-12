@@ -1,4 +1,6 @@
 """Analytics event tracking routes."""
+import json
+from collections import Counter
 from datetime import datetime
 
 from flask import request, jsonify
@@ -27,6 +29,153 @@ def track_events():
         _save_event(data)
     db.session.commit()
     return jsonify({"ok": True, "count": len(events)}), 201
+
+
+@api_v1_bp.route("/analytics/funnel", methods=["GET"])
+def get_funnel_metrics():
+    """Return aggregated analytics metrics for a simple dashboard."""
+    limit = request.args.get("limit", default=5000, type=int)
+    if limit <= 0:
+        limit = 5000
+    limit = min(limit, 10000)
+
+    recent_limit = request.args.get("recent", default=30, type=int)
+    if recent_limit <= 0:
+        recent_limit = 30
+    recent_limit = min(recent_limit, 100)
+
+    events = (
+        AnalyticsEvent.query
+        .order_by(AnalyticsEvent.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+
+    events_by_type = Counter()
+    devices = Counter()
+    browsers = Counter()
+    utm_sources = Counter()
+    answers_by_screen = Counter()
+    screens_loaded = Counter()
+    screen_time_totals = Counter()
+    screen_time_counts = Counter()
+    sessions = set()
+
+    for event in events:
+        data = event.event_data or {}
+        event_type = event.event_type or "unknown"
+        screen_id = data.get("screen_id")
+        device = data.get("device")
+        browser = data.get("browser")
+        utm_source = data.get("utm_source")
+        time_on_screen = data.get("time_on_screen")
+        event_value = data.get("event_value")
+
+        events_by_type[event_type] += 1
+
+        if event.session_id:
+            sessions.add(event.session_id)
+
+        if device:
+            devices[str(device)] += 1
+        if browser:
+            browsers[str(browser)] += 1
+        if utm_source:
+            utm_sources[str(utm_source)] += 1
+
+        if event_type == "screen_loaded":
+            screens_loaded[str(screen_id)] += 1
+
+        if (
+            event_type == "screen_time"
+            and screen_id is not None
+            and isinstance(time_on_screen, (int, float))
+        ):
+            key = str(screen_id)
+            screen_time_totals[key] += float(time_on_screen)
+            screen_time_counts[key] += 1
+
+        if (
+            event_type == "answer"
+            and screen_id is not None
+            and event_value is not None
+        ):
+            if isinstance(event_value, (dict, list)):
+                normalized_value = json.dumps(event_value, ensure_ascii=False)
+            else:
+                normalized_value = str(event_value)
+            answers_by_screen[(str(screen_id), normalized_value)] += 1
+
+    screen_metrics = []
+    screen_ids = set(
+        list(screens_loaded.keys()) + list(screen_time_totals.keys())
+    )
+    for sid in sorted(screen_ids, key=lambda x: str(x)):
+        avg_time = 0.0
+        if screen_time_counts[sid] > 0:
+            avg_time = round(
+                screen_time_totals[sid] / screen_time_counts[sid],
+                2,
+            )
+        screen_metrics.append({
+            "screen_id": sid,
+            "loads": screens_loaded[sid],
+            "avg_time_on_screen": avg_time,
+        })
+
+    top_answers = [
+        {"screen_id": sid, "value": value, "count": count}
+        for (sid, value), count in answers_by_screen.most_common(20)
+    ]
+
+    recent_events = []
+    for event in events[:recent_limit]:
+        data = event.event_data or {}
+        recent_events.append({
+            "id": str(event.id),
+            "created_at": (
+                event.created_at.isoformat()
+                if event.created_at else None
+            ),
+            "session_id": event.session_id,
+            "event_type": event.event_type,
+            "screen_id": data.get("screen_id"),
+            "event_value": data.get("event_value"),
+            "time_on_screen": data.get("time_on_screen"),
+            "device": data.get("device"),
+            "browser": data.get("browser"),
+            "utm_source": data.get("utm_source"),
+        })
+
+    return jsonify({
+        "summary": {
+            "events_analyzed": len(events),
+            "sessions": len(sessions),
+            "emails_submitted": events_by_type.get("email_submitted", 0),
+            "answers": events_by_type.get("answer", 0),
+            "screen_loaded": events_by_type.get("screen_loaded", 0),
+            "screen_time": events_by_type.get("screen_time", 0),
+        },
+        "events_by_type": [
+            {"event_type": event_type, "count": count}
+            for event_type, count in events_by_type.most_common()
+        ],
+        "devices": [
+            {"device": name, "count": count}
+            for name, count in devices.most_common()
+        ],
+        "browsers": [
+            {"browser": name, "count": count}
+            for name, count in browsers.most_common()
+        ],
+        "utm_sources": [
+            {"utm_source": name, "count": count}
+            for name, count in utm_sources.most_common()
+        ],
+        "screens": screen_metrics,
+        "top_answers": top_answers,
+        "recent_events": recent_events,
+    }), 200
 
 
 def _save_event(data: dict) -> None:

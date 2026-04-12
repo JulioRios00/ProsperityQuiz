@@ -4,6 +4,7 @@ import PrelandingB from './pages/PrelandingB'
 import { QuizFlow } from './pages/QuizFlow'
 import { QuizFlowA } from './pages/QuizFlowA'
 import { QuizFlowB } from './pages/QuizFlowB'
+import AnalyticsDashboard from './pages/AnalyticsDashboard'
 import { quizConfig } from './config/quizConfig'
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
         <Route path="/b" element={<PrelandingB />} />
         <Route path="/quiz/a" element={<QuizFlowA />} />
         <Route path="/quiz/b" element={<QuizFlowB />} />
+        <Route path="/dashboard/analytics" element={<AnalyticsDashboard />} />
       </Routes>
     </Router>
   )

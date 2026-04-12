@@ -28,7 +28,7 @@ function useCountdown(totalSeconds: number) {
   return { mm, ss };
 }
 
-const MARCIA_PHOTO = '/public/marcia.jpg';
+const MARCIA_PHOTO = 'public/marcia.jpg';
 
 const PATRICIA_PHOTO = '/public/patricia.jpg';
 
