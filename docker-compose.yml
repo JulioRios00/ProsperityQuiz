@@ -74,6 +74,9 @@ services:
     container_name: quiz-funnel-frontend
     environment:
       VITE_API_URL: http://localhost:5001/api/v1
+      VITE_ANALYTICS_DASHBOARD_KEY: ${VITE_ANALYTICS_DASHBOARD_KEY}
+      VITE_ANALYTICS_DASHBOARD_USER: ${VITE_ANALYTICS_DASHBOARD_USER}
+      VITE_ANALYTICS_DASHBOARD_PASSWORD: ${VITE_ANALYTICS_DASHBOARD_PASSWORD}
     volumes:
       - ./frontend:/app
       - /app/node_modules

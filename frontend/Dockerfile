@@ -19,8 +19,14 @@ CMD ["npm", "run", "dev", "--", "--host"]
 # Build stage — accepts VITE_API_URL so the bundle points to the right API
 FROM base AS builder
 ARG VITE_API_URL=/api/v1
-ENV VITE_API_URL=$VITE_API_URL
-RUN npm run build
+ARG DASHBOARD_LOGIN_CODE=
+ARG DASHBOARD_LOGIN_USER=
+ARG DASHBOARD_LOGIN_PASS=
+RUN VITE_API_URL="$VITE_API_URL" \
+	VITE_ANALYTICS_DASHBOARD_KEY="$DASHBOARD_LOGIN_CODE" \
+	VITE_ANALYTICS_DASHBOARD_USER="$DASHBOARD_LOGIN_USER" \
+	VITE_ANALYTICS_DASHBOARD_PASSWORD="$DASHBOARD_LOGIN_PASS" \
+	npm run build
 
 # Production stage
 FROM nginx:alpine AS production

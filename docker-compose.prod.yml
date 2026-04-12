@@ -41,6 +41,9 @@ services:
       target: production
       args:
         VITE_API_URL: /api/v1
+        DASHBOARD_LOGIN_CODE: ${VITE_ANALYTICS_DASHBOARD_KEY}
+        DASHBOARD_LOGIN_USER: ${VITE_ANALYTICS_DASHBOARD_USER}
+        DASHBOARD_LOGIN_PASS: ${VITE_ANALYTICS_DASHBOARD_PASSWORD}
     container_name: quiz-funnel-frontend
     restart: unless-stopped
     networks:

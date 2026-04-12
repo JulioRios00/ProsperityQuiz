@@ -27,20 +27,37 @@ export default function AnalyticsDashboard() {
   const [error, setError] = useState<string | null>(null)
   const [isUnlocked, setIsUnlocked] = useState(false)
   const [accessKey, setAccessKey] = useState('')
+  const [loginEmail, setLoginEmail] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
 
   const requiredKey = import.meta.env.VITE_ANALYTICS_DASHBOARD_KEY
+  const requiredUser = import.meta.env.VITE_ANALYTICS_DASHBOARD_USER
+  const requiredPassword = import.meta.env.VITE_ANALYTICS_DASHBOARD_PASSWORD
+  const hasLoginCredentials = Boolean(requiredUser && requiredPassword)
+  const authStorageKey = 'analytics_dashboard_access'
 
   useEffect(() => {
-    if (!requiredKey) {
+    const stored = localStorage.getItem(authStorageKey)
+    console.info('[AnalyticsDashboard] Auth gate config', {
+      envMode: import.meta.env.MODE,
+      hasLoginCredentials,
+      hasRequiredKey: Boolean(requiredKey),
+      hasRequiredUser: Boolean(requiredUser),
+      hasRequiredPassword: Boolean(requiredPassword),
+      storageAccess: stored,
+    })
+
+    if (!requiredKey && !hasLoginCredentials) {
+      console.info('[AnalyticsDashboard] Unlocking automatically (no key/login configured)')
       setIsUnlocked(true)
       return
     }
 
-    const stored = localStorage.getItem('analytics_dashboard_access')
     if (stored === 'ok') {
+      console.info('[AnalyticsDashboard] Unlocking from localStorage cache')
       setIsUnlocked(true)
     }
-  }, [requiredKey])
+  }, [requiredKey, requiredUser, requiredPassword, hasLoginCredentials])
 
   const loadDashboard = async () => {
     try {
@@ -63,14 +80,35 @@ export default function AnalyticsDashboard() {
   const handleUnlock = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if (!requiredKey || accessKey === requiredKey) {
-      localStorage.setItem('analytics_dashboard_access', 'ok')
+    const isLoginValid =
+      hasLoginCredentials
+      && loginEmail.trim().toLowerCase() === String(requiredUser).trim().toLowerCase()
+      && loginPassword === requiredPassword
+
+    const isKeyValid = requiredKey && accessKey === requiredKey
+
+    console.info('[AnalyticsDashboard] Unlock attempt', {
+      hasLoginCredentials,
+      emailMatch: loginEmail.trim().toLowerCase() === String(requiredUser).trim().toLowerCase(),
+      passwordProvided: Boolean(loginPassword),
+      keyProvided: Boolean(accessKey),
+      isLoginValid,
+      isKeyValid: Boolean(isKeyValid),
+    })
+
+    if ((!hasLoginCredentials && !requiredKey) || isLoginValid || isKeyValid) {
+      localStorage.setItem(authStorageKey, 'ok')
+      console.info('[AnalyticsDashboard] Access granted')
       setIsUnlocked(true)
       setError(null)
       return
     }
 
-    setError('Chave inválida para acessar o dashboard.')
+    setError(
+      hasLoginCredentials
+        ? 'Credenciais inválidas para acessar o dashboard.'
+        : 'Chave inválida para acessar o dashboard.',
+    )
   }
 
   const exportRecentEventsCsv = () => {
@@ -130,21 +168,47 @@ export default function AnalyticsDashboard() {
 
   if (!isUnlocked) {
     return (
-      <div className="min-h-screen bg-cream-50 px-4 py-8">
-        <div className="mx-auto w-full max-w-md rounded-xl border border-gold-400/30 bg-white p-6 shadow-sm">
+      <div className="relative min-h-screen bg-cream-50">
+        <div className="fixed inset-0 bg-black/40" />
+
+        <div className="fixed inset-y-0 right-0 z-10 w-full max-w-md border-l border-gold-400/20 bg-white p-6 shadow-2xl">
           <h1 className="text-2xl font-bold text-gold-600">Analytics Dashboard</h1>
           <p className="mt-2 text-sm text-gray-600">
-            Este painel está protegido por chave de acesso.
+            {hasLoginCredentials
+              ? 'Faça login para acessar o dashboard.'
+              : 'Este painel está protegido por chave de acesso.'}
           </p>
 
-          <form className="mt-4 space-y-3" onSubmit={handleUnlock}>
-            <input
-              type="password"
-              value={accessKey}
-              onChange={(e) => setAccessKey(e.target.value)}
-              placeholder="Digite a chave"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none ring-gold-500 focus:ring-2"
-            />
+          <form className="mt-6 space-y-3" onSubmit={handleUnlock}>
+            {hasLoginCredentials ? (
+              <>
+                <input
+                  type="email"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  placeholder="Email"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none ring-gold-500 focus:ring-2"
+                  autoComplete="username"
+                />
+                <input
+                  type="password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  placeholder="Senha"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none ring-gold-500 focus:ring-2"
+                  autoComplete="current-password"
+                />
+              </>
+            ) : (
+              <input
+                type="password"
+                value={accessKey}
+                onChange={(e) => setAccessKey(e.target.value)}
+                placeholder="Digite a chave"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none ring-gold-500 focus:ring-2"
+              />
+            )}
+
             <button type="submit" className="btn-primary w-full">
               Entrar
             </button>
@@ -155,6 +219,10 @@ export default function AnalyticsDashboard() {
               {error}
             </p>
           )}
+
+          <p className="mt-4 text-xs text-gray-500">
+            Acesso liberado neste navegador após login.
+          </p>
         </div>
       </div>
     )
