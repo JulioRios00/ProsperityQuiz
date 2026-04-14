@@ -76,12 +76,12 @@ export function captureAndStoreUtms(): void {
 function getQuizVariant(): 'a' | 'b' | 'default' {
   const pathname = window.location.pathname.toLowerCase()
 
-  if (pathname === '/a' || pathname.startsWith('/quiz/a')) {
+  if (/^\/a\/?$/.test(pathname) || /^\/quiz\/a(?:\/|$)/.test(pathname)) {
     sessionStorage.setItem('quiz_variant', 'a')
     return 'a'
   }
 
-  if (pathname === '/b' || pathname.startsWith('/quiz/b')) {
+  if (/^\/b\/?$/.test(pathname) || /^\/quiz\/b(?:\/|$)/.test(pathname)) {
     sessionStorage.setItem('quiz_variant', 'b')
     return 'b'
   }

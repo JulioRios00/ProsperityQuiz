@@ -68,9 +68,34 @@ def get_funnel_metrics():
     sessions = set()
     filtered_events = []
 
+    # Build a session->variant map first so events that don't carry
+    # quiz_variant explicitly can still be grouped/filterable by A/B.
+    session_variant_map = {}
     for event in events:
         data = event.event_data or {}
-        quiz_variant = _normalize_variant(data.get("quiz_variant"))
+        explicit_variant = _normalize_variant(data.get("quiz_variant"))
+        inferred_variant = _infer_variant_from_event(event.event_type, data)
+
+        resolved_variant = explicit_variant
+        if resolved_variant == "default" and inferred_variant in {"a", "b"}:
+            resolved_variant = inferred_variant
+
+        if event.session_id and resolved_variant in {"a", "b"}:
+            session_variant_map[event.session_id] = resolved_variant
+
+    for event in events:
+        data = event.event_data or {}
+        explicit_variant = _normalize_variant(data.get("quiz_variant"))
+        inferred_variant = _infer_variant_from_event(event.event_type, data)
+
+        quiz_variant = explicit_variant
+        if quiz_variant == "default" and inferred_variant in {"a", "b"}:
+            quiz_variant = inferred_variant
+        if (
+            quiz_variant == "default"
+            and event.session_id in session_variant_map
+        ):
+            quiz_variant = session_variant_map[event.session_id]
 
         if variant_filter != "all" and quiz_variant != variant_filter:
             continue
@@ -145,7 +170,17 @@ def get_funnel_metrics():
     recent_events = []
     for event in filtered_events[:recent_limit]:
         data = event.event_data or {}
-        quiz_variant = _normalize_variant(data.get("quiz_variant"))
+        explicit_variant = _normalize_variant(data.get("quiz_variant"))
+        inferred_variant = _infer_variant_from_event(event.event_type, data)
+
+        quiz_variant = explicit_variant
+        if quiz_variant == "default" and inferred_variant in {"a", "b"}:
+            quiz_variant = inferred_variant
+        if (
+            quiz_variant == "default"
+            and event.session_id in session_variant_map
+        ):
+            quiz_variant = session_variant_map[event.session_id]
         recent_events.append({
             "id": str(event.id),
             "created_at": (
@@ -205,9 +240,10 @@ def _save_event(data: dict) -> None:
 
     normalized_device = _normalize_device(data.get("device"))
     normalized_browser = _normalize_browser(data.get("browser"))
+    normalized_utm_source = _normalize_utm_source(data.get("utm_source"))
 
-    resolved_device = inferred_device or normalized_device
-    resolved_browser = inferred_browser or normalized_browser
+    resolved_device = _resolve_device(normalized_device, inferred_device)
+    resolved_browser = _resolve_browser(normalized_browser, inferred_browser)
 
     event = AnalyticsEvent(
         session_id=data.get("session_id"),
@@ -219,11 +255,15 @@ def _save_event(data: dict) -> None:
             "time_on_screen": data.get("time_on_screen"),
             "device": resolved_device,
             "browser": resolved_browser,
-            "utm_source": data.get("utm_source"),
+            "utm_source": normalized_utm_source,
             "utm_medium": data.get("utm_medium"),
             "utm_campaign": data.get("utm_campaign"),
             "utm_content": data.get("utm_content"),
             "utm_term": data.get("utm_term"),
+            "device_client": normalized_device,
+            "device_ua": inferred_device,
+            "browser_client": normalized_browser,
+            "browser_ua": inferred_browser,
             "timestamp": data.get("timestamp", datetime.utcnow().isoformat()),
         },
     )
@@ -234,6 +274,20 @@ def _normalize_variant(value) -> str:
     normalized = str(value or "default").strip().lower()
     if normalized in {"a", "b", "default"}:
         return normalized
+    return "default"
+
+
+def _infer_variant_from_event(event_type: str, data: dict) -> str:
+    screen_id = str(data.get("screen_id") or "").strip().lower()
+    event_value = str(data.get("event_value") or "").strip().lower()
+
+    if (
+        event_type in {"page_loaded", "cta_click"}
+        and screen_id == "prelanding"
+    ):
+        if event_value in {"a", "b"}:
+            return event_value
+
     return "default"
 
 
@@ -252,6 +306,33 @@ def _normalize_browser(value) -> str | None:
     }:
         return normalized
     return None
+
+
+def _normalize_utm_source(value) -> str | None:
+    normalized = str(value or "").strip().lower()
+    if normalized:
+        return normalized
+    return None
+
+
+def _resolve_device(
+    normalized_device: str | None,
+    inferred_device: str | None,
+) -> str | None:
+    # Prefer explicit frontend classification, fallback to UA.
+    return normalized_device or inferred_device
+
+
+def _resolve_browser(
+    normalized_browser: str | None,
+    inferred_browser: str | None,
+) -> str | None:
+    # Use whichever source is more specific first; keep "other" as last resort.
+    if normalized_browser and normalized_browser != "other":
+        return normalized_browser
+    if inferred_browser and inferred_browser != "other":
+        return inferred_browser
+    return normalized_browser or inferred_browser
 
 
 def _infer_from_user_agent(user_agent: str) -> tuple[str | None, str | None]:
