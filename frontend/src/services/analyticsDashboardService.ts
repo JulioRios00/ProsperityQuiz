@@ -29,6 +29,11 @@ export interface CountByUtmSource {
   count: number
 }
 
+export interface CountByVariant {
+  quiz_variant: string
+  count: number
+}
+
 export interface ScreenMetric {
   screen_id: string
   loads: number
@@ -47,6 +52,7 @@ export interface RecentEvent {
   session_id: string | null
   event_type: string
   screen_id: string | number | null
+  quiz_variant: string
   event_value: unknown
   time_on_screen: number | null
   device: string | null
@@ -56,7 +62,9 @@ export interface RecentEvent {
 
 export interface AnalyticsDashboardData {
   summary: SummaryMetrics
+  active_variant_filter?: string
   events_by_type: CountByType[]
+  variants: CountByVariant[]
   devices: CountByDevice[]
   browsers: CountByBrowser[]
   utm_sources: CountByUtmSource[]
@@ -68,9 +76,10 @@ export interface AnalyticsDashboardData {
 export async function getAnalyticsDashboard(
   limit = 5000,
   recent = 30,
+  variant: 'all' | 'a' | 'b' | 'default' = 'all',
 ): Promise<AnalyticsDashboardData> {
   const response = await api.get<AnalyticsDashboardData>('/analytics/funnel', {
-    params: { limit, recent },
+    params: { limit, recent, variant },
   })
 
   return response.data

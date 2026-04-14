@@ -29,6 +29,7 @@ export default function AnalyticsDashboard() {
   const [accessKey, setAccessKey] = useState('')
   const [loginEmail, setLoginEmail] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
+  const [variantFilter, setVariantFilter] = useState<'all' | 'a' | 'b' | 'default'>('all')
 
   const requiredKey = import.meta.env.VITE_ANALYTICS_DASHBOARD_KEY
   const requiredUser = import.meta.env.VITE_ANALYTICS_DASHBOARD_USER
@@ -63,7 +64,7 @@ export default function AnalyticsDashboard() {
     try {
       setLoading(true)
       setError(null)
-      const response = await getAnalyticsDashboard(5000, 40)
+      const response = await getAnalyticsDashboard(5000, 40, variantFilter)
       setData(response)
     } catch {
       setError('Não foi possível carregar os dados de analytics.')
@@ -75,7 +76,7 @@ export default function AnalyticsDashboard() {
   useEffect(() => {
     if (!isUnlocked) return
     loadDashboard()
-  }, [isUnlocked])
+  }, [isUnlocked, variantFilter])
 
   const handleUnlock = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -119,6 +120,7 @@ export default function AnalyticsDashboard() {
       'created_at',
       'session_id',
       'event_type',
+      'quiz_variant',
       'screen_id',
       'event_value',
       'time_on_screen',
@@ -137,6 +139,7 @@ export default function AnalyticsDashboard() {
       event.created_at ?? '',
       event.session_id ?? '',
       event.event_type,
+      event.quiz_variant ?? '',
       event.screen_id ?? '',
       formatEventValue(event.event_value),
       event.time_on_screen ?? '',
@@ -238,7 +241,17 @@ export default function AnalyticsDashboard() {
               Resumo dos eventos enviados para /api/v1/analytics/event
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              value={variantFilter}
+              onChange={(e) => setVariantFilter(e.target.value as 'all' | 'a' | 'b' | 'default')}
+              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none ring-gold-500 focus:ring-2"
+            >
+              <option value="all">Todas variantes</option>
+              <option value="a">Somente Quiz A</option>
+              <option value="b">Somente Quiz B</option>
+              <option value="default">Somente Default</option>
+            </select>
             <button
               onClick={exportRecentEventsCsv}
               className="btn-secondary"
@@ -270,6 +283,15 @@ export default function AnalyticsDashboard() {
           <StatCard label="Screen Time" value={data ? numberFormat(data.summary.screen_time) : '-'} />
           <StatCard label="Emails" value={data ? numberFormat(data.summary.emails_submitted) : '-'} />
         </section>
+
+        <Panel title="Distribuição por variante">
+          <SimpleList
+            items={data?.variants.map((item) => ({
+              label: item.quiz_variant,
+              value: item.count,
+            })) ?? []}
+          />
+        </Panel>
 
         <section className="grid gap-6 lg:grid-cols-2">
           <Panel title="Eventos por tipo">
@@ -344,6 +366,7 @@ export default function AnalyticsDashboard() {
               <thead>
                 <tr className="border-b border-gray-200 text-gray-500">
                   <th className="py-2 pr-3">Tipo</th>
+                  <th className="py-2 pr-3">Variante</th>
                   <th className="py-2 pr-3">Tela</th>
                   <th className="py-2 pr-3">Valor</th>
                   <th className="py-2 pr-3">Sessão</th>
@@ -355,7 +378,7 @@ export default function AnalyticsDashboard() {
               <tbody>
                 {!data?.recent_events.length && (
                   <tr>
-                    <td colSpan={7} className="py-4 text-center text-gray-500">
+                    <td colSpan={8} className="py-4 text-center text-gray-500">
                       Sem eventos recentes.
                     </td>
                   </tr>
@@ -363,6 +386,7 @@ export default function AnalyticsDashboard() {
                 {data?.recent_events.map((event) => (
                   <tr key={event.id} className="border-b border-gray-100 align-top last:border-0">
                     <td className="py-2 pr-3 font-medium text-gray-800">{event.event_type}</td>
+                    <td className="py-2 pr-3 text-gray-600">{event.quiz_variant ?? '-'}</td>
                     <td className="py-2 pr-3 text-gray-600">{event.screen_id ?? '-'}</td>
                     <td className="max-w-[220px] truncate py-2 pr-3 text-gray-600">
                       {formatEventValue(event.event_value)}

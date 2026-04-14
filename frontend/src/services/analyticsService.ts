@@ -6,6 +6,7 @@ export interface AnalyticsEvent {
   session_id?: string;
   event_type: string;
   screen_id?: string | number;
+  quiz_variant?: 'a' | 'b' | 'default';
   event_value?: unknown;
   time_on_screen?: number;
   device?: string;
@@ -61,11 +62,33 @@ export function captureAndStoreUtms(): void {
   }
 }
 
+function getQuizVariant(): 'a' | 'b' | 'default' {
+  const pathname = window.location.pathname.toLowerCase()
+
+  if (pathname === '/a' || pathname.startsWith('/quiz/a')) {
+    sessionStorage.setItem('quiz_variant', 'a')
+    return 'a'
+  }
+
+  if (pathname === '/b' || pathname.startsWith('/quiz/b')) {
+    sessionStorage.setItem('quiz_variant', 'b')
+    return 'b'
+  }
+
+  const stored = sessionStorage.getItem('quiz_variant')
+  if (stored === 'a' || stored === 'b') {
+    return stored
+  }
+
+  return 'default'
+}
+
 function buildEvent(partial: AnalyticsEvent): AnalyticsEvent {
   const utms = Object.keys(getUtmParams()).length > 0 ? getUtmParams() : getStoredUtms();
   return {
     device: getDevice(),
     browser: getBrowser(),
+    quiz_variant: getQuizVariant(),
     timestamp: new Date().toISOString(),
     ...utms,
     ...partial,

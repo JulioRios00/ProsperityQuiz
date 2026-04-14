@@ -44,6 +44,11 @@ def get_funnel_metrics():
         recent_limit = 30
     recent_limit = min(recent_limit, 100)
 
+    variant_filter = request.args.get("variant", default="all", type=str)
+    variant_filter = (variant_filter or "all").strip().lower()
+    if variant_filter not in {"all", "a", "b", "default"}:
+        variant_filter = "all"
+
     events = (
         AnalyticsEvent.query
         .order_by(AnalyticsEvent.created_at.desc())
@@ -55,14 +60,22 @@ def get_funnel_metrics():
     devices = Counter()
     browsers = Counter()
     utm_sources = Counter()
+    variants = Counter()
     answers_by_screen = Counter()
     screens_loaded = Counter()
     screen_time_totals = Counter()
     screen_time_counts = Counter()
     sessions = set()
+    filtered_events = []
 
     for event in events:
         data = event.event_data or {}
+        quiz_variant = str(data.get("quiz_variant") or "default").lower()
+
+        if variant_filter != "all" and quiz_variant != variant_filter:
+            continue
+
+        filtered_events.append(event)
         event_type = event.event_type or "unknown"
         screen_id = data.get("screen_id")
         device = data.get("device")
@@ -72,6 +85,7 @@ def get_funnel_metrics():
         event_value = data.get("event_value")
 
         events_by_type[event_type] += 1
+        variants[quiz_variant] += 1
 
         if event.session_id:
             sessions.add(event.session_id)
@@ -129,7 +143,7 @@ def get_funnel_metrics():
     ]
 
     recent_events = []
-    for event in events[:recent_limit]:
+    for event in filtered_events[:recent_limit]:
         data = event.event_data or {}
         recent_events.append({
             "id": str(event.id),
@@ -145,20 +159,26 @@ def get_funnel_metrics():
             "device": data.get("device"),
             "browser": data.get("browser"),
             "utm_source": data.get("utm_source"),
+            "quiz_variant": data.get("quiz_variant") or "default",
         })
 
     return jsonify({
         "summary": {
-            "events_analyzed": len(events),
+            "events_analyzed": len(filtered_events),
             "sessions": len(sessions),
             "emails_submitted": events_by_type.get("email_submitted", 0),
             "answers": events_by_type.get("answer", 0),
             "screen_loaded": events_by_type.get("screen_loaded", 0),
             "screen_time": events_by_type.get("screen_time", 0),
         },
+        "active_variant_filter": variant_filter,
         "events_by_type": [
             {"event_type": event_type, "count": count}
             for event_type, count in events_by_type.most_common()
+        ],
+        "variants": [
+            {"quiz_variant": name, "count": count}
+            for name, count in variants.most_common()
         ],
         "devices": [
             {"device": name, "count": count}
@@ -184,6 +204,7 @@ def _save_event(data: dict) -> None:
         event_type=data.get("event_type", "unknown"),
         event_data={
             "screen_id": data.get("screen_id"),
+            "quiz_variant": data.get("quiz_variant") or "default",
             "event_value": data.get("event_value"),
             "time_on_screen": data.get("time_on_screen"),
             "device": data.get("device"),
