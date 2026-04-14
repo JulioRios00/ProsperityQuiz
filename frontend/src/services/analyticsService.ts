@@ -20,18 +20,29 @@ export interface AnalyticsEvent {
 }
 
 function getDevice(): string {
+  const uaData = (navigator as Navigator & { userAgentData?: { mobile?: boolean; platform?: string } }).userAgentData;
+  if (uaData?.mobile === true) return 'mobile';
+
   const ua = navigator.userAgent;
-  if (/Mobi|Android/i.test(ua)) return 'mobile';
-  if (/Tablet|iPad/i.test(ua)) return 'tablet';
+  const isIpadOsDesktopUA = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+
+  if (/iPad|Tablet|Nexus 7|Nexus 10|KFAPWI|Silk/i.test(ua) || isIpadOsDesktopUA) return 'tablet';
+  if (/Mobile|Mobi|Android.+Mobile|iPhone|iPod|IEMobile|Opera Mini/i.test(ua)) return 'mobile';
+  if (/Android/i.test(ua) && !/Mobile/i.test(ua)) return 'tablet';
+
   return 'desktop';
 }
 
 function getBrowser(): string {
   const ua = navigator.userAgent;
-  if (/Edg\//i.test(ua)) return 'edge';
-  if (/Chrome/i.test(ua)) return 'chrome';
-  if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) return 'safari';
-  if (/Firefox/i.test(ua)) return 'firefox';
+
+  if (/FBAN|FBAV|Instagram/i.test(ua)) return 'in_app';
+  if (/EdgA|EdgiOS|Edg\//i.test(ua)) return 'edge';
+  if (/OPR|Opera/i.test(ua)) return 'opera';
+  if (/SamsungBrowser/i.test(ua)) return 'samsung';
+  if (/CriOS|Chrome/i.test(ua)) return 'chrome';
+  if (/FxiOS|Firefox/i.test(ua)) return 'firefox';
+  if (/Safari/i.test(ua) && !/CriOS|Chrome|Chromium|Edg|OPR|SamsungBrowser/i.test(ua)) return 'safari';
   return 'other';
 }
 

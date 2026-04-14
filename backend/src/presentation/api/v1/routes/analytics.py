@@ -221,6 +221,15 @@ def get_funnel_metrics():
 
 
 def _save_event(data: dict) -> None:
+    ua = request.headers.get("User-Agent", "")
+    inferred_device, inferred_browser = _infer_from_user_agent(ua)
+
+    normalized_device = _normalize_device(data.get("device"))
+    normalized_browser = _normalize_browser(data.get("browser"))
+
+    resolved_device = inferred_device or normalized_device
+    resolved_browser = inferred_browser or normalized_browser
+
     event = AnalyticsEvent(
         session_id=data.get("session_id"),
         event_type=data.get("event_type", "unknown"),
@@ -229,8 +238,8 @@ def _save_event(data: dict) -> None:
             "quiz_variant": data.get("quiz_variant") or "default",
             "event_value": data.get("event_value"),
             "time_on_screen": data.get("time_on_screen"),
-            "device": data.get("device"),
-            "browser": data.get("browser"),
+            "device": resolved_device,
+            "browser": resolved_browser,
             "utm_source": data.get("utm_source"),
             "utm_medium": data.get("utm_medium"),
             "utm_campaign": data.get("utm_campaign"),
@@ -261,3 +270,76 @@ def _infer_variant_from_event(event_type: str, data: dict) -> str:
             return event_value
 
     return "default"
+
+
+def _normalize_device(value) -> str | None:
+    normalized = str(value or "").strip().lower()
+    if normalized in {"mobile", "tablet", "desktop"}:
+        return normalized
+    return None
+
+
+def _normalize_browser(value) -> str | None:
+    normalized = str(value or "").strip().lower()
+    if normalized in {
+        "chrome", "safari", "firefox", "edge", "opera",
+        "samsung", "in_app", "other",
+    }:
+        return normalized
+    return None
+
+
+def _infer_from_user_agent(user_agent: str) -> tuple[str | None, str | None]:
+    ua = (user_agent or "").lower()
+    if not ua:
+        return None, None
+
+    is_ipad_os_desktop_ua = "macintosh" in ua and "mobile" in ua
+
+    device = "desktop"
+    if (
+        "ipad" in ua
+        or "tablet" in ua
+        or "nexus 7" in ua
+        or "nexus 10" in ua
+        or "silk" in ua
+        or is_ipad_os_desktop_ua
+    ):
+        device = "tablet"
+    elif (
+        "mobile" in ua
+        or "mobi" in ua
+        or "iphone" in ua
+        or "ipod" in ua
+        or "iemobile" in ua
+        or "opera mini" in ua
+    ):
+        device = "mobile"
+    elif "android" in ua and "mobile" not in ua:
+        device = "tablet"
+
+    browser = "other"
+    if "fban" in ua or "fbav" in ua or "instagram" in ua:
+        browser = "in_app"
+    elif "edga" in ua or "edgios" in ua or "edg/" in ua:
+        browser = "edge"
+    elif "opr" in ua or "opera" in ua:
+        browser = "opera"
+    elif "samsungbrowser" in ua:
+        browser = "samsung"
+    elif "crios" in ua or "chrome" in ua:
+        browser = "chrome"
+    elif "fxios" in ua or "firefox" in ua:
+        browser = "firefox"
+    elif (
+        "safari" in ua
+        and "crios" not in ua
+        and "chrome" not in ua
+        and "chromium" not in ua
+        and "edg" not in ua
+        and "opr" not in ua
+        and "samsungbrowser" not in ua
+    ):
+        browser = "safari"
+
+    return device, browser
