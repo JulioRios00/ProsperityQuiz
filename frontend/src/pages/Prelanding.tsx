@@ -5,7 +5,13 @@ import { useQuizStore } from '../store/quizStore'
 import { useFacebookPixels } from '../hooks/useFacebookPixels'
 import { track, captureAndStoreUtms } from '../services/analyticsService'
 
-const PIXELS_A = ['1899887307317878', '25534330632909821']
+const PIXELS_A_FALLBACK = ['1899887307317878', '25534330632909821']
+const PIXELS_A = (import.meta.env.VITE_FB_PIXEL_ID_A ?? import.meta.env.VITE_FB_PIXEL_ID ?? '')
+  .split(',')
+  .map((id) => id.trim())
+  .filter(Boolean)
+
+const PIXELS_A_TO_USE = PIXELS_A.length ? PIXELS_A : PIXELS_A_FALLBACK
 
 interface PrelandingProps {
   variant?: 'a' | 'b'
@@ -24,7 +30,7 @@ function Prelanding({ variant }: PrelandingProps) {
   const scriptLoadedRef = useRef(false)
 
   // Fire Meta Pixels only for the A variant (not the default / route)
-  useFacebookPixels(variant === 'a' ? PIXELS_A : [])
+  useFacebookPixels(variant === 'a' ? PIXELS_A_TO_USE : [])
 
   useEffect(() => {
     captureAndStoreUtms()

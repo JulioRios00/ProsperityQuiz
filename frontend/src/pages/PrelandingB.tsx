@@ -5,7 +5,13 @@ import { useQuizStore } from '../store/quizStore'
 import { useFacebookPixels } from '../hooks/useFacebookPixels'
 import { track, captureAndStoreUtms } from '../services/analyticsService'
 
-const PIXELS_B = ['908649312046405', '1421941556280579']
+const PIXELS_B_FALLBACK = ['908649312046405', '1421941556280579']
+const PIXELS_B = (import.meta.env.VITE_FB_PIXEL_ID_B ?? import.meta.env.VITE_FB_PIXEL_ID ?? '')
+  .split(',')
+  .map((id) => id.trim())
+  .filter(Boolean)
+
+const PIXELS_B_TO_USE = PIXELS_B.length ? PIXELS_B : PIXELS_B_FALLBACK
 
 declare global {
   namespace JSX {
@@ -20,7 +26,7 @@ function PrelandingB() {
   const [videoError, setVideoError] = useState(false)
   const scriptLoadedRef = useRef(false)
 
-  useFacebookPixels(PIXELS_B)
+  useFacebookPixels(PIXELS_B_TO_USE)
   const { startQuiz } = useQuizStore()
   const navigate = useNavigate()
 
