@@ -68,31 +68,9 @@ def get_funnel_metrics():
     sessions = set()
     filtered_events = []
 
-    session_variant_map = {}
     for event in events:
         data = event.event_data or {}
-        explicit_variant = _normalize_variant(data.get("quiz_variant"))
-        inferred_variant = _infer_variant_from_event(event.event_type, data)
-        resolved_variant = explicit_variant
-        if resolved_variant == "default" and inferred_variant in {"a", "b"}:
-            resolved_variant = inferred_variant
-
-        if event.session_id and resolved_variant in {"a", "b"}:
-            session_variant_map[event.session_id] = resolved_variant
-
-    for event in events:
-        data = event.event_data or {}
-        explicit_variant = _normalize_variant(data.get("quiz_variant"))
-        inferred_variant = _infer_variant_from_event(event.event_type, data)
-
-        quiz_variant = explicit_variant
-        if quiz_variant == "default" and inferred_variant in {"a", "b"}:
-            quiz_variant = inferred_variant
-        if (
-            quiz_variant == "default"
-            and event.session_id in session_variant_map
-        ):
-            quiz_variant = session_variant_map[event.session_id]
+        quiz_variant = _normalize_variant(data.get("quiz_variant"))
 
         if variant_filter != "all" and quiz_variant != variant_filter:
             continue
@@ -167,6 +145,7 @@ def get_funnel_metrics():
     recent_events = []
     for event in filtered_events[:recent_limit]:
         data = event.event_data or {}
+        quiz_variant = _normalize_variant(data.get("quiz_variant"))
         recent_events.append({
             "id": str(event.id),
             "created_at": (
@@ -255,20 +234,6 @@ def _normalize_variant(value) -> str:
     normalized = str(value or "default").strip().lower()
     if normalized in {"a", "b", "default"}:
         return normalized
-    return "default"
-
-
-def _infer_variant_from_event(event_type: str, data: dict) -> str:
-    screen_id = str(data.get("screen_id") or "").strip().lower()
-    event_value = str(data.get("event_value") or "").strip().lower()
-
-    if (
-        event_type in {"page_loaded", "cta_click"}
-        and screen_id == "prelanding"
-    ):
-        if event_value in {"a", "b"}:
-            return event_value
-
     return "default"
 
 
