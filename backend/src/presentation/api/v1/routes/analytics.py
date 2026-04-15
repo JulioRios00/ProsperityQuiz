@@ -119,11 +119,23 @@ def get_funnel_metrics():
 
         filtered_events.append(event)
         event_type = event.event_type or "unknown"
-        screen_id = _coalesce_string(event.screen_id, data.get("screen_id"))
+        screen_id = _coalesce_string(
+            _event_attr(event, "screen_id"),
+            data.get("screen_id"),
+        )
         screen_idx = _screen_to_index(screen_id, total_steps)
-        device = _coalesce_string(event.device, data.get("device"))
-        browser = _coalesce_string(event.browser, data.get("browser"))
-        utm_source = _coalesce_string(event.utm_source, data.get("utm_source"))
+        device = _coalesce_string(
+            _event_attr(event, "device"),
+            data.get("device"),
+        )
+        browser = _coalesce_string(
+            _event_attr(event, "browser"),
+            data.get("browser"),
+        )
+        utm_source = _coalesce_string(
+            _event_attr(event, "utm_source"),
+            data.get("utm_source"),
+        )
         event_value = data.get("event_value")
         hour = event.created_at.hour if event.created_at else 0
         session_key = event.session_id or f"anon:{event.id}"
@@ -240,17 +252,23 @@ def get_funnel_metrics():
             "session_id": event.session_id,
             "event_type": event.event_type,
             "screen_id": _coalesce_string(
-                event.screen_id,
+                _event_attr(event, "screen_id"),
                 data.get("screen_id"),
             ),
             "event_value": data.get("event_value"),
             "time_on_screen": _safe_int(
                 _coalesce_string(None, data.get("time_on_screen"))
             ),
-            "device": _coalesce_string(event.device, data.get("device")),
-            "browser": _coalesce_string(event.browser, data.get("browser")),
+            "device": _coalesce_string(
+                _event_attr(event, "device"),
+                data.get("device"),
+            ),
+            "browser": _coalesce_string(
+                _event_attr(event, "browser"),
+                data.get("browser"),
+            ),
             "utm_source": _coalesce_string(
-                event.utm_source,
+                _event_attr(event, "utm_source"),
                 data.get("utm_source"),
             ),
             "quiz_variant": quiz_variant,
@@ -343,21 +361,12 @@ def _save_event(data: dict) -> None:
         normalized_variant = inferred_variant
 
     screen_id = _coalesce_string(None, data.get("screen_id"))
-    event_value_text = _stringify_event_value(data.get("event_value"))
     normalized_time_on_screen = _safe_int(data.get("time_on_screen"))
     normalized_utm_campaign = _normalize_campaign(data.get("utm_campaign"))
 
     event = AnalyticsEvent(
         session_id=data.get("session_id"),
         event_type=data.get("event_type", "unknown"),
-        quiz_variant=normalized_variant,
-        screen_id=screen_id,
-        event_value_text=event_value_text,
-        time_on_screen=normalized_time_on_screen,
-        device=resolved_device,
-        browser=resolved_browser,
-        utm_source=normalized_utm_source,
-        utm_campaign=normalized_utm_campaign,
         event_data={
             "screen_id": screen_id,
             "quiz_variant": normalized_variant,
@@ -434,6 +443,13 @@ def _normalize_campaign(value) -> str | None:
 
 def _event_data(event: AnalyticsEvent) -> dict[str, Any]:
     return event.event_data or {}
+
+
+def _event_attr(event: AnalyticsEvent, name: str):
+    try:
+        return getattr(event, name)
+    except Exception:
+        return None
 
 
 def _coalesce_string(primary, fallback) -> str | None:

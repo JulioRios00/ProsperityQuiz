@@ -48,31 +48,44 @@ export default function AnalyticsDashboard() {
   const requiredKey = import.meta.env.VITE_ANALYTICS_DASHBOARD_KEY
   const requiredUser = import.meta.env.VITE_ANALYTICS_DASHBOARD_USER
   const requiredPassword = import.meta.env.VITE_ANALYTICS_DASHBOARD_PASSWORD
+  const isDev = import.meta.env.DEV
   const hasLoginCredentials = Boolean(requiredUser && requiredPassword)
   const authStorageKey = 'analytics_dashboard_access_v2'
 
   useEffect(() => {
     const stored = localStorage.getItem(authStorageKey)
-    console.info('[AnalyticsDashboard] Auth gate config', {
-      envMode: import.meta.env.MODE,
-      hasLoginCredentials,
-      hasRequiredKey: Boolean(requiredKey),
-      hasRequiredUser: Boolean(requiredUser),
-      hasRequiredPassword: Boolean(requiredPassword),
-      storageAccess: stored,
-    })
+    if (isDev) {
+      console.info('[AnalyticsDashboard] Auth gate config', {
+        envMode: import.meta.env.MODE,
+        hasLoginCredentials,
+        hasRequiredKey: Boolean(requiredKey),
+        hasRequiredUser: Boolean(requiredUser),
+        hasRequiredPassword: Boolean(requiredPassword),
+        storageAccess: stored,
+      })
+    }
 
     if (!requiredKey && !hasLoginCredentials) {
-      console.info('[AnalyticsDashboard] Unlocking automatically (no key/login configured)')
+      if (isDev) {
+        console.info('[AnalyticsDashboard] Unlocking automatically (no key/login configured)')
+      }
       setIsUnlocked(true)
       return
     }
 
     if (stored === 'ok') {
-      console.info('[AnalyticsDashboard] Unlocking from localStorage cache')
+      if (isDev) {
+        console.info('[AnalyticsDashboard] Unlocking from localStorage cache')
+      }
       setIsUnlocked(true)
     }
-  }, [requiredKey, requiredUser, requiredPassword, hasLoginCredentials])
+  }, [
+    requiredKey,
+    requiredUser,
+    requiredPassword,
+    hasLoginCredentials,
+    isDev,
+  ])
 
   const loadDashboard = async () => {
     try {
@@ -95,25 +108,42 @@ export default function AnalyticsDashboard() {
   const handleUnlock = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
+    const loginEmailNormalized = loginEmail.trim().toLowerCase()
+    const requiredUserNormalized = String(requiredUser ?? '').trim().toLowerCase()
+    const requiredPasswordRaw = String(requiredPassword ?? '')
+    const requiredPasswordTrimmed = requiredPasswordRaw.trim()
+    const accessKeyTrimmed = accessKey.trim()
+    const requiredKeyTrimmed = String(requiredKey ?? '').trim()
+
     const isLoginValid =
       hasLoginCredentials
-      && loginEmail.trim().toLowerCase() === String(requiredUser).trim().toLowerCase()
-      && loginPassword === requiredPassword
+      && loginEmailNormalized === requiredUserNormalized
+      && (
+        loginPassword === requiredPasswordRaw
+        || loginPassword === requiredPasswordTrimmed
+      )
 
-    const isKeyValid = requiredKey && accessKey === requiredKey
+    const isKeyValid = Boolean(
+      requiredKey
+      && (accessKey === requiredKey || accessKeyTrimmed === requiredKeyTrimmed),
+    )
 
-    console.info('[AnalyticsDashboard] Unlock attempt', {
-      hasLoginCredentials,
-      emailMatch: loginEmail.trim().toLowerCase() === String(requiredUser).trim().toLowerCase(),
-      passwordProvided: Boolean(loginPassword),
-      keyProvided: Boolean(accessKey),
-      isLoginValid,
-      isKeyValid: Boolean(isKeyValid),
-    })
+    if (isDev) {
+      console.info('[AnalyticsDashboard] Unlock attempt', {
+        hasLoginCredentials,
+        emailMatch: loginEmailNormalized === requiredUserNormalized,
+        passwordProvided: Boolean(loginPassword),
+        keyProvided: Boolean(accessKey),
+        isLoginValid,
+        isKeyValid,
+      })
+    }
 
     if ((!hasLoginCredentials && !requiredKey) || isLoginValid || isKeyValid) {
       localStorage.setItem(authStorageKey, 'ok')
-      console.info('[AnalyticsDashboard] Access granted')
+      if (isDev) {
+        console.info('[AnalyticsDashboard] Access granted')
+      }
       setIsUnlocked(true)
       setError(null)
       return
