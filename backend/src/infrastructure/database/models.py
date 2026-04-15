@@ -128,12 +128,43 @@ class AnalyticsEvent(db.Model):
 
     __tablename__ = "analytics_events"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
     session_id: Mapped[Optional[str]] = mapped_column(String(255))
-    event_type: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    event_type: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+        index=True,
+    )
+    quiz_variant: Mapped[str] = mapped_column(
+        String(20),
+        default="default",
+        index=True,
+    )
+    screen_id: Mapped[Optional[str]] = mapped_column(String(64), index=True)
+    event_value_text: Mapped[Optional[str]] = mapped_column(Text)
+    time_on_screen: Mapped[Optional[int]] = mapped_column(Integer)
+    device: Mapped[Optional[str]] = mapped_column(String(30), index=True)
+    browser: Mapped[Optional[str]] = mapped_column(String(30), index=True)
+    utm_source: Mapped[Optional[str]] = mapped_column(String(120), index=True)
+    utm_campaign: Mapped[Optional[str]] = mapped_column(
+        String(160),
+        index=True,
+    )
     event_data: Mapped[dict] = mapped_column(JSON, default=dict)
-    user_id: Mapped[Optional[uuid.UUID]] = mapped_column(UUID(as_uuid=True), db.ForeignKey("users.id", ondelete="SET NULL"), index=True)
-    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.utcnow, index=True)
+    user_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True),
+        db.ForeignKey("users.id", ondelete="SET NULL"),
+        index=True,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP,
+        default=datetime.utcnow,
+        index=True,
+    )
 
     def __repr__(self) -> str:
         return f"<AnalyticsEvent {self.event_type}>"

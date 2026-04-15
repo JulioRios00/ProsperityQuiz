@@ -3,10 +3,46 @@ import api from './api'
 export interface SummaryMetrics {
   events_analyzed: number
   sessions: number
-  emails_submitted: number
-  answers: number
-  screen_loaded: number
-  screen_time: number
+  completion_rate: number
+  visits: number
+  answers_started: number
+  average_steps: number
+  total_steps: number
+  leads_emails: number
+  total_conclusions: number
+}
+
+export interface PerformanceMetrics {
+  visitors: number
+  responses: number
+  leads: number
+  conclusions: number
+  completion_rate: number
+  total_conclusions: number
+}
+
+export interface TrafficTimelineItem {
+  hour: string
+  visitors: number
+  responses: number
+  leads: number
+}
+
+export interface TrafficMetrics {
+  interaction_rate: number
+  bounce_rate: number
+  timeline: TrafficTimelineItem[]
+}
+
+export interface CampaignSummary {
+  total_tracked: number
+  best_source: string | null
+  sources: CountByUtmSource[]
+}
+
+export interface DevicesSummary {
+  most_used: string | null
+  total: number
 }
 
 export interface CountByType {
@@ -35,9 +71,10 @@ export interface CountByVariant {
 }
 
 export interface ScreenMetric {
-  screen_id: string
-  loads: number
-  avg_time_on_screen: number
+  screen_index: number
+  label: string
+  visitors: number
+  retention_rate: number
 }
 
 export interface TopAnswer {
@@ -62,13 +99,17 @@ export interface RecentEvent {
 
 export interface AnalyticsDashboardData {
   summary: SummaryMetrics
+  performance: PerformanceMetrics
+  traffic: TrafficMetrics
+  campaigns: CampaignSummary
+  devices_summary: DevicesSummary
   active_variant_filter?: string
   events_by_type: CountByType[]
   variants: CountByVariant[]
   devices: CountByDevice[]
   browsers: CountByBrowser[]
   utm_sources: CountByUtmSource[]
-  screens: ScreenMetric[]
+  screen_retention: ScreenMetric[]
   top_answers: TopAnswer[]
   recent_events: RecentEvent[]
 }
