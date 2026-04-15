@@ -45,6 +45,11 @@ export interface DevicesSummary {
   total: number
 }
 
+export interface ActiveDateRange {
+  start_date: string | null
+  end_date: string | null
+}
+
 export interface CountByType {
   event_type: string
   count: number
@@ -103,6 +108,7 @@ export interface AnalyticsDashboardData {
   traffic: TrafficMetrics
   campaigns: CampaignSummary
   devices_summary: DevicesSummary
+  active_date_range?: ActiveDateRange
   active_variant_filter?: string
   events_by_type: CountByType[]
   variants: CountByVariant[]
@@ -118,9 +124,30 @@ export async function getAnalyticsDashboard(
   limit = 5000,
   recent = 30,
   variant: 'all' | 'a' | 'b' | 'default' = 'all',
+  startDate?: string,
+  endDate?: string,
 ): Promise<AnalyticsDashboardData> {
+  const params: {
+    limit: number
+    recent: number
+    variant: 'all' | 'a' | 'b' | 'default'
+    start_date?: string
+    end_date?: string
+  } = {
+    limit,
+    recent,
+    variant,
+  }
+
+  if (startDate) {
+    params.start_date = startDate
+  }
+  if (endDate) {
+    params.end_date = endDate
+  }
+
   const response = await api.get<AnalyticsDashboardData>('/analytics/funnel', {
-    params: { limit, recent, variant },
+    params,
   })
 
   return response.data

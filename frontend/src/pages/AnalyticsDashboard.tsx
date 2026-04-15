@@ -35,6 +35,13 @@ function formatEventValue(value: unknown): string {
   return JSON.stringify(value)
 }
 
+function toInputDate(value: Date): string {
+  const year = value.getFullYear()
+  const month = String(value.getMonth() + 1).padStart(2, '0')
+  const day = String(value.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 export default function AnalyticsDashboard() {
   const [data, setData] = useState<AnalyticsDashboardData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -44,6 +51,10 @@ export default function AnalyticsDashboard() {
   const [loginEmail, setLoginEmail] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
   const [variantFilter, setVariantFilter] = useState<'all' | 'a' | 'b' | 'default'>('all')
+  const [startDateInput, setStartDateInput] = useState('')
+  const [endDateInput, setEndDateInput] = useState('')
+  const [appliedStartDate, setAppliedStartDate] = useState('')
+  const [appliedEndDate, setAppliedEndDate] = useState('')
 
   const requiredKey = import.meta.env.VITE_ANALYTICS_DASHBOARD_KEY
   const requiredUser = import.meta.env.VITE_ANALYTICS_DASHBOARD_USER
@@ -91,7 +102,13 @@ export default function AnalyticsDashboard() {
     try {
       setLoading(true)
       setError(null)
-      const response = await getAnalyticsDashboard(10000, 50, variantFilter)
+      const response = await getAnalyticsDashboard(
+        10000,
+        50,
+        variantFilter,
+        appliedStartDate || undefined,
+        appliedEndDate || undefined,
+      )
       setData(response)
     } catch {
       setError('Não foi possível carregar os dados de analytics.')
@@ -103,7 +120,41 @@ export default function AnalyticsDashboard() {
   useEffect(() => {
     if (!isUnlocked) return
     loadDashboard()
-  }, [isUnlocked, variantFilter])
+  }, [isUnlocked, variantFilter, appliedStartDate, appliedEndDate])
+
+  const handleApplyDateRange = () => {
+    if (startDateInput && endDateInput && startDateInput > endDateInput) {
+      setError('Período inválido: data inicial maior que final.')
+      return
+    }
+
+    setError(null)
+    setAppliedStartDate(startDateInput)
+    setAppliedEndDate(endDateInput)
+  }
+
+  const handleClearDateRange = () => {
+    setError(null)
+    setStartDateInput('')
+    setEndDateInput('')
+    setAppliedStartDate('')
+    setAppliedEndDate('')
+  }
+
+  const handlePresetRange = (days: number) => {
+    const end = new Date()
+    const start = new Date()
+    start.setDate(end.getDate() - (days - 1))
+
+    const startFormatted = toInputDate(start)
+    const endFormatted = toInputDate(end)
+
+    setError(null)
+    setStartDateInput(startFormatted)
+    setEndDateInput(endFormatted)
+    setAppliedStartDate(startFormatted)
+    setAppliedEndDate(endFormatted)
+  }
 
   const handleUnlock = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -279,32 +330,101 @@ export default function AnalyticsDashboard() {
             <p className="text-sm text-gray-600">
               Funil de conversão, tráfego e retenção por tela
             </p>
+            <p className="mt-1 text-xs text-gray-500">
+              {data?.active_date_range?.start_date || data?.active_date_range?.end_date
+                ? `Período ativo: ${data.active_date_range?.start_date ?? 'início'} até ${data.active_date_range?.end_date ?? 'hoje'}`
+                : 'Período ativo: todo o histórico'}
+            </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <select
-              value={variantFilter}
-              onChange={(e) => setVariantFilter(e.target.value as 'all' | 'a' | 'b' | 'default')}
-              className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none ring-gold-500 focus:ring-2"
-            >
-              <option value="all">Todas variantes</option>
-              <option value="a">Somente Quiz A</option>
-              <option value="b">Somente Quiz B</option>
-              <option value="default">Somente Default</option>
-            </select>
-            <button
-              onClick={exportRecentEventsCsv}
-              className="btn-secondary"
-              disabled={!data?.recent_events?.length}
-            >
-              Exportar CSV
-            </button>
-            <button
-              onClick={loadDashboard}
-              className="btn-secondary"
-              disabled={loading}
-            >
-              {loading ? 'Atualizando...' : 'Atualizar'}
-            </button>
+          <div className="flex flex-col gap-3 md:items-end">
+            <div className="flex flex-wrap items-center gap-3">
+              <select
+                value={variantFilter}
+                onChange={(e) => setVariantFilter(e.target.value as 'all' | 'a' | 'b' | 'default')}
+                className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none ring-gold-500 focus:ring-2"
+              >
+                <option value="all">Todas variantes</option>
+                <option value="a">Somente Quiz A</option>
+                <option value="b">Somente Quiz B</option>
+                <option value="default">Somente Default</option>
+              </select>
+
+              <input
+                type="date"
+                value={startDateInput}
+                onChange={(e) => setStartDateInput(e.target.value)}
+                className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none ring-gold-500 focus:ring-2"
+                aria-label="Data inicial"
+              />
+
+              <input
+                type="date"
+                value={endDateInput}
+                onChange={(e) => setEndDateInput(e.target.value)}
+                className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none ring-gold-500 focus:ring-2"
+                aria-label="Data final"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={() => handlePresetRange(1)}
+                className="btn-secondary"
+                disabled={loading}
+              >
+                Hoje
+              </button>
+
+              <button
+                onClick={() => handlePresetRange(7)}
+                className="btn-secondary"
+                disabled={loading}
+              >
+                7 dias
+              </button>
+
+              <button
+                onClick={() => handlePresetRange(30)}
+                className="btn-secondary"
+                disabled={loading}
+              >
+                30 dias
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                onClick={handleApplyDateRange}
+                className="btn-secondary"
+                disabled={loading}
+              >
+                Aplicar período
+              </button>
+
+              <button
+                onClick={handleClearDateRange}
+                className="btn-secondary"
+                disabled={loading}
+              >
+                Limpar período
+              </button>
+
+              <button
+                onClick={loadDashboard}
+                className="btn-secondary"
+                disabled={loading}
+              >
+                {loading ? 'Atualizando...' : 'Atualizar informações'}
+              </button>
+
+              <button
+                onClick={exportRecentEventsCsv}
+                className="btn-secondary"
+                disabled={!data?.recent_events?.length}
+              >
+                Exportar CSV
+              </button>
+            </div>
           </div>
         </header>
 

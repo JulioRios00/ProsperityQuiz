@@ -1,7 +1,7 @@
 """Analytics event tracking routes."""
 import json
 from collections import Counter, defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 
 from flask import request, jsonify
@@ -50,8 +50,37 @@ def get_funnel_metrics():
     if variant_filter not in {"all", "a", "b", "default"}:
         variant_filter = "all"
 
+    start_date_raw = request.args.get("start_date", default="", type=str)
+    end_date_raw = request.args.get("end_date", default="", type=str)
+    start_date = _parse_iso_date(start_date_raw)
+    end_date = _parse_iso_date(end_date_raw)
+
+    if start_date_raw and not start_date:
+        return jsonify({"message": "start_date inválida."}), 400
+    if end_date_raw and not end_date:
+        return jsonify({"message": "end_date inválida."}), 400
+    if start_date and end_date and start_date > end_date:
+        return jsonify({
+            "message": "Período inválido: data inicial maior que final.",
+        }), 400
+
+    query = AnalyticsEvent.query
+    if start_date:
+        query = query.filter(
+            AnalyticsEvent.created_at >= datetime.combine(
+                start_date,
+                datetime.min.time(),
+            )
+        )
+    if end_date:
+        end_exclusive = datetime.combine(
+            end_date + timedelta(days=1),
+            datetime.min.time(),
+        )
+        query = query.filter(AnalyticsEvent.created_at < end_exclusive)
+
     events = (
-        AnalyticsEvent.query
+        query
         .order_by(AnalyticsEvent.created_at.desc())
         .limit(limit)
         .all()
@@ -315,6 +344,10 @@ def get_funnel_metrics():
             "most_used": devices.most_common(1)[0][0] if devices else None,
             "total": sum(devices.values()),
         },
+        "active_date_range": {
+            "start_date": start_date.isoformat() if start_date else None,
+            "end_date": end_date.isoformat() if end_date else None,
+        },
         "active_variant_filter": variant_filter,
         "events_by_type": [
             {"event_type": event_type, "count": count}
@@ -439,6 +472,16 @@ def _normalize_campaign(value) -> str | None:
     if normalized:
         return normalized
     return None
+
+
+def _parse_iso_date(value: str):
+    raw = str(value or "").strip()
+    if not raw:
+        return None
+    try:
+        return datetime.strptime(raw, "%Y-%m-%d").date()
+    except ValueError:
+        return None
 
 
 def _event_data(event: AnalyticsEvent) -> dict[str, Any]:
