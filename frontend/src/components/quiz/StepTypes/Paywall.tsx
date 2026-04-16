@@ -67,11 +67,11 @@ function useCountdown(totalSeconds: number) {
   return { mm, ss };
 }
 
-const MARCIA_PHOTO = 'public/marcia.jpg';
+const MARCIA_PHOTO = '/marcia.jpg';
 
-const PATRICIA_PHOTO = '/public/patricia.jpg';
+const PATRICIA_PHOTO = '/patricia.jpg';
 
-const FERNANDA_PHOTO = '/public/fernanda.jpg';
+const FERNANDA_PHOTO = '/fernanda.jpg';
 interface PaywallProps {
   step: number;
   onNext: () => void;
