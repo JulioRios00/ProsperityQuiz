@@ -797,7 +797,7 @@ function TrafficChart({
 function RetentionChart({
   data,
 }: {
-  data: Array<{ label: string; retention_rate: number }>
+  data: Array<{ label: string; retention_rate: number; visitors?: number }>
 }) {
   if (data.length === 0) return <EmptyState />
 
@@ -855,6 +855,30 @@ function RetentionChart({
       <p className="text-right text-xs text-gray-500">
         Retenção média: {percentFormat(avgRetention)}
       </p>
+
+      <div>
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+          Etapas do Quiz (1 coluna por etapa)
+        </p>
+        <div className="overflow-x-auto pb-1">
+          <div className="grid auto-cols-[120px] grid-flow-col gap-2">
+            {data.map((step) => (
+              <div
+                key={step.label}
+                className="rounded-lg border border-gray-200 bg-white px-3 py-2"
+              >
+                <p className="text-xs font-semibold text-gold-600">{step.label}</p>
+                <p className="mt-1 text-lg font-bold text-gray-900">
+                  {percentFormat(step.retention_rate)}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {numberFormat(step.visitors ?? 0)} visitantes
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
