@@ -11,6 +11,10 @@ from .....infrastructure.database.models import AnalyticsEvent
 from .....infrastructure.database.session import db
 
 
+DEFAULT_TOTAL_STEPS = 17
+MAX_DYNAMIC_TOTAL_STEPS = 60
+
+
 @api_v1_bp.route("/analytics/event", methods=["POST"])
 def track_event():
     """Track a single analytics event."""
@@ -86,8 +90,6 @@ def get_funnel_metrics():
         .all()
     )
 
-    total_steps = 44
-
     events_by_type = Counter()
     devices = Counter()
     browsers = Counter()
@@ -112,6 +114,7 @@ def get_funnel_metrics():
     conclusion_keys = set()
     max_screen_by_session: dict[str, int] = {}
     screen_session_hits: dict[int, set[str]] = defaultdict(set)
+    max_observed_step_index = -1
     filtered_events = []
 
     # Build a session->variant map first so events that don't carry
@@ -152,7 +155,9 @@ def get_funnel_metrics():
             _event_attr(event, "screen_id"),
             data.get("screen_id"),
         )
-        screen_idx = _screen_to_index(screen_id, total_steps)
+        screen_idx = _screen_to_index_loose(screen_id)
+        if screen_idx is not None:
+            max_observed_step_index = max(max_observed_step_index, screen_idx)
         device = _coalesce_string(
             _event_attr(event, "device"),
             data.get("device"),
@@ -226,6 +231,8 @@ def get_funnel_metrics():
             else:
                 normalized_value = str(event_value)
             answers_by_screen[(str(screen_id), normalized_value)] += 1
+
+    total_steps = _resolve_total_steps(max_observed_step_index)
 
     visits = len(visitor_keys)
     responses_started = len(response_keys)
@@ -527,6 +534,31 @@ def _screen_to_index(screen_id: str | None, total_steps: int) -> int | None:
     if 1 <= raw <= total_steps:
         return raw - 1
     return None
+
+
+def _screen_to_index_loose(screen_id: str | None) -> int | None:
+    if screen_id is None:
+        return None
+    try:
+        raw = int(float(screen_id))
+    except (TypeError, ValueError):
+        return None
+
+    if raw < 0:
+        return None
+    if raw == 0:
+        return 0
+    return raw - 1
+
+
+def _resolve_total_steps(max_observed_step_index: int) -> int:
+    observed_total = (
+        max_observed_step_index + 1
+        if max_observed_step_index >= 0
+        else 0
+    )
+    resolved = max(DEFAULT_TOTAL_STEPS, observed_total)
+    return min(resolved, MAX_DYNAMIC_TOTAL_STEPS)
 
 
 def _is_visit_event(event_type: str, screen_index: int | None) -> bool:
