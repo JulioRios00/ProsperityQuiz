@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { track } from '../../../services/analyticsService';
 import { useQuizStore } from '../../../store/quizStore';
@@ -12,6 +12,45 @@ declare global {
 }
 
 const CHECKOUT_URL = 'https://pay.hotmart.com/X104864827J?checkoutMode=10';
+const TRACKING_KEYS = [
+  'utm_source',
+  'utm_medium',
+  'utm_campaign',
+  'utm_content',
+  'utm_term',
+  'src',
+] as const;
+
+function getStoredUtms(): Record<string, string> {
+  try {
+    const stored = sessionStorage.getItem('utms');
+    return stored ? JSON.parse(stored) : {};
+  } catch {
+    return {};
+  }
+}
+
+function buildCheckoutUrl(baseUrl: string): string {
+  if (typeof window === 'undefined') {
+    return baseUrl;
+  }
+
+  const checkoutUrl = new URL(baseUrl);
+  const currentParams = new URLSearchParams(window.location.search);
+  const storedUtms = getStoredUtms();
+
+  TRACKING_KEYS.forEach((key) => {
+    const currentValue = currentParams.get(key);
+    const storedValue = storedUtms[key];
+    const value = currentValue || storedValue;
+
+    if (value) {
+      checkoutUrl.searchParams.set(key, value);
+    }
+  });
+
+  return checkoutUrl.toString();
+}
 
 function useCountdown(totalSeconds: number) {
   const [remaining, setRemaining] = useState(totalSeconds);
@@ -44,6 +83,7 @@ export function Paywall({}: PaywallProps) {
   const scriptLoadedRef = useRef(false);
   const lunar = useCountdown(10 * 60);
   const { sessionToken } = useQuizStore();
+  const checkoutUrl = useMemo(() => buildCheckoutUrl(CHECKOUT_URL), []);
 
   const handleCheckoutClick = () => {
     track({ session_id: sessionToken ?? undefined, event_type: 'checkout_click', screen_id: 'paywall' });
@@ -281,7 +321,7 @@ export function Paywall({}: PaywallProps) {
           {/* BLOCK 9 — CTA primary */}
           <div className="mb-6">
             <a
-              href={CHECKOUT_URL}
+              href={checkoutUrl}
               target="_blank"
               rel="noopener noreferrer"
               onClick={handleCheckoutClick}
@@ -391,7 +431,7 @@ export function Paywall({}: PaywallProps) {
           {/* BLOCK 15 — CTA secondary */}
           <div className="mb-6">
             <a
-              href={CHECKOUT_URL}
+              href={checkoutUrl}
               target="_blank"
               rel="noopener noreferrer"
               onClick={handleCheckoutClick}
