@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { quizService } from '../services/quizService'
 import { useQuizStore } from '../store/quizStore'
 import { useFacebookPixels } from '../hooks/useFacebookPixels'
@@ -29,6 +29,7 @@ function PrelandingB() {
   useFacebookPixels(PIXELS_B_TO_USE)
   const { startQuiz } = useQuizStore()
   const navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(() => {
     captureAndStoreUtms()
@@ -62,7 +63,7 @@ function PrelandingB() {
     } catch {
       startQuiz(`local_${Date.now()}`)
     }
-    navigate('/quiz/b')
+    navigate(`/quiz/b${location.search}`)
   }
 
   return (

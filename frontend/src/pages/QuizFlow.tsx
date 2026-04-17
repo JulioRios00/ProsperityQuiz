@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuizStore } from '../store/quizStore';
 import { track, trackBeacon } from '../services/analyticsService';
@@ -35,13 +35,14 @@ interface QuizFlowProps {
 export function QuizFlow({ config, returnPath = '/' }: QuizFlowProps) {
   const { currentStep, sessionToken, nextStep, previousStep, palmistrySkipped } = useQuizStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const stepStartRef = useRef<number>(Date.now());
 
   useEffect(() => {
     if (!sessionToken) {
-      navigate(returnPath);
+      navigate(`${returnPath}${location.search}`);
     }
-  }, [sessionToken, navigate, returnPath]);
+  }, [sessionToken, navigate, returnPath, location.search]);
 
   // Auto-skip palmistry analysis if user skipped palmistry capture
   useEffect(() => {

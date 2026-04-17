@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { quizService } from '../services/quizService'
 import { useQuizStore } from '../store/quizStore'
 import { useFacebookPixels } from '../hooks/useFacebookPixels'
@@ -46,6 +46,7 @@ function Prelanding({ variant }: PrelandingProps) {
   }, [])
   const { startQuiz } = useQuizStore()
   const navigate = useNavigate()
+  const location = useLocation()
 
   const quizPath = variant === 'b' ? '/quiz/b' : variant === 'a' ? '/quiz/a' : '/quiz'
 
@@ -59,7 +60,7 @@ function Prelanding({ variant }: PrelandingProps) {
     } catch {
       startQuiz(`local_${Date.now()}`)
     }
-    navigate(quizPath)
+    navigate(`${quizPath}${location.search}`)
   }
 
   return (
