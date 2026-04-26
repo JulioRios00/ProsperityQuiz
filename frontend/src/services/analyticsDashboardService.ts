@@ -102,6 +102,50 @@ export interface RecentEvent {
   utm_source: string | null
 }
 
+export interface AnswerOptionStat {
+  value: string
+  count: number
+  percentage: number
+}
+
+export interface AnswerQuestionAnalytics {
+  screen_id: string
+  total_answers: number
+  most_selected: AnswerOptionStat | null
+  least_selected: AnswerOptionStat | null
+  top_answers: AnswerOptionStat[]
+}
+
+export interface VariantAnswerAnalytics {
+  quiz_variant: 'a' | 'b' | 'default'
+  questions: AnswerQuestionAnalytics[]
+}
+
+export interface AnswerAnalyticsData {
+  active_variant_filter: 'all' | 'a' | 'b' | 'default'
+  active_date_range?: ActiveDateRange
+  variants: VariantAnswerAnalytics[]
+}
+
+export interface ReconciliationCounts {
+  checkout_clicks: number
+  sales_confirmed: number
+  matched: number
+  checkout_without_sale: number
+  sale_without_checkout: number
+  reconciliation_rate: number
+}
+
+export interface AnalyticsReconciliationData {
+  active_variant_filter: 'all' | 'a' | 'b' | 'default'
+  active_date_range?: ActiveDateRange
+  counts: ReconciliationCounts
+  samples: {
+    checkout_without_sale: string[]
+    sale_without_checkout: string[]
+  }
+}
+
 export interface AnalyticsDashboardData {
   summary: SummaryMetrics
   performance: PerformanceMetrics
@@ -149,6 +193,66 @@ export async function getAnalyticsDashboard(
   const response = await api.get<AnalyticsDashboardData>('/analytics/funnel', {
     params,
   })
+
+  return response.data
+}
+
+export async function getAnswerAnalytics(
+  limit = 10000,
+  variant: 'all' | 'a' | 'b' | 'default' = 'all',
+  startDate?: string,
+  endDate?: string,
+): Promise<AnswerAnalyticsData> {
+  const params: {
+    limit: number
+    variant: 'all' | 'a' | 'b' | 'default'
+    start_date?: string
+    end_date?: string
+  } = {
+    limit,
+    variant,
+  }
+
+  if (startDate) {
+    params.start_date = startDate
+  }
+  if (endDate) {
+    params.end_date = endDate
+  }
+
+  const response = await api.get<AnswerAnalyticsData>('/analytics/answers', {
+    params,
+  })
+
+  return response.data
+}
+
+export async function getAnalyticsReconciliation(
+  variant: 'all' | 'a' | 'b' | 'default' = 'all',
+  startDate?: string,
+  endDate?: string,
+): Promise<AnalyticsReconciliationData> {
+  const params: {
+    variant: 'all' | 'a' | 'b' | 'default'
+    start_date?: string
+    end_date?: string
+  } = {
+    variant,
+  }
+
+  if (startDate) {
+    params.start_date = startDate
+  }
+  if (endDate) {
+    params.end_date = endDate
+  }
+
+  const response = await api.get<AnalyticsReconciliationData>(
+    '/analytics/reconciliation',
+    {
+      params,
+    },
+  )
 
   return response.data
 }

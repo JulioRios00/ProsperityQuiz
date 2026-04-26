@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuizStore } from '../../../store/quizStore';
 import { quizService } from '../../../services/quizService';
@@ -19,8 +20,14 @@ const BINARY_COLORS = [
 
 export function SingleSelectText({ step, question, options, onNext, variant }: SingleSelectTextProps) {
   const { sessionToken, saveStepResponse } = useQuizStore();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const inFlightRef = useRef(false);
 
   const handleSelect = async (value: string) => {
+    if (inFlightRef.current || isSubmitting) return;
+    inFlightRef.current = true;
+    setIsSubmitting(true);
+
     saveStepResponse(step, value);
     track({ session_id: sessionToken ?? undefined, event_type: 'answer', screen_id: step, event_value: value });
     try {
@@ -28,7 +35,7 @@ export function SingleSelectText({ step, question, options, onNext, variant }: S
     } catch {
       // continue
     }
-    setTimeout(onNext, 300);
+    onNext();
   };
 
   const isBinary = variant === 'binary';
@@ -51,6 +58,7 @@ export function SingleSelectText({ step, question, options, onNext, variant }: S
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.08 }}
             onClick={() => handleSelect(opt.value)}
+            disabled={isSubmitting}
             className={`w-full border-2 rounded-xl px-6 py-5 text-center font-semibold text-base transition-all duration-200 ${
               isBinary
                 ? BINARY_COLORS[i] ?? BINARY_COLORS[0]

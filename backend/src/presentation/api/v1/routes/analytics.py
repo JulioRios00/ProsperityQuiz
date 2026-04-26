@@ -7,12 +7,22 @@ from typing import Any
 from flask import request, jsonify
 
 from .. import api_v1_bp
-from .....infrastructure.database.models import AnalyticsEvent
+from .....infrastructure.database.models import AnalyticsEvent, PaymentEvent
 from .....infrastructure.database.session import db
 
 
 DEFAULT_TOTAL_STEPS = 17
 MAX_DYNAMIC_TOTAL_STEPS = 60
+PAID_PAYMENT_STATUSES = {
+    "approved",
+    "paid",
+    "completed",
+    "complete",
+    "confirmed",
+    "success",
+    "authorized",
+    "billet_paid",
+}
 
 
 @api_v1_bp.route("/analytics/event", methods=["POST"])
@@ -203,6 +213,7 @@ def get_funnel_metrics():
             "checkout_click",
             "quiz_completed",
             "diagnosis_completed",
+            "purchase_confirmed",
         }:
             conclusion_keys.add(session_key)
 
@@ -382,6 +393,332 @@ def get_funnel_metrics():
     }), 200
 
 
+@api_v1_bp.route("/analytics/answers", methods=["GET"])
+def get_answer_analytics():
+    """Return answer insights by question and variant."""
+    limit = request.args.get("limit", default=10000, type=int)
+    if limit <= 0:
+        limit = 10000
+    limit = min(limit, 50000)
+
+    variant_filter = request.args.get("variant", default="all", type=str)
+    variant_filter = (variant_filter or "all").strip().lower()
+    if variant_filter not in {"all", "a", "b", "default"}:
+        variant_filter = "all"
+
+    start_date_raw = request.args.get("start_date", default="", type=str)
+    end_date_raw = request.args.get("end_date", default="", type=str)
+    start_date = _parse_iso_date(start_date_raw)
+    end_date = _parse_iso_date(end_date_raw)
+
+    if start_date_raw and not start_date:
+        return jsonify({"message": "start_date inválida."}), 400
+    if end_date_raw and not end_date:
+        return jsonify({"message": "end_date inválida."}), 400
+    if start_date and end_date and start_date > end_date:
+        return jsonify({
+            "message": "Período inválido: data inicial maior que final.",
+        }), 400
+
+    query = AnalyticsEvent.query
+    if start_date:
+        query = query.filter(
+            AnalyticsEvent.created_at >= datetime.combine(
+                start_date,
+                datetime.min.time(),
+            )
+        )
+    if end_date:
+        end_exclusive = datetime.combine(
+            end_date + timedelta(days=1),
+            datetime.min.time(),
+        )
+        query = query.filter(AnalyticsEvent.created_at < end_exclusive)
+
+    events = (
+        query
+        .order_by(AnalyticsEvent.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+
+    session_variant_map = {}
+    for event in events:
+        data = _event_data(event)
+        explicit_variant = _normalize_variant(data.get("quiz_variant"))
+        inferred_variant = _infer_variant_from_event(event.event_type, data)
+
+        resolved_variant = explicit_variant
+        if resolved_variant == "default" and inferred_variant in {"a", "b"}:
+            resolved_variant = inferred_variant
+
+        if event.session_id and resolved_variant in {"a", "b"}:
+            session_variant_map[event.session_id] = resolved_variant
+
+    answer_counts: dict[str, dict[str, Counter]] = defaultdict(
+        lambda: defaultdict(Counter)
+    )
+
+    for event in events:
+        if event.event_type != "answer":
+            continue
+
+        data = _event_data(event)
+
+        explicit_variant = _normalize_variant(data.get("quiz_variant"))
+        inferred_variant = _infer_variant_from_event(event.event_type, data)
+
+        quiz_variant = explicit_variant
+        if quiz_variant == "default" and inferred_variant in {"a", "b"}:
+            quiz_variant = inferred_variant
+        if (
+            quiz_variant == "default"
+            and event.session_id in session_variant_map
+        ):
+            quiz_variant = session_variant_map[event.session_id]
+
+        if variant_filter != "all" and quiz_variant != variant_filter:
+            continue
+
+        screen_id = _coalesce_string(
+            _event_attr(event, "screen_id"),
+            data.get("screen_id"),
+        )
+        if not screen_id:
+            continue
+
+        normalized_values = _normalize_answer_values(data.get("event_value"))
+        if not normalized_values:
+            continue
+
+        for value in normalized_values:
+            answer_counts[quiz_variant][screen_id][value] += 1
+
+    ordered_variants = ["a", "b", "default"]
+    variants_payload = []
+    for variant_name in ordered_variants:
+        if variant_name not in answer_counts:
+            continue
+
+        questions_payload = []
+        variant_questions = answer_counts[variant_name]
+        for screen_id in sorted(
+            variant_questions.keys(),
+            key=_screen_sort_key,
+        ):
+            counter = variant_questions[screen_id]
+            total_answers = sum(counter.values())
+
+            most_selected = None
+            least_selected = None
+            if total_answers > 0:
+                most_value, most_count = max(
+                    counter.items(),
+                    key=lambda item: (item[1], item[0]),
+                )
+                least_value, least_count = min(
+                    counter.items(),
+                    key=lambda item: (item[1], item[0]),
+                )
+                most_selected = {
+                    "value": most_value,
+                    "count": most_count,
+                    "percentage": _percent(most_count, total_answers),
+                }
+                least_selected = {
+                    "value": least_value,
+                    "count": least_count,
+                    "percentage": _percent(least_count, total_answers),
+                }
+
+            top_answers = [
+                {
+                    "value": value,
+                    "count": count,
+                    "percentage": _percent(count, total_answers),
+                }
+                for value, count in sorted(
+                    counter.items(),
+                    key=lambda item: (-item[1], item[0]),
+                )[:5]
+            ]
+
+            questions_payload.append({
+                "screen_id": screen_id,
+                "total_answers": total_answers,
+                "most_selected": most_selected,
+                "least_selected": least_selected,
+                "top_answers": top_answers,
+            })
+
+        variants_payload.append({
+            "quiz_variant": variant_name,
+            "questions": questions_payload,
+        })
+
+    return jsonify({
+        "active_variant_filter": variant_filter,
+        "active_date_range": {
+            "start_date": start_date.isoformat() if start_date else None,
+            "end_date": end_date.isoformat() if end_date else None,
+        },
+        "variants": variants_payload,
+    }), 200
+
+
+@api_v1_bp.route("/analytics/reconciliation", methods=["GET"])
+def get_reconciliation_metrics():
+    """Compare checkout clicks versus persisted payment confirmations."""
+    limit = request.args.get("limit", default=20000, type=int)
+    if limit <= 0:
+        limit = 20000
+    limit = min(limit, 100000)
+
+    variant_filter = request.args.get("variant", default="all", type=str)
+    variant_filter = (variant_filter or "all").strip().lower()
+    if variant_filter not in {"all", "a", "b", "default"}:
+        variant_filter = "all"
+
+    start_date_raw = request.args.get("start_date", default="", type=str)
+    end_date_raw = request.args.get("end_date", default="", type=str)
+    start_date = _parse_iso_date(start_date_raw)
+    end_date = _parse_iso_date(end_date_raw)
+
+    if start_date_raw and not start_date:
+        return jsonify({"message": "start_date inválida."}), 400
+    if end_date_raw and not end_date:
+        return jsonify({"message": "end_date inválida."}), 400
+    if start_date and end_date and start_date > end_date:
+        return jsonify({
+            "message": "Período inválido: data inicial maior que final.",
+        }), 400
+
+    checkout_query = AnalyticsEvent.query.filter(
+        AnalyticsEvent.event_type == "checkout_click"
+    )
+    if start_date:
+        checkout_query = checkout_query.filter(
+            AnalyticsEvent.created_at >= datetime.combine(
+                start_date,
+                datetime.min.time(),
+            )
+        )
+    if end_date:
+        end_exclusive = datetime.combine(
+            end_date + timedelta(days=1),
+            datetime.min.time(),
+        )
+        checkout_query = checkout_query.filter(
+            AnalyticsEvent.created_at < end_exclusive
+        )
+
+    checkout_events = (
+        checkout_query
+        .order_by(AnalyticsEvent.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+
+    payment_query = PaymentEvent.query.filter(
+        PaymentEvent.status.in_(PAID_PAYMENT_STATUSES)
+    )
+    if start_date:
+        payment_query = payment_query.filter(
+            PaymentEvent.created_at >= datetime.combine(
+                start_date,
+                datetime.min.time(),
+            )
+        )
+    if end_date:
+        end_exclusive = datetime.combine(
+            end_date + timedelta(days=1),
+            datetime.min.time(),
+        )
+        payment_query = payment_query.filter(
+            PaymentEvent.created_at < end_exclusive
+        )
+
+    payment_events = (
+        payment_query
+        .order_by(PaymentEvent.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+
+    session_variant_map = {}
+    for event in checkout_events:
+        data = _event_data(event)
+        explicit_variant = _normalize_variant(data.get("quiz_variant"))
+        inferred_variant = _infer_variant_from_event(event.event_type, data)
+
+        resolved_variant = explicit_variant
+        if resolved_variant == "default" and inferred_variant in {"a", "b"}:
+            resolved_variant = inferred_variant
+
+        if event.session_id and resolved_variant in {"a", "b"}:
+            session_variant_map[event.session_id] = resolved_variant
+
+    checkout_keys = set()
+    purchase_keys = set()
+
+    for event in checkout_events:
+        data = _event_data(event)
+
+        explicit_variant = _normalize_variant(data.get("quiz_variant"))
+        inferred_variant = _infer_variant_from_event(event.event_type, data)
+
+        quiz_variant = explicit_variant
+        if quiz_variant == "default" and inferred_variant in {"a", "b"}:
+            quiz_variant = inferred_variant
+        if (
+            quiz_variant == "default"
+            and event.session_id in session_variant_map
+        ):
+            quiz_variant = session_variant_map[event.session_id]
+
+        if variant_filter != "all" and quiz_variant != variant_filter:
+            continue
+
+        key = _event_match_key(event, data)
+        if not key:
+            continue
+        checkout_keys.add(key)
+
+    for event in payment_events:
+        quiz_variant = _normalize_variant(event.quiz_variant)
+        if variant_filter != "all" and quiz_variant != variant_filter:
+            continue
+
+        key = _payment_match_key(event)
+        if not key:
+            continue
+        purchase_keys.add(key)
+
+    matched = checkout_keys.intersection(purchase_keys)
+    checkout_without_sale = checkout_keys - purchase_keys
+    sale_without_checkout = purchase_keys - checkout_keys
+
+    return jsonify({
+        "active_variant_filter": variant_filter,
+        "active_date_range": {
+            "start_date": start_date.isoformat() if start_date else None,
+            "end_date": end_date.isoformat() if end_date else None,
+        },
+        "counts": {
+            "checkout_clicks": len(checkout_keys),
+            "sales_confirmed": len(purchase_keys),
+            "matched": len(matched),
+            "checkout_without_sale": len(checkout_without_sale),
+            "sale_without_checkout": len(sale_without_checkout),
+            "reconciliation_rate": _percent(len(matched), len(checkout_keys)),
+        },
+        "samples": {
+            "checkout_without_sale": sorted(checkout_without_sale)[:20],
+            "sale_without_checkout": sorted(sale_without_checkout)[:20],
+        },
+    }), 200
+
+
 def _save_event(data: dict) -> None:
     ua = request.headers.get("User-Agent", "")
     inferred_device, inferred_browser = _infer_from_user_agent(ua)
@@ -408,6 +745,7 @@ def _save_event(data: dict) -> None:
         session_id=data.get("session_id"),
         event_type=data.get("event_type", "unknown"),
         event_data={
+            "journey_id": _coalesce_string(None, data.get("journey_id")),
             "screen_id": screen_id,
             "quiz_variant": normalized_variant,
             "event_value": data.get("event_value"),
@@ -415,6 +753,7 @@ def _save_event(data: dict) -> None:
             "device": resolved_device,
             "browser": resolved_browser,
             "utm_source": normalized_utm_source,
+            "src": _coalesce_string(None, data.get("src")),
             "utm_medium": data.get("utm_medium"),
             "utm_campaign": normalized_utm_campaign,
             "utm_content": data.get("utm_content"),
@@ -573,6 +912,64 @@ def _percent(value: int, total: int) -> float:
     if total <= 0:
         return 0.0
     return round((value / total) * 100, 1)
+
+
+def _normalize_answer_values(value) -> list[str]:
+    if value is None:
+        return []
+
+    if isinstance(value, list):
+        normalized = []
+        for item in value:
+            item_value = _stringify_event_value(item)
+            if item_value:
+                normalized.append(item_value)
+        return normalized
+
+    scalar_value = _stringify_event_value(value)
+    return [scalar_value] if scalar_value else []
+
+
+def _screen_sort_key(screen_id: str) -> tuple[int, int | str]:
+    numeric = _screen_to_index_loose(screen_id)
+    if numeric is None:
+        return (1, screen_id)
+    return (0, numeric)
+
+
+def _event_match_key(
+    event: AnalyticsEvent,
+    data: dict[str, Any],
+) -> str | None:
+    journey_id = _coalesce_string(None, data.get("journey_id"))
+    if journey_id:
+        return f"journey:{journey_id}"
+
+    transaction_id = _coalesce_string(None, data.get("transaction_id"))
+    if transaction_id:
+        return f"tx:{transaction_id}"
+
+    session_id = _coalesce_string(event.session_id, data.get("session_id"))
+    if session_id:
+        return f"session:{session_id}"
+
+    return None
+
+
+def _payment_match_key(event: PaymentEvent) -> str | None:
+    journey_id = _coalesce_string(event.journey_id, None)
+    if journey_id:
+        return f"journey:{journey_id}"
+
+    transaction_id = _coalesce_string(event.provider_transaction_id, None)
+    if transaction_id:
+        return f"tx:{transaction_id}"
+
+    session_id = _coalesce_string(event.session_id, None)
+    if session_id:
+        return f"session:{session_id}"
+
+    return None
 
 
 def _stringify_event_value(value) -> str | None:

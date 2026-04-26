@@ -1,3 +1,10 @@
+import {
+  captureAndStoreAttribution,
+  getAttributionPayload,
+  getCurrentQuizVariant,
+  getOrCreateJourneyId,
+} from './attributionService';
+
 const API_BASE = import.meta.env.VITE_API_URL ?? '/api/v1';
 const ENDPOINT_SINGLE = `${API_BASE}/analytics/event`;
 const ENDPOINT_BATCH = `${API_BASE}/analytics/events`;
@@ -11,6 +18,8 @@ export interface AnalyticsEvent {
   time_on_screen?: number;
   device?: string;
   browser?: string;
+  journey_id?: string;
+  src?: string;
   utm_source?: string;
   utm_medium?: string;
   utm_campaign?: string;
@@ -46,62 +55,22 @@ function getBrowser(): string {
   return 'other';
 }
 
-function getUtmParams(): Record<string, string> {
-  const params = new URLSearchParams(window.location.search);
-  const utm: Record<string, string> = {};
-  for (const key of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term']) {
-    const val = params.get(key);
-    if (val) utm[key] = val;
-  }
-  return utm;
-}
-
-// Persist UTMs captured on entry so they survive navigation
-function getStoredUtms(): Record<string, string> {
-  try {
-    const stored = sessionStorage.getItem('utms');
-    return stored ? JSON.parse(stored) : {};
-  } catch {
-    return {};
-  }
-}
-
 export function captureAndStoreUtms(): void {
-  const utms = getUtmParams();
-  if (Object.keys(utms).length > 0) {
-    sessionStorage.setItem('utms', JSON.stringify(utms));
-  }
-}
-
-function getQuizVariant(): 'a' | 'b' | 'default' {
-  const pathname = window.location.pathname.toLowerCase()
-
-  if (/^\/a\/?$/.test(pathname) || /^\/quiz\/a(?:\/|$)/.test(pathname)) {
-    sessionStorage.setItem('quiz_variant', 'a')
-    return 'a'
-  }
-
-  if (/^\/b\/?$/.test(pathname) || /^\/quiz\/b(?:\/|$)/.test(pathname)) {
-    sessionStorage.setItem('quiz_variant', 'b')
-    return 'b'
-  }
-
-  const stored = sessionStorage.getItem('quiz_variant')
-  if (stored === 'a' || stored === 'b') {
-    return stored
-  }
-
-  return 'default'
+  captureAndStoreAttribution();
 }
 
 function buildEvent(partial: AnalyticsEvent): AnalyticsEvent {
-  const utms = Object.keys(getUtmParams()).length > 0 ? getUtmParams() : getStoredUtms();
+  const attribution = getAttributionPayload();
+  const journeyId = getOrCreateJourneyId();
+  const quizVariant = getCurrentQuizVariant();
+
   return {
     device: getDevice(),
     browser: getBrowser(),
-    quiz_variant: getQuizVariant(),
+    quiz_variant: quizVariant,
+    journey_id: journeyId,
     timestamp: new Date().toISOString(),
-    ...utms,
+    ...attribution,
     ...partial,
   };
 }

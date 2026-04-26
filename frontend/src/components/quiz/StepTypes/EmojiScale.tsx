@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuizStore } from '../../../store/quizStore';
 import { quizService } from '../../../services/quizService';
@@ -15,8 +16,14 @@ const SCALE_LABELS = ['Nada', 'Pouco', 'Moderado', 'Muito', 'Totalmente'];
 
 export function EmojiScale({ step, question, subtitle, onNext }: EmojiScaleProps) {
   const { sessionToken, saveStepResponse } = useQuizStore();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const inFlightRef = useRef(false);
 
   const handleSelect = async (value: number) => {
+    if (inFlightRef.current || isSubmitting) return;
+    inFlightRef.current = true;
+    setIsSubmitting(true);
+
     saveStepResponse(step, value);
     track({ session_id: sessionToken ?? undefined, event_type: 'answer', screen_id: step, event_value: value });
     try {
@@ -24,7 +31,7 @@ export function EmojiScale({ step, question, subtitle, onNext }: EmojiScaleProps
     } catch {
       // continue
     }
-    setTimeout(onNext, 350);
+    onNext();
   };
 
   return (
@@ -50,6 +57,7 @@ export function EmojiScale({ step, question, subtitle, onNext }: EmojiScaleProps
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
               onClick={() => handleSelect(value)}
+              disabled={isSubmitting}
               className="flex flex-col items-center gap-2 p-4 rounded-2xl border-2 border-gray-200 bg-white hover:border-gold-400 hover:bg-gold-50 hover:scale-110 transition-all duration-200 w-[4.5rem]"
             >
               <span className="text-3xl">{emoji}</span>

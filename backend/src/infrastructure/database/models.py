@@ -117,7 +117,24 @@ class PaymentEvent(db.Model):
     status: Mapped[str] = mapped_column(String(50), nullable=False, index=True)  # 'pending', 'completed', 'failed', 'refunded'
     provider: Mapped[str] = mapped_column(String(50), nullable=False)  # 'kiwify', 'stripe', etc.
     provider_transaction_id: Mapped[Optional[str]] = mapped_column(String(255))
-    created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.utcnow)
+    journey_id: Mapped[Optional[str]] = mapped_column(String(120), index=True)
+    session_id: Mapped[Optional[str]] = mapped_column(String(255), index=True)
+    quiz_variant: Mapped[Optional[str]] = mapped_column(String(20), index=True)
+    utm_source: Mapped[Optional[str]] = mapped_column(String(120), index=True)
+    customer_email: Mapped[Optional[str]] = mapped_column(
+        String(255),
+        index=True,
+    )
+    raw_payload: Mapped[Optional[dict]] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP,
+        default=datetime.utcnow,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+    )
 
     def __repr__(self) -> str:
         return f"<PaymentEvent {self.id} - {self.status}>"

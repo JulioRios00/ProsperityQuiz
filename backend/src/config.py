@@ -1,7 +1,6 @@
 """Application configuration."""
 import os
 from datetime import timedelta
-from typing import List
 
 
 class Config:
@@ -21,7 +20,10 @@ class Config:
     SQLALCHEMY_ECHO = False
 
     # JWT
-    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "jwt-secret-key-change-in-production")
+    JWT_SECRET_KEY = os.getenv(
+        "JWT_SECRET_KEY",
+        "jwt-secret-key-change-in-production",
+    )
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     JWT_TOKEN_LOCATION = ["headers"]
@@ -29,7 +31,10 @@ class Config:
     JWT_HEADER_TYPE = "Bearer"
 
     # CORS
-    CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:5173").split(",")
+    CORS_ORIGINS = os.getenv(
+        "CORS_ORIGINS",
+        "http://localhost:3000,http://localhost:5173",
+    ).split(",")
     CORS_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     CORS_ALLOW_HEADERS = ["Content-Type", "Authorization"]
     CORS_SUPPORTS_CREDENTIALS = True
@@ -56,6 +61,7 @@ class Config:
     KIWIFY_API_KEY = os.getenv("KIWIFY_API_KEY", "")
     KIWIFY_PRODUCT_ID = os.getenv("KIWIFY_PRODUCT_ID", "")
     KIWIFY_WEBHOOK_SECRET = os.getenv("KIWIFY_WEBHOOK_SECRET", "")
+    HOTMART_WEBHOOK_SECRET = os.getenv("HOTMART_WEBHOOK_SECRET", "")
 
     # Analytics
     GA4_MEASUREMENT_ID = os.getenv("GA4_MEASUREMENT_ID", "")

@@ -6,7 +6,7 @@ from typing import Any
 from ...shared.exceptions import QuizSessionNotFound
 from ..interfaces.repositories import QuizRepository
 
-TOTAL_STEPS = 16
+TOTAL_STEPS = 17
 
 
 @dataclass
@@ -32,7 +32,9 @@ class SaveStepResponseUseCase:
     def execute(self, input_dto: SaveStepInput) -> SaveStepOutput:
         quiz = self.quiz_repository.find_by_token(input_dto.session_token)
         if not quiz:
-            raise QuizSessionNotFound(f"Sessão não encontrada: {input_dto.session_token}")
+            raise QuizSessionNotFound(
+                f"Sessão não encontrada: {input_dto.session_token}"
+            )
 
         quiz.responses[f"step_{input_dto.step}"] = input_dto.response
         quiz.current_step = input_dto.step

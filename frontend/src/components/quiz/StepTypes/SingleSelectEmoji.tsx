@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuizStore } from '../../../store/quizStore';
 import { quizService } from '../../../services/quizService';
@@ -16,8 +16,12 @@ interface SingleSelectEmojiProps {
 export function SingleSelectEmoji({ step, question, options, onNext, confirmLabel }: SingleSelectEmojiProps) {
   const { sessionToken, saveStepResponse } = useQuizStore();
   const [selected, setSelected] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const inFlightRef = useRef(false);
 
   const handleSelect = async (value: string) => {
+    if (!confirmLabel && (inFlightRef.current || isSubmitting)) return;
+
     track({ session_id: sessionToken ?? undefined, event_type: 'answer', screen_id: step, event_value: value });
     if (confirmLabel) {
       // With confirm button: just highlight, don't advance yet
@@ -26,9 +30,11 @@ export function SingleSelectEmoji({ step, question, options, onNext, confirmLabe
       try { await quizService.saveStep(sessionToken!, step, value); } catch { /* continue */ }
     } else {
       // Auto-advance (original behavior)
+      inFlightRef.current = true;
+      setIsSubmitting(true);
       saveStepResponse(step, value);
       try { await quizService.saveStep(sessionToken!, step, value); } catch { /* continue */ }
-      setTimeout(onNext, 300);
+      onNext();
     }
   };
 
@@ -50,6 +56,7 @@ export function SingleSelectEmoji({ step, question, options, onNext, confirmLabe
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.08 }}
             onClick={() => handleSelect(opt.value)}
+            disabled={isSubmitting}
             className={`flex flex-col items-center gap-2 rounded-2xl p-6 border-2 transition-all duration-200 ${
               selected === opt.value
                 ? 'border-gold-500 bg-gold-50 shadow-md'

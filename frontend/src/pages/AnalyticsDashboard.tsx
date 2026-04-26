@@ -5,7 +5,11 @@ import {
   type ReactNode,
 } from 'react'
 import {
+  type AnswerAnalyticsData,
+  type AnalyticsReconciliationData,
   type AnalyticsDashboardData,
+  getAnswerAnalytics,
+  getAnalyticsReconciliation,
   getAnalyticsDashboard,
 } from '../services/analyticsDashboardService'
 
@@ -44,8 +48,12 @@ function toInputDate(value: Date): string {
 
 export default function AnalyticsDashboard() {
   const [data, setData] = useState<AnalyticsDashboardData | null>(null)
+  const [answerData, setAnswerData] = useState<AnswerAnalyticsData | null>(null)
+  const [reconciliation, setReconciliation] =
+    useState<AnalyticsReconciliationData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'overview' | 'answers'>('overview')
   const [isUnlocked, setIsUnlocked] = useState(false)
   const [accessKey, setAccessKey] = useState('')
   const [loginEmail, setLoginEmail] = useState('')
@@ -102,14 +110,30 @@ export default function AnalyticsDashboard() {
     try {
       setLoading(true)
       setError(null)
-      const response = await getAnalyticsDashboard(
-        10000,
-        50,
-        variantFilter,
-        appliedStartDate || undefined,
-        appliedEndDate || undefined,
-      )
-      setData(response)
+      const [dashboardResponse, answersResponse, reconciliationResponse] = await Promise.all([
+        getAnalyticsDashboard(
+          10000,
+          50,
+          variantFilter,
+          appliedStartDate || undefined,
+          appliedEndDate || undefined,
+        ),
+        getAnswerAnalytics(
+          10000,
+          variantFilter,
+          appliedStartDate || undefined,
+          appliedEndDate || undefined,
+        ),
+        getAnalyticsReconciliation(
+          variantFilter,
+          appliedStartDate || undefined,
+          appliedEndDate || undefined,
+        ),
+      ])
+
+      setData(dashboardResponse)
+      setAnswerData(answersResponse)
+      setReconciliation(reconciliationResponse)
     } catch {
       setError('Não foi possível carregar os dados de analytics.')
     } finally {
@@ -434,133 +458,292 @@ export default function AnalyticsDashboard() {
           </div>
         )}
 
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          <KpiCard
-            label="Taxa de conclusão"
-            value={data ? percentFormat(data.summary.completion_rate) : '0.0%'}
-            tone="amber"
-          />
-          <KpiCard
-            label="Visitas"
-            value={data ? numberFormat(data.summary.visits) : '0'}
-            tone="neutral"
-          />
-          <KpiCard
-            label="Respostas iniciadas"
-            value={data ? numberFormat(data.summary.answers_started) : '0'}
-            tone="neutral"
-          />
-          <KpiCard
-            label="Média Etapas"
-            value={
-              data
-                ? averageStepsFormat(
-                  data.summary.average_steps,
-                  data.summary.total_steps,
-                )
-                : '0/44'
-            }
-            tone="neutral"
-          />
-          <KpiCard
-            label="Leads (email)"
-            value={data ? numberFormat(data.summary.leads_emails) : '0'}
-            tone="green"
-          />
-        </section>
+        <div className="rounded-xl border border-gold-400/20 bg-white p-2 shadow-sm">
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                activeTab === 'overview'
+                  ? 'bg-gold-500 text-white'
+                  : 'bg-cream-50 text-gray-700 hover:bg-gold-50'
+              }`}
+            >
+              Visão geral
+            </button>
+            <button
+              onClick={() => setActiveTab('answers')}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                activeTab === 'answers'
+                  ? 'bg-gold-500 text-white'
+                  : 'bg-cream-50 text-gray-700 hover:bg-gold-50'
+              }`}
+            >
+              Respostas por pergunta
+            </button>
+          </div>
+        </div>
 
-        <section className="grid gap-6 lg:grid-cols-2">
-          <Panel title="Desempenho">
-            <div className="mb-4 grid grid-cols-2 gap-3 text-sm md:grid-cols-3">
-              <MetricCell
+        {activeTab === 'overview' ? (
+          <>
+            <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+              <KpiCard
                 label="Taxa de conclusão"
+                value={data ? percentFormat(data.summary.completion_rate) : '0.0%'}
+                tone="amber"
+              />
+              <KpiCard
+                label="Visitas"
+                value={data ? numberFormat(data.summary.visits) : '0'}
+                tone="neutral"
+              />
+              <KpiCard
+                label="Respostas iniciadas"
+                value={data ? numberFormat(data.summary.answers_started) : '0'}
+                tone="neutral"
+              />
+              <KpiCard
+                label="Média Etapas"
                 value={
                   data
-                    ? percentFormat(data.performance.completion_rate)
-                    : '0.0%'
+                    ? averageStepsFormat(
+                      data.summary.average_steps,
+                      data.summary.total_steps,
+                    )
+                    : '0/44'
                 }
+                tone="neutral"
               />
-              <MetricCell
-                label="Total de conclusões"
-                value={
-                  data ? numberFormat(data.performance.total_conclusions) : '0'
-                }
+              <KpiCard
+                label="Leads (email)"
+                value={data ? numberFormat(data.summary.leads_emails) : '0'}
+                tone="green"
               />
-            </div>
+            </section>
 
-            <FunnelBars
-              visitors={data?.performance.visitors ?? 0}
-              responses={data?.performance.responses ?? 0}
-              leads={data?.performance.leads ?? 0}
-              conclusions={data?.performance.conclusions ?? 0}
-            />
-          </Panel>
+            <Panel title="Conciliação Checkout x Venda (server-side)">
+              <div className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
+                <MetricCell
+                  label="Checkouts"
+                  value={numberFormat(reconciliation?.counts.checkout_clicks ?? 0)}
+                />
+                <MetricCell
+                  label="Vendas confirmadas"
+                  value={numberFormat(reconciliation?.counts.sales_confirmed ?? 0)}
+                  accent="text-emerald-600"
+                />
+                <MetricCell
+                  label="Taxa de conciliação"
+                  value={percentFormat(reconciliation?.counts.reconciliation_rate ?? 0)}
+                  accent="text-gold-600"
+                />
+                <MetricCell
+                  label="Checkout sem venda"
+                  value={numberFormat(reconciliation?.counts.checkout_without_sale ?? 0)}
+                  accent="text-rose-600"
+                />
+                <MetricCell
+                  label="Venda sem checkout"
+                  value={numberFormat(reconciliation?.counts.sale_without_checkout ?? 0)}
+                  accent="text-rose-600"
+                />
+                <MetricCell
+                  label="Pareamentos"
+                  value={numberFormat(reconciliation?.counts.matched ?? 0)}
+                />
+              </div>
+            </Panel>
 
-          <Panel title="Tráfego">
-            <div className="mb-4 grid grid-cols-2 gap-4 text-sm">
-              <MetricCell
-                label="Taxa de interação"
-                value={
-                  data ? percentFormat(data.traffic.interaction_rate) : '0.0%'
-                }
-                accent="text-emerald-400"
-              />
-              <MetricCell
-                label="Taxa de rejeição"
-                value={data ? percentFormat(data.traffic.bounce_rate) : '0.0%'}
-                accent="text-red-400"
-              />
-            </div>
-            <TrafficChart data={data?.traffic.timeline ?? []} />
-          </Panel>
-        </section>
+            <section className="grid gap-6 lg:grid-cols-2">
+              <Panel title="Desempenho">
+                <div className="mb-4 grid grid-cols-2 gap-3 text-sm md:grid-cols-3">
+                  <MetricCell
+                    label="Taxa de conclusão"
+                    value={
+                      data
+                        ? percentFormat(data.performance.completion_rate)
+                        : '0.0%'
+                    }
+                  />
+                  <MetricCell
+                    label="Total de conclusões"
+                    value={
+                      data ? numberFormat(data.performance.total_conclusions) : '0'
+                    }
+                  />
+                </div>
 
-        <section className="grid gap-6 lg:grid-cols-2">
-          <Panel title="Campanhas">
-            <div className="mb-4 grid grid-cols-2 gap-3 text-sm">
-              <MetricCell
-                label="Total rastreado"
-                value={data ? numberFormat(data.campaigns.total_tracked) : '0'}
-              />
-              <MetricCell
-                label="Melhor origem"
-                value={data?.campaigns.best_source || '—'}
-              />
-            </div>
-            <SimpleList
-              items={data?.campaigns.sources.map((item) => ({
-                label: item.utm_source,
-                value: item.count,
-              })) ?? []}
-              emptyLabel="Nenhuma campanha rastreada"
-            />
-          </Panel>
+                <FunnelBars
+                  visitors={data?.performance.visitors ?? 0}
+                  responses={data?.performance.responses ?? 0}
+                  leads={data?.performance.leads ?? 0}
+                  conclusions={data?.performance.conclusions ?? 0}
+                />
+              </Panel>
 
-          <Panel title="Dispositivos">
-            <div className="mb-4 grid grid-cols-2 gap-3 text-sm">
-              <MetricCell
-                label="Mais usado"
-                value={data?.devices_summary.most_used || '—'}
-              />
-              <MetricCell
-                label="Total"
-                value={data ? numberFormat(data.devices_summary.total) : '0'}
-              />
-            </div>
-            <SimpleList
-              items={data?.devices.map((item) => ({
-                label: item.device,
-                value: item.count,
-              })) ?? []}
-            />
-          </Panel>
-        </section>
+              <Panel title="Tráfego">
+                <div className="mb-4 grid grid-cols-2 gap-4 text-sm">
+                  <MetricCell
+                    label="Taxa de interação"
+                    value={
+                      data ? percentFormat(data.traffic.interaction_rate) : '0.0%'
+                    }
+                    accent="text-emerald-400"
+                  />
+                  <MetricCell
+                    label="Taxa de rejeição"
+                    value={data ? percentFormat(data.traffic.bounce_rate) : '0.0%'}
+                    accent="text-red-400"
+                  />
+                </div>
+                <TrafficChart data={data?.traffic.timeline ?? []} />
+              </Panel>
+            </section>
 
-        <Panel title="Retenção por Tela">
-          <RetentionChart data={data?.screen_retention ?? []} />
-        </Panel>
+            <section className="grid gap-6 lg:grid-cols-2">
+              <Panel title="Campanhas">
+                <div className="mb-4 grid grid-cols-2 gap-3 text-sm">
+                  <MetricCell
+                    label="Total rastreado"
+                    value={data ? numberFormat(data.campaigns.total_tracked) : '0'}
+                  />
+                  <MetricCell
+                    label="Melhor origem"
+                    value={data?.campaigns.best_source || '—'}
+                  />
+                </div>
+                <SimpleList
+                  items={data?.campaigns.sources.map((item) => ({
+                    label: item.utm_source,
+                    value: item.count,
+                  })) ?? []}
+                  emptyLabel="Nenhuma campanha rastreada"
+                />
+              </Panel>
 
+              <Panel title="Dispositivos">
+                <div className="mb-4 grid grid-cols-2 gap-3 text-sm">
+                  <MetricCell
+                    label="Mais usado"
+                    value={data?.devices_summary.most_used || '—'}
+                  />
+                  <MetricCell
+                    label="Total"
+                    value={data ? numberFormat(data.devices_summary.total) : '0'}
+                  />
+                </div>
+                <SimpleList
+                  items={data?.devices.map((item) => ({
+                    label: item.device,
+                    value: item.count,
+                  })) ?? []}
+                />
+              </Panel>
+            </section>
+
+            <Panel title="Retenção por Tela">
+              <RetentionChart data={data?.screen_retention ?? []} />
+            </Panel>
+          </>
+        ) : (
+          <AnswerAnalyticsTab data={answerData} />
+        )}
       </div>
+    </div>
+  )
+}
+
+function AnswerAnalyticsTab({ data }: { data: AnswerAnalyticsData | null }) {
+  if (!data || data.variants.length === 0) {
+    return (
+      <Panel title="Respostas por pergunta">
+        <p className="text-sm text-gray-500">
+          Sem dados de respostas para o filtro selecionado.
+        </p>
+      </Panel>
+    )
+  }
+
+  return (
+    <section className="space-y-6">
+      {data.variants.map((variant) => (
+        <Panel
+          key={variant.quiz_variant}
+          title={`Quiz ${variant.quiz_variant.toUpperCase()} — Respostas`}
+        >
+          {variant.questions.length === 0 ? (
+            <p className="text-sm text-gray-500">Sem respostas para este quiz.</p>
+          ) : (
+            <div className="space-y-3">
+              {variant.questions.map((question) => (
+                <div
+                  key={`${variant.quiz_variant}-${question.screen_id}`}
+                  className="rounded-lg border border-gray-200 bg-cream-50/40 p-3"
+                >
+                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-gold-700">
+                      Pergunta {question.screen_id}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {numberFormat(question.total_answers)} respostas
+                    </p>
+                  </div>
+
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <AnswerStatCard
+                      title="Mais selecionada"
+                      stat={question.most_selected}
+                      tone="green"
+                    />
+                    <AnswerStatCard
+                      title="Menos selecionada"
+                      stat={question.least_selected}
+                      tone="red"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Panel>
+      ))}
+    </section>
+  )
+}
+
+function AnswerStatCard({
+  title,
+  stat,
+  tone,
+}: {
+  title: string
+  stat: {
+    value: string
+    count: number
+    percentage: number
+  } | null
+  tone: 'green' | 'red'
+}) {
+  const colorClasses =
+    tone === 'green'
+      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+      : 'border-rose-200 bg-rose-50 text-rose-700'
+
+  if (!stat) {
+    return (
+      <div className={`rounded-lg border px-3 py-2 ${colorClasses}`}>
+        <p className="text-xs uppercase tracking-wide">{title}</p>
+        <p className="mt-1 text-sm font-medium">Sem dados</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className={`rounded-lg border px-3 py-2 ${colorClasses}`}>
+      <p className="text-xs uppercase tracking-wide">{title}</p>
+      <p className="mt-1 truncate text-sm font-semibold">{stat.value}</p>
+      <p className="text-xs">
+        {numberFormat(stat.count)} respostas • {percentFormat(stat.percentage)}
+      </p>
     </div>
   )
 }

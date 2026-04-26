@@ -37,6 +37,7 @@ export function QuizFlow({ config, returnPath = '/' }: QuizFlowProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const stepStartRef = useRef<number>(Date.now());
+  const completionTrackedRef = useRef(false);
 
   useEffect(() => {
     if (!sessionToken) {
@@ -97,6 +98,28 @@ export function QuizFlow({ config, returnPath = '/' }: QuizFlowProps) {
       document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, [sessionToken, currentStep]);
+
+  useEffect(() => {
+    if (!sessionToken || currentStep === 0) return;
+    const totalSteps = config.length;
+    if (currentStep < totalSteps) return;
+
+    if (completionTrackedRef.current) return;
+
+    const completionKey = `quiz_completed:${sessionToken}`;
+    if (sessionStorage.getItem(completionKey) === '1') {
+      completionTrackedRef.current = true;
+      return;
+    }
+
+    completionTrackedRef.current = true;
+    sessionStorage.setItem(completionKey, '1');
+    track({
+      session_id: sessionToken,
+      event_type: 'quiz_completed',
+      screen_id: currentStep,
+    });
+  }, [config.length, currentStep, sessionToken]);
 
   if (!sessionToken || currentStep === 0) return null;
 

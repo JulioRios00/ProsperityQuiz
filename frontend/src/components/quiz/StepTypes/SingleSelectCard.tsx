@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useQuizStore } from '../../../store/quizStore';
 import { quizService } from '../../../services/quizService';
@@ -14,8 +15,14 @@ interface SingleSelectCardProps {
 
 export function SingleSelectCard({ step, question, subtitle, options, onNext }: SingleSelectCardProps) {
   const { sessionToken, saveStepResponse } = useQuizStore();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const inFlightRef = useRef(false);
 
   const handleSelect = async (value: string) => {
+    if (inFlightRef.current || isSubmitting) return;
+    inFlightRef.current = true;
+    setIsSubmitting(true);
+
     saveStepResponse(step, value);
     track({ session_id: sessionToken ?? undefined, event_type: 'answer', screen_id: step, event_value: value });
     try {
@@ -23,7 +30,7 @@ export function SingleSelectCard({ step, question, subtitle, options, onNext }: 
     } catch {
       // continue — local state is saved
     }
-    setTimeout(onNext, 300);
+    onNext();
   };
 
   return (
@@ -47,6 +54,7 @@ export function SingleSelectCard({ step, question, subtitle, options, onNext }: 
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: i * 0.08 }}
             onClick={() => handleSelect(opt.value)}
+            disabled={isSubmitting}
             className="group flex items-center w-full bg-white border border-gray-200 rounded-xl text-left shadow-sm hover:border-gold-400 hover:shadow-md hover:bg-gold-50 transition-all duration-200 overflow-hidden"
             style={{ borderRadius: '12px' }}
           >
